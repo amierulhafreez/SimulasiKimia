@@ -8,12 +8,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 6: Asid, Bes dan Garam',
     category: 'Asid, Bes & Garam',
-    description: 'Tentukan takat akhir pentitratan asid hidroklorik dengan natrium hidroksida menggunakan penunjuk fenolftalein secara titis demi titis.',
-    learningStandard: 'SP 6.6.2 - Menentukan kepekatan larutan melalui kaedah pentitratan',
+    description: 'Titrat asid nitrik HNO₃ 1.0 mol dm⁻³ ke dalam 25.0 cm³ larutan KOH 1.0 mol dm⁻³ (Rajah 6.32) dengan pilihan penunjuk fenolftalein atau metil jingga.',
+    learningStandard: 'SP 6.7.2 & 6.7.3 - Menentukan isi padu takat akhir pentitratan & kepekatan larutan melalui kaedah peneutralan',
     iconName: 'FlaskConical',
     colorTheme: 'purple',
     isImplemented: true,
-    tags: ['Buret', 'Takat Akhir', 'Fenolftalein', 'Pengiraan M1V1=M2V2']
+    tags: ['Buret', 'Takat Akhir', 'Fenolftalein', 'Metil Jingga', 'Jubin Putih']
   },
   {
     id: 'ujian-gas',
