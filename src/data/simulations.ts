@@ -21,12 +21,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 6: Asid, Bes dan Garam',
     category: 'Asid, Bes & Garam',
-    description: 'Kenal pasti 5 gas utama SPM (O₂, H₂, CO₂, Cl₂, NH₃) menggunakan kayu uji menyala/berbara, air kapur dan kertas litmus.',
-    learningStandard: 'SP 6.9.1 - Menjalankan eksperimen untuk mengenal pasti gas',
+    description: 'Uji dan kenal pasti kesemua 8 gas buku teks (O₂, H₂, CO₂, NH₃, Cl₂, HCl, SO₂, NO₂) menggunakan makmal maya seret dan lepas (drag & drop).',
+    learningStandard: 'SP 6.10.1 - Memerihalkan ujian untuk mengenal pasti gas (Aktiviti 6.26)',
     iconName: 'Flame',
     colorTheme: 'cyan',
     isImplemented: true,
-    tags: ['Kayu Uji', 'Air Kapur', 'Litmus', 'Bunyi Pop']
+    tags: ['8 Gas KSSM', 'Drag & Drop', 'Air Kapur', 'Litmus', 'KMnO₄']
   },
   {
     id: 'pemanasan-dan-penyejukkan-naftalena',
