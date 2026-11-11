@@ -147,13 +147,13 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-6xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden">
         
         {/* Header Modal */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
           <div className="flex items-center gap-3">
-            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
               simulation.form === 'Tingkatan 4' 
                 ? 'bg-purple-100 text-purple-800 border border-purple-200' 
                 : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
@@ -161,7 +161,7 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
               {simulation.form}
             </span>
             <div>
-              <h3 className="font-display font-bold text-lg text-slate-900">
+              <h3 className="font-display font-bold text-base sm:text-lg text-slate-900 leading-tight">
                 {simulation.title}
               </h3>
               <p className="text-xs text-slate-500 font-medium">{simulation.chapter}</p>
@@ -170,14 +170,14 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
 
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition border border-slate-300"
+            className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition border border-slate-300 cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-6 overflow-y-auto space-y-6 bg-[#fcfdff]">
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 bg-[#fcfdff]">
           {renderSimulationContent()}
         </div>
 
