@@ -34,12 +34,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 2: Jirim dan Struktur Atom',
     category: 'Jirim & Struktur Atom',
-    description: 'Perhatikan graf suhu melawan masa, tentukan takat lebur & takat beku naftalena (80°C) serta fasa perubahan zarah.',
+    description: 'Simulasi Aktiviti 2.2 (Rajah 2.4–2.7): perhatikan kukus air, kelalang kon, gerakan zarah pepejal/cecair serta lengkung pemanasan & penyejukan naftalena (80.0 °C).',
     learningStandard: 'SP 2.1.3 - Menentukan takat lebur dan takat beku naftalena melalui eksperimen',
     iconName: 'Thermometer',
     colorTheme: 'rose',
     isImplemented: true,
-    tags: ['Kukus Air', 'Takat Lebur', 'Plato Suhu', 'Zarah Kinetik']
+    tags: ['Kukus Air', 'Kelalang Kon', 'Takat Lebur 80°C', 'Zarah Kinetik']
   },
   {
     id: 'penyeimbangan-persamaan-kimia',
