@@ -15,6 +15,13 @@ import { SaltSolubilityLab } from '../simulations/SaltSolubilityLab';
 import { CovalentFormulaLab } from '../simulations/CovalentFormulaLab';
 import { SoapMakingLab } from '../simulations/SoapMakingLab';
 import { IntermolecularForcesLab } from '../simulations/IntermolecularForcesLab';
+import { StandardSolutionLab } from '../simulations/StandardSolutionLab';
+import { RateOfReactionSizeLab } from '../simulations/RateOfReactionSizeLab';
+import { StatesOfMatterLab } from '../simulations/StatesOfMatterLab';
+import { IronExtractionLab } from '../simulations/IronExtractionLab';
+import { AluminumExtractionLab } from '../simulations/AluminumExtractionLab';
+import { HeatOfCombustionLab } from '../simulations/HeatOfCombustionLab';
+import { FuelValueLab } from '../simulations/FuelValueLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -70,6 +77,20 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <SoapMakingLab />;
       case 'daya-tarikan-zarah':
         return <IntermolecularForcesLab />;
+      case 'penyediaan-larutan-piawai':
+        return <StandardSolutionLab />;
+      case 'kadar-tindak-balas-saiz':
+        return <RateOfReactionSizeLab />;
+      case 'keadaan-zarah-jirim':
+        return <StatesOfMatterLab />;
+      case 'pengekstrakan-besi':
+        return <IronExtractionLab />;
+      case 'pengekstrakan-aluminium':
+        return <AluminumExtractionLab />;
+      case 'haba-pembakaran':
+        return <HeatOfCombustionLab />;
+      case 'nilai-bahan-api':
+        return <FuelValueLab />;
       default:
         return (
           <div className="space-y-6">

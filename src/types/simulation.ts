@@ -5,6 +5,7 @@ export type SimulationCategory =
   | 'Ikatan Kimia'
   | 'Jadual Berkala'
   | 'Asid, Bes & Garam'
+  | 'Kadar Tindak Balas'
   | 'Elektrokimia'
   | 'Termokimia'
   | 'Kimia Karbon'

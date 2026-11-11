@@ -94,19 +94,6 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['Perkongsian Elektron', 'Oktet', 'Struktur Lewis']
   },
   {
-    id: 'elektrolisis',
-    title: 'Elektrolisis Larutan Akues',
-    form: 'Tingkatan 4',
-    chapter: 'Bab 6: Elektrokimia',
-    category: 'Elektrokimia',
-    description: 'Kaji pemilihan ion untuk dinyahcas pada anod dan katod berdasarkan nilai E⁰ (keupayaan elektrod piawai) dan kepekatan.',
-    learningStandard: 'SP 6.1.2 - Menerangkan elektrolisis sebatian lebur dan akues',
-    iconName: 'BatteryCharging',
-    colorTheme: 'blue',
-    isImplemented: true,
-    tags: ['Anod', 'Katod', 'Siri Elektrokimia', 'E⁰ Piawai']
-  },
-  {
     id: 'keterlarutan-garam',
     title: 'Keterlarutan Garam Dalam Air',
     form: 'Tingkatan 4',
@@ -158,8 +145,86 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     isImplemented: true,
     tags: ['Ikatan Hidrogen', 'Van der Waals', 'Takat Didih']
   },
+  {
+    id: 'penyediaan-larutan-piawai',
+    title: 'Penyediaan & Pencairan Larutan Piawai',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 6: Asid, Bes dan Garam',
+    category: 'Asid, Bes & Garam',
+    description: 'Sediakan larutan piawai natrium karbonat 1.0 mol dm⁻³ daripada pepejal (Aktiviti 6.7) dan lakukan pencairan kepada 0.2 mol dm⁻³ (Aktiviti 6.8) mengikut langkah tepat Rajah 6.27 & 6.29.',
+    learningStandard: 'SP 6.6.1 & 6.6.2 - Menyediakan larutan piawai daripada bahan pepejal dan kaedah pencairan (M₁V₁ = M₂V₂)',
+    iconName: 'Beaker',
+    colorTheme: 'blue',
+    isImplemented: true,
+    tags: ['Na₂CO₃', 'Kelalang Volumetrik', 'Senggatan Meniskus', 'M₁V₁ = M₂V₂']
+  },
+  {
+    id: 'kadar-tindak-balas-saiz',
+    title: 'Kadar Tindak Balas: Faktor Saiz Bahan',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 7: Kadar Tindak Balas',
+    category: 'Kadar Tindak Balas',
+    description: 'Bandingkan tindak balas ketulan besar vs serbuk kalsium karbonat (CaCO₃) dengan asid hidroklorik cair menggunakan buret sesaran air (Rajah 7.12) setiap 30 saat.',
+    learningStandard: 'SP 7.2.1 - Mengkaji kesan saiz bahan tindak balas terhadap kadar tindak balas',
+    iconName: 'Timer',
+    colorTheme: 'amber',
+    isImplemented: true,
+    tags: ['CaCO₃ + HCl', 'Sesaran Air Buret', 'Graf Isi Padu Gas', 'Luas Permukaan']
+  },
+  {
+    id: 'keadaan-zarah-jirim',
+    title: 'Keadaan Zarah: Perubahan Keadaan Fizikal',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 2: Jirim dan Struktur Atom',
+    category: 'Jirim & Struktur Atom',
+    description: 'Terokai susunan, pergerakan dan tenaga kinetik zarah dalam keadaan pepejal, cecair dan gas serta 6 proses perubahan fizikal (Rajah 2.2).',
+    learningStandard: 'SP 2.1.1 - Menghuraikan perubahan keadaan fizikal jirim berdasarkan teori kinetik jirim',
+    iconName: 'Boxes',
+    colorTheme: 'cyan',
+    isImplemented: true,
+    tags: ['Pepejal', 'Cecair', 'Gas', 'Pemejalwapan', 'Haba Diserap/Dibebas']
+  },
 
   // ================= TINGKATAN 5 =================
+  {
+    id: 'elektrolisis',
+    title: 'Elektrolisis Leburan & Larutan Akueus',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Kaji pemilihan ion untuk dinyahcas pada anod dan katod berdasarkan nilai E⁰ (keupayaan elektrod piawai), kepekatan dan jenis elektrod.',
+    learningStandard: 'SP 1.4.2 - Membandingkan elektrolisis sebatian lebur dan larutan akueus',
+    iconName: 'BatteryCharging',
+    colorTheme: 'blue',
+    isImplemented: true,
+    tags: ['Anod', 'Katod', 'Siri Elektrokimia', 'E⁰ Piawai']
+  },
+  {
+    id: 'pengekstrakan-besi',
+    title: 'Pengekstrakan Besi daripada Bijihnya',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Simulasi interaktif Relau Bagas (Rajah 1.38): pelajari 3 zon suhu, tindak balas penurunan hematit (Fe₂O₃) oleh karbon monoksida dan pembentukan sanga daripada batu kapur.',
+    learningStandard: 'SP 1.5.2 - Menerangkan pengekstrakan logam daripada bijihnya menggunakan karbon dalam relau bagas',
+    iconName: 'Factory',
+    colorTheme: 'orange',
+    isImplemented: true,
+    tags: ['Hematit (Fe₂O₃)', 'Relau Bagas', 'Arang Kok', 'Batu Kapur', 'Sanga']
+  },
+  {
+    id: 'pengekstrakan-aluminium',
+    title: 'Pengekstrakan Aluminium daripada Bauksit',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Sel elektrolisis leburan alumina dan kriolit (Rajah 1.37): perhatikan pergerakan ion Al³⁺ & O²⁻, peranan kriolit (950 °C), hakisan anod karbon (CO₂) dan penjimatan tenaga kitar semula 95%.',
+    learningStandard: 'SP 1.5.1 - Menerangkan pengekstrakan logam reaktif (aluminium) melalui elektrolisis',
+    iconName: 'Zap',
+    colorTheme: 'indigo',
+    isImplemented: true,
+    tags: ['Bauksit (Al₂O₃)', 'Kriolit (Na₃AlF₆)', 'Anod Karbon', 'Kitar Semula 95%']
+  },
   {
     id: 'penggumpalan-lateks',
     title: 'Penggumpalan Lateks & Pencegahannya',
@@ -224,5 +289,31 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     colorTheme: 'red',
     isImplemented: true,
     tags: ['ΔH Penyesaran', 'Cawan Polistirena', 'Kenaikan Suhu', 'Eksotermik']
+  },
+  {
+    id: 'haba-pembakaran',
+    title: 'Termokimia: Haba Pembakaran Alkohol',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 3: Termokimia',
+    category: 'Termokimia',
+    description: 'Jalankan Eksperimen 3B (Rajah 3.13) menggunakan bekas kuprum & pengadang angin untuk menentukan ΔH pembakaran metanol, etanol, propanol & butanol serta plot graf Rajah 3.14.',
+    learningStandard: 'SP 3.2.2 - Membandingkan haba pembakaran pelbagai jenis alkohol melalui eksperimen',
+    iconName: 'Flame',
+    colorTheme: 'orange',
+    isImplemented: true,
+    tags: ['Metanol', 'Etanol', 'Propanol', 'Bekas Kuprum', 'Graf Rajah 3.14']
+  },
+  {
+    id: 'nilai-bahan-api',
+    title: 'Nilai Bahan Api: Etanol, Petrol & Hidrogen',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 3: Termokimia',
+    category: 'Termokimia',
+    description: 'Bandingkan nilai bahan api (kJ g⁻¹) bagi etanol, petrol, gas asli dan cecair hidrogen (Jadual 3.5/3.6), kira nilai bahan api dan kaji faktor pemilihan Rajah 3.15.',
+    learningStandard: 'SP 3.3.1 - Membandingkan nilai bahan api dan mewajarkan pemilihan bahan api yang sesuai',
+    iconName: 'Fuel',
+    colorTheme: 'emerald',
+    isImplemented: true,
+    tags: ['kJ g⁻¹', 'Etanol 30', 'Petrol 34', 'Hidrogen 143', 'Rajah 3.15']
   }
 ];

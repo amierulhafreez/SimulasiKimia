@@ -22,7 +22,14 @@ const DEFAULT_ANALYTICS: SimulationAnalytics = {
     'penentuan-isomer': { views: 275, clicks: 760, completed: 170 },
     'formula-struktur-karbon': { views: 290, clicks: 810, completed: 185 },
     'penghasilan-sabun': { views: 240, clicks: 630, completed: 155 },
-    'haba-penyesaran': { views: 315, clicks: 840, completed: 190 }
+    'haba-penyesaran': { views: 315, clicks: 840, completed: 190 },
+    'penyediaan-larutan-piawai': { views: 210, clicks: 540, completed: 145 },
+    'kadar-tindak-balas-saiz': { views: 235, clicks: 620, completed: 165 },
+    'keadaan-zarah-jirim': { views: 265, clicks: 710, completed: 195 },
+    'pengekstrakan-besi': { views: 195, clicks: 510, completed: 135 },
+    'pengekstrakan-aluminium': { views: 205, clicks: 530, completed: 140 },
+    'haba-pembakaran': { views: 250, clicks: 680, completed: 175 },
+    'nilai-bahan-api': { views: 220, clicks: 590, completed: 155 }
   }
 };
 
@@ -33,7 +40,14 @@ class AnalyticsService {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored) as SimulationAnalytics;
+        return {
+          totalHomeVisits: parsed.totalHomeVisits ?? DEFAULT_ANALYTICS.totalHomeVisits,
+          simulations: {
+            ...DEFAULT_ANALYTICS.simulations,
+            ...(parsed.simulations || {}),
+          },
+        };
       }
     } catch {
       // Fallback

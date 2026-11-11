@@ -19,6 +19,11 @@ import {
   Share2, 
   Sparkles, 
   FlameKindling,
+  Timer,
+  Fuel,
+  Factory,
+  Boxes,
+  Beaker,
   Eye,
   CheckCircle2
 } from 'lucide-react';
@@ -49,6 +54,11 @@ const renderIcon = (name: string, className: string) => {
     case 'Share2': return <Share2 className={className} />;
     case 'Sparkles': return <Sparkles className={className} />;
     case 'FlameKindling': return <FlameKindling className={className} />;
+    case 'Timer': return <Timer className={className} />;
+    case 'Fuel': return <Fuel className={className} />;
+    case 'Factory': return <Factory className={className} />;
+    case 'Boxes': return <Boxes className={className} />;
+    case 'Beaker': return <Beaker className={className} />;
     default: return <FlaskConical className={className} />;
   }
 };
