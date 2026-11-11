@@ -47,12 +47,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 3: Konsep Mol, Formula dan Persamaan Kimia',
     category: 'Jirim & Struktur Atom',
-    description: 'Modul interaktif mengimbangi pekali stoikiometri bahan tindak balas dan hasil tindak balas dengan visual atom zarah.',
-    learningStandard: 'SP 3.4.1 - Membina dan mengimbangkan persamaan kimia',
+    description: 'Seimbangkan 7 persamaan kimia buku teks mengikut aras kesukaran meningkat dengan menaip atau klik pekali, serta jana analisis kualitatif dan kuantitatif (SP 3.4.2).',
+    learningStandard: 'SP 3.4.1 & 3.4.2 - Mengimbangkan persamaan kimia dan mentafsirkannya secara kualitatif & kuantitatif',
     iconName: 'Scale',
     colorTheme: 'amber',
     isImplemented: true,
-    tags: ['Stoikiometri', 'Pekali', 'Hukum Keabadian Jisim']
+    tags: ['7 Persamaan KSSM', 'Stoikiometri', 'Analisis Kualitatif', 'Analisis Kuantitatif']
   },
   {
     id: 'penghasilan-formula-kimia',
