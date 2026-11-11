@@ -13,6 +13,7 @@ import { CarbonIsomersLab } from '../simulations/CarbonIsomersLab';
 import { ReactivityLab } from '../simulations/ReactivityLab';
 import { SaltSolubilityLab } from '../simulations/SaltSolubilityLab';
 import { CovalentFormulaLab } from '../simulations/CovalentFormulaLab';
+import { IonicFormulaLab } from '../simulations/IonicFormulaLab';
 import { SoapMakingLab } from '../simulations/SoapMakingLab';
 import { IntermolecularForcesLab } from '../simulations/IntermolecularForcesLab';
 import { StandardSolutionLab } from '../simulations/StandardSolutionLab';
@@ -69,8 +70,9 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
       case 'kereaktifan-k1-dan-k17':
         return <ReactivityLab />;
       case 'penghasilan-sebatian-kovalen':
-      case 'penghasilan-formula-kimia':
         return <CovalentFormulaLab />;
+      case 'penghasilan-formula-kimia':
+        return <IonicFormulaLab />;
       case 'haba-penyesaran':
         return <ThermochemistryLab />;
       case 'penghasilan-sabun':

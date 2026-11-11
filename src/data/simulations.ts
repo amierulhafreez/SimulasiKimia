@@ -56,16 +56,16 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
   },
   {
     id: 'penghasilan-formula-kimia',
-    title: 'Penghasilan Formula Kimia (Garam & Oksida)',
+    title: 'Penghasilan Formula Kimia Sebatian Ion',
     form: 'Tingkatan 4',
     chapter: 'Bab 3: Konsep Mol, Formula dan Persamaan Kimia',
     category: 'Jirim & Struktur Atom',
-    description: 'Simulasi menentukan formula empirik magnesium oksida (mangkuk pijar) dan kuprum(II) oksida dengan gas hidrogen.',
-    learningStandard: 'SP 3.3.2 - Menentukan formula empirik magnesium oksida',
+    description: 'Seret dan lepas semua 12 kation dan 12 anion (Jadual 3.7 KSSM) untuk membina formula kimia sebatian ion berserta kaedah silang, kad ion dan penerangan.',
+    learningStandard: 'SP 3.3.5 - Membina formula kimia sebatian',
     iconName: 'Binary',
     colorTheme: 'emerald',
     isImplemented: true,
-    tags: ['Formula Empirik', 'Mangkuk Pijar', 'Nisbah Mol']
+    tags: ['Formula Kimia', 'Kation & Anion', 'Kaedah Silang', 'Aktiviti 3.15']
   },
   {
     id: 'kereaktifan-k1-dan-k17',
