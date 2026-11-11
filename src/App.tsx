@@ -7,7 +7,7 @@ import { SimulationCard } from './components/SimulationCard';
 import { SimulationModal } from './components/SimulationModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { Footer } from './components/Footer';
-import { Search, Sparkles, Filter, BookOpen } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [analyticsData, setAnalyticsData] = useState<SimulationAnalytics>(analytics.getAnalytics());
@@ -17,11 +17,9 @@ export const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    // Record home page visit
     const updated = analytics.recordHomeVisit();
     setAnalyticsData(updated);
 
-    // Subscribe to real-time changes
     const unsubscribe = analytics.subscribe(data => {
       setAnalyticsData({ ...data });
     });
@@ -29,7 +27,6 @@ export const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Filter simulations based on tab & search
   const filteredSimulations = SIMULATIONS_DATA.filter(sim => {
     const matchesForm = activeFormTab === 'all' || sim.form === activeFormTab;
     const query = searchQuery.toLowerCase().trim();
@@ -46,7 +43,7 @@ export const App: React.FC = () => {
   const t5Count = SIMULATIONS_DATA.filter(s => s.form === 'Tingkatan 5').length;
 
   return (
-    <div className="min-h-screen bg-[#0b0c16] text-slate-100 flex flex-col justify-between selection:bg-purple-600 selection:text-white">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col justify-between selection:bg-purple-600 selection:text-white">
       
       <div>
         {/* Top Header */}
@@ -59,16 +56,16 @@ export const App: React.FC = () => {
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
           
           {/* Filter Bar & Search */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2 rounded-2xl bg-[#121327]/80 border border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2.5 rounded-2xl bg-white border border-slate-200 shadow-xs">
             
             {/* Form Level Tabs (Semua / T4 / T5) */}
-            <div className="flex items-center gap-1.5 w-full sm:w-auto p-1 rounded-xl bg-black/40">
+            <div className="flex items-center gap-1.5 w-full sm:w-auto p-1 rounded-xl bg-slate-100">
               <button
                 onClick={() => setActiveFormTab('all')}
-                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-semibold transition ${
+                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition ${
                   activeFormTab === 'all'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-white text-purple-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Semua ({SIMULATIONS_DATA.length})
@@ -76,38 +73,38 @@ export const App: React.FC = () => {
 
               <button
                 onClick={() => setActiveFormTab('Tingkatan 4')}
-                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
+                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                   activeFormTab === 'Tingkatan 4'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <span>Tingkatan 4</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/20">{t4Count}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${activeFormTab === 'Tingkatan 4' ? 'bg-purple-800' : 'bg-slate-200'}`}>{t4Count}</span>
               </button>
 
               <button
                 onClick={() => setActiveFormTab('Tingkatan 5')}
-                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
+                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                   activeFormTab === 'Tingkatan 5'
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <span>Tingkatan 5</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/20">{t5Count}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${activeFormTab === 'Tingkatan 5' ? 'bg-emerald-800' : 'bg-slate-200'}`}>{t5Count}</span>
               </button>
             </div>
 
             {/* Search Input */}
-            <div className="relative w-full sm:w-72">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Cari eksperimen, topik, gas..."
+                placeholder="Cari eksperimen, topik, gas, radas..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white transition"
               />
             </div>
 
@@ -115,17 +112,16 @@ export const App: React.FC = () => {
 
           {/* Simulations Section */}
           {activeFormTab === 'all' && !searchQuery ? (
-            // Grouped by Tingkatan 4 and Tingkatan 5 when viewing all (like Canva site layout)
             <div className="space-y-12">
               
               {/* Tingkatan 4 Section */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-purple-900/30">
-                  <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                  <h2 className="font-display font-extrabold text-xl text-white tracking-wide uppercase">
+                <div className="flex items-center gap-2 pb-2 border-b border-purple-200">
+                  <div className="w-3 h-3 rounded-full bg-purple-600"></div>
+                  <h2 className="font-display font-extrabold text-xl text-slate-900 tracking-wide uppercase">
                     TINGKATAN 4
                   </h2>
-                  <span className="text-xs text-purple-300/70 font-mono">({t4Count} Simulasi KSSM)</span>
+                  <span className="text-xs text-purple-700 font-bold font-mono">({t4Count} Simulasi KSSM)</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -143,12 +139,12 @@ export const App: React.FC = () => {
 
               {/* Tingkatan 5 Section */}
               <div className="space-y-4 pt-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-emerald-900/30">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                  <h2 className="font-display font-extrabold text-xl text-white tracking-wide uppercase">
+                <div className="flex items-center gap-2 pb-2 border-b border-emerald-200">
+                  <div className="w-3 h-3 rounded-full bg-emerald-600"></div>
+                  <h2 className="font-display font-extrabold text-xl text-slate-900 tracking-wide uppercase">
                     TINGKATAN 5
                   </h2>
-                  <span className="text-xs text-emerald-300/70 font-mono">({t5Count} Simulasi KSSM)</span>
+                  <span className="text-xs text-emerald-700 font-bold font-mono">({t5Count} Simulasi KSSM)</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -166,14 +162,13 @@ export const App: React.FC = () => {
 
             </div>
           ) : (
-            // Filtered view
             <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs text-slate-400">
+              <div className="flex items-center justify-between text-xs text-slate-500">
                 <span>Memaparkan {filteredSimulations.length} simulasi</span>
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery('')}
-                    className="text-purple-400 hover:underline"
+                    className="text-purple-600 font-bold hover:underline"
                   >
                     Kosongkan carian
                   </button>
@@ -193,11 +188,11 @@ export const App: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800 space-y-3">
-                  <p className="text-slate-400 text-sm">Tiada simulasi ditemui untuk carian "{searchQuery}".</p>
+                <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 space-y-3 shadow-xs">
+                  <p className="text-slate-500 text-sm">Tiada simulasi ditemui untuk carian "{searchQuery}".</p>
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-semibold"
+                    className="px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold"
                   >
                     Papar Semua Eksperimen
                   </button>
