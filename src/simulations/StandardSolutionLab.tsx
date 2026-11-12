@@ -1,556 +1,729 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import {
+  CheckCircle2,
+  RotateCcw,
+  ArrowRight,
+  AlertTriangle,
+  Info,
+  GripVertical,
+  FlaskConical,
+  Droplets,
+  Scale,
+  BookOpen,
+} from 'lucide-react';
+import {
+  STANDARD_SALTS,
+  StandardSaltId,
+  StandardPhaseMode,
+  computeSolidPrepStoichiometry,
+  computeDilutionStoichiometry,
+  buildSolidSteps,
+  buildDilutionSteps,
+  LabProcedureToolStep,
+} from '../data/standardSolutions';
+import { StandardSolutionApparatusSVG } from '../components/StandardSolutionApparatusSVG';
 import { analytics } from '../services/analytics';
-import confetti from 'canvas-confetti';
-import { RotateCcw, Calculator, CheckCircle2, AlertTriangle, Info, ArrowRight, ArrowLeft, Eye } from 'lucide-react';
 
-type Mode = 'solid' | 'dilution';
+const SIM_ID = 'penyediaan-larutan-piawai';
 
-const SOLID_STEPS = [
-  {
-    step: 1,
-    code: '(a)',
-    title: 'Timbang & Tambah Air Suling',
-    instruction: 'Timbang tepat 26.50 g pepejal natrium karbonat, Na₂CO₃ menggunakan penimbang elektronik. Masukkan ke dalam bikar 250 cm³ dan tambah 100.0 cm³ air suling.',
-    actionLabel: 'Timbang 26.50 g & Tuang Air'
-  },
-  {
-    step: 2,
-    code: '(b)',
-    title: 'Kacau Hingga Larut Sepenuhnya',
-    instruction: 'Kacau campuran menggunakan rod kaca sehingga semua pepejal natrium karbonat, Na₂CO₃ terlarut sepenuhnya di dalam air suling.',
-    actionLabel: 'Kacau Dengan Rod Kaca'
-  },
-  {
-    step: 3,
-    code: '(c)',
-    title: 'Pindah ke Kelalang Volumetrik 250 cm³',
-    instruction: 'Pindahkan larutan natrium karbonat ke dalam kelalang volumetrik 250 cm³ melalui corong turas.',
-    actionLabel: 'Tuang Melalui Corong Turas'
-  },
-  {
-    step: 4,
-    code: '(d)',
-    title: 'Bilas Bikar & Corong Turas',
-    instruction: 'Bilaskan bikar dan corong turas dengan sedikit air suling daripada botol pencuci. Pastikan semua air bilasan dipindahkan ke dalam kelalang volumetrik.',
-    actionLabel: 'Bilas & Pindahkan Air Bilasan'
-  },
-  {
-    step: 5,
-    code: '(e)',
-    title: 'Laraskan Aras Meniskus (Penitis)',
-    instruction: 'Alihkan corong turas. Tambah air suling hingga menghampiri tanda senggatan, kemudian gunakan penitis secara perlahan-lahan sehingga aras meniskus tepat segaris dengan tanda senggatan (elak ralat paralaks).',
-    actionLabel: 'Titiskan Hingga Tanda Senggatan'
-  },
-  {
-    step: 6,
-    code: '(f)',
-    title: 'Tutup & Goncang Sambil Telangkupkan',
-    instruction: 'Tutupkan kelalang volumetrik dengan penutup. Goncangkan sambil telangkupkan kelalang volumetrik beberapa kali sehingga larutan menjadi sebati.',
-    actionLabel: 'Tutup & Telangkupkan Sebati'
-  }
-];
+interface KssmTip {
+  id: string;
+  label: string;
+  question: string;
+  answer: string;
+}
 
-const DILUTION_STEPS = [
+const KSSM_TIPS: KssmTip[] = [
   {
-    step: 1,
-    code: '(a)',
-    title: 'Tuang Larutan Stok ke Bikar',
-    instruction: 'Tuangkan larutan stok natrium karbonat, Na₂CO₃ 1.0 mol dm⁻³ (daripada Aktiviti 6.7) ke dalam sebuah bikar 100 cm³.',
-    actionLabel: 'Tuang Larutan Stok 1.0 M'
+    id: 'bilas-bikar',
+    label: 'Bilas Bikar',
+    question: 'Mengapakah bikar dan corong turas perlu dibilas dengan air suling?',
+    answer:
+      'Untuk memastikan semua baki zat terlarut yang melekat pada dinding bikar dan corong turas dipindahkan sepenuhnya ke dalam kelalang volumetrik supaya kemolaran tepat.',
   },
   {
-    step: 2,
-    code: '(b)',
-    title: 'Sukat V₁ = 20.0 cm³ dengan Pipet',
-    instruction: 'Gunakan pipet (yang telah dibilas dengan larutan stok) dan pengisi pipet untuk mengeluarkan tepat V₁ = 20.0 cm³ larutan stok Na₂CO₃ 1.0 mol dm⁻³.',
-    actionLabel: 'Pipetkan 20.0 cm³ Larutan Stok'
+    id: 'meniskus',
+    label: 'Paras Meniskus',
+    question: 'Bagaimanakah cara membaca senggatan kelalang volumetrik yang betul?',
+    answer:
+      'Kedudukan mata mesti separas dengan tanda senggatan dan bahagian bawah meniskus larutan jernih/berwarna menyentuh tepat garisan senggatan untuk mengelakkan ralat paralaks.',
   },
   {
-    step: 3,
-    code: '(c)',
-    title: 'Pindah ke Kelalang Volumetrik 100 cm³',
-    instruction: 'Pindahkan 20.0 cm³ larutan stok tersebut ke dalam kelalang volumetrik 100 cm³ yang bersih.',
-    actionLabel: 'Pindah ke Kelalang 100 cm³'
+    id: 'bilas-alat',
+    label: 'Bilas Pipet',
+    question: 'Mengapa pipet dibilas dengan larutan stok, manakala kelalang volumetrik hanya dengan air suling?',
+    answer:
+      'Pipet dibilas dengan sedikit larutan stok supaya kepekatan larutan yang disukat tidak tercair. Kelalang volumetrik dibilas dengan air suling sahaja agar isi padu air tambahan tidak mengubah jumlah mol.',
   },
-  {
-    step: 4,
-    code: '(d)',
-    title: 'Tambah Air Suling Menghampiri Tanda Senggatan',
-    instruction: 'Tambahkan air suling daripada botol pencuci sehingga paras larutan menghampiri tanda senggatan 100 cm³.',
-    actionLabel: 'Tambah Air Suling'
-  },
-  {
-    step: 5,
-    code: '(e)',
-    title: 'Laraskan Aras Meniskus dengan Penitis',
-    instruction: 'Tambahkan air suling secara perlahan-lahan dengan penitis sehingga bahagian bawah meniskus tepat segaris dengan tanda senggatan.',
-    actionLabel: 'Titiskan Hingga Meniskus Tepat'
-  },
-  {
-    step: 6,
-    code: '(f)',
-    title: 'Tutup & Telangkupkan Beberapa Kali',
-    instruction: 'Tutupkan kelalang volumetrik dan goncangkan serta telangkupkan beberapa kali sehingga larutan piawai Na₂CO₃ 0.2 mol dm⁻³ bercampur sebati.',
-    actionLabel: 'Tutup & Goncang Sebati'
-  }
 ];
 
 export const StandardSolutionLab: React.FC = () => {
-  const SIM_ID = 'penyediaan-larutan-piawai';
-  const [mode, setMode] = useState<Mode>('solid');
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const [showZoomMeniscus, setShowZoomMeniscus] = useState<boolean>(false);
+  const [selectedSaltId, setSelectedSaltId] = useState<StandardSaltId>('cuso4');
+  const [mode, setMode] = useState<StandardPhaseMode>('solid');
+
+  // Fasa 1 (Penyediaan 1.0 M daripada pepejal)
+  const [solidVolumeCm3, setSolidVolumeCm3] = useState<number>(250);
+  const [solidCompletedStep, setSolidCompletedStep] = useState<number>(0);
+
+  // Fasa 2 (Pencairan 1.0 M -> 0.5 M / 0.2 M)
+  const [m2TargetM, setM2TargetM] = useState<number>(0.5);
+  const [v2FinalCm3, setV2FinalCm3] = useState<number>(100);
+  const [dilutionCompletedStep, setDilutionCompletedStep] = useState<number>(0);
+
+  // Status stok siap bagi setiap garam
+  const [preparedSalts, setPreparedSalts] = useState<Record<StandardSaltId, boolean>>({
+    nacl: false,
+    cuso4: false,
+    fecl3: false,
+  });
+
+  // Drag-and-drop & UI state
+  const [draggingToolStep, setDraggingToolStep] = useState<number | null>(null);
+  const [isDragOver, setIsDragOver] = useState<boolean>(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const [showNaohNote, setShowNaohNote] = useState<boolean>(false);
+  const [activeTipId, setActiveTipId] = useState<string>('bilas-bikar');
 
-  // Interactive dilution calculator state
-  const [m1, setM1] = useState<number>(1.0);
-  const [m2, setM2] = useState<number>(0.2);
-  const [v2, setV2] = useState<number>(100);
-  const v1Calc = m1 > 0 ? +((m2 * v2) / m1).toFixed(2) : 0;
+  const salt = useMemo(
+    () => STANDARD_SALTS.find((s) => s.id === selectedSaltId) ?? STANDARD_SALTS[1],
+    [selectedSaltId]
+  );
 
-  const steps = mode === 'solid' ? SOLID_STEPS : DILUTION_STEPS;
-  const activeStepObj = steps[currentStep - 1];
+  const solidStoich = useMemo(
+    () => computeSolidPrepStoichiometry(salt, 1.0, solidVolumeCm3),
+    [salt, solidVolumeCm3]
+  );
 
-  const handleModeSwitch = (newMode: Mode) => {
-    setMode(newMode);
-    setCurrentStep(1);
-    setShowZoomMeniscus(false);
+  const dilutionStoich = useMemo(
+    () => computeDilutionStoichiometry(1.0, m2TargetM, v2FinalCm3),
+    [m2TargetM, v2FinalCm3]
+  );
+
+  const steps: LabProcedureToolStep[] = useMemo(() => {
+    if (mode === 'solid') {
+      return buildSolidSteps(salt, solidStoich.mass2dp, solidStoich.volumeCm3);
+    }
+    return buildDilutionSteps(
+      salt,
+      dilutionStoich.v1StockCm3,
+      dilutionStoich.vWaterNeededCm3,
+      dilutionStoich.m2TargetM,
+      dilutionStoich.v2FinalCm3
+    );
+  }, [mode, salt, solidStoich, dilutionStoich]);
+
+  const completedStep = mode === 'solid' ? solidCompletedStep : dilutionCompletedStep;
+  const activeNextStepObj = steps.find((s) => s.step === completedStep + 1) ?? null;
+  const activeTip = KSSM_TIPS.find((t) => t.id === activeTipId) ?? KSSM_TIPS[0];
+
+  const handleSelectSalt = (id: StandardSaltId) => {
+    setSelectedSaltId(id);
+    setSolidCompletedStep(0);
+    setDilutionCompletedStep(0);
+    setFeedbackError(null);
     analytics.recordSimulationClick(SIM_ID, 1);
   };
 
-  const handleNext = () => {
+  const handleSwitchMode = (nextMode: StandardPhaseMode) => {
+    setMode(nextMode);
+    setFeedbackError(null);
     analytics.recordSimulationClick(SIM_ID, 1);
-    if (currentStep < 6) {
-      const next = currentStep + 1;
-      setCurrentStep(next);
-      if (next === 5) setShowZoomMeniscus(true);
-      else setShowZoomMeniscus(false);
+  };
+
+  const handleResetPhase = () => {
+    if (mode === 'solid') {
+      setSolidCompletedStep(0);
     } else {
-      analytics.recordSimulationCompleted(SIM_ID);
-      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      setDilutionCompletedStep(0);
+    }
+    setFeedbackError(null);
+  };
+
+  const executeStep = (stepNumber: number) => {
+    const expected = completedStep + 1;
+    if (completedStep >= 6) {
+      return;
+    }
+
+    if (stepNumber < expected) {
+      const doneObj = steps.find((s) => s.step === stepNumber);
+      setFeedbackError(
+        `Langkah ${doneObj?.code ?? stepNumber} sudah selesai dijalankan. Seterusnya: ${activeNextStepObj?.code} ${activeNextStepObj?.toolName}.`
+      );
+      return;
+    }
+
+    if (stepNumber > expected) {
+      const expectedObj = steps.find((s) => s.step === expected);
+      setFeedbackError(
+        `Ikut turutan makmal KSSM! Sila jalankan Langkah ${expectedObj?.code} (${expectedObj?.toolName}) dahulu.`
+      );
+      return;
+    }
+
+    setFeedbackError(null);
+    analytics.recordSimulationClick(SIM_ID, 1);
+
+    if (mode === 'solid') {
+      setSolidCompletedStep(expected);
+      if (expected === 6) {
+        setPreparedSalts((prev) => ({ ...prev, [selectedSaltId]: true }));
+        analytics.recordSimulationCompleted(SIM_ID);
+      }
+    } else {
+      setDilutionCompletedStep(expected);
+      if (expected === 6) {
+        analytics.recordSimulationCompleted(SIM_ID);
+      }
     }
   };
 
-  const handlePrev = () => {
-    if (currentStep > 1) {
-      const prev = currentStep - 1;
-      setCurrentStep(prev);
-      setShowZoomMeniscus(prev === 5);
+  const handleDragStart = (e: React.DragEvent, stepNum: number) => {
+    setDraggingToolStep(stepNum);
+    e.dataTransfer.setData('text/plain', String(stepNum));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOverStage = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (!isDragOver) setIsDragOver(true);
+  };
+
+  const handleDragLeaveStage = (e: React.DragEvent) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setIsDragOver(false);
+  };
+
+  const handleDropOnStage = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const raw = e.dataTransfer.getData('text/plain');
+    const stepNum = raw ? Number(raw) : draggingToolStep;
+    setDraggingToolStep(null);
+    if (stepNum && !Number.isNaN(stepNum)) {
+      executeStep(stepNum);
     }
+  };
+
+  const handleStartDilutionFromPrepared = () => {
+    setMode('dilution');
+    setM2TargetM(0.5);
+    setDilutionCompletedStep(0);
+    setFeedbackError(null);
+    analytics.recordSimulationClick(SIM_ID, 1);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Mode Selector Tabs (Aktiviti 6.7 vs Aktiviti 6.8) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-teal-50/80 border border-teal-200 p-3 rounded-2xl">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => handleModeSwitch('solid')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition ${
-              mode === 'solid'
-                ? 'bg-teal-600 text-white shadow-md shadow-teal-600/25'
-                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            Aktiviti 6.7: Daripada Bahan Pepejal (Na₂CO₃ 1.0 M)
-          </button>
-          <button
-            onClick={() => handleModeSwitch('dilution')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition ${
-              mode === 'dilution'
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
-                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            Aktiviti 6.8: Kaedah Pencairan (1.0 M → 0.2 M)
-          </button>
+    <div className="space-y-3 text-slate-800">
+      {/* Bar Kawalan Atas: Pilihan 3 Garam, Fasa 1 / Fasa 2, Nota NaOH & Reset */}
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 mr-1">
+            Bahan Pepejal:
+          </span>
+          {STANDARD_SALTS.map((item) => {
+            const active = item.id === selectedSaltId;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleSelectSalt(item.id)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                  active
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50'
+                }`}
+              >
+                <span
+                  className="w-2.5 h-2.5 rounded-full border shrink-0"
+                  style={{
+                    backgroundColor: item.id === 'nacl' ? '#e2e8f0' : item.stockHex,
+                    borderColor: active ? '#ffffff' : item.solidStrokeHex,
+                  }}
+                />
+                <span>{item.name}</span>
+                <span className={active ? 'text-indigo-100 font-mono' : 'text-slate-400 font-mono'}>
+                  ({item.formula})
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        <button
-          onClick={() => setShowNaohNote(!showNaohNote)}
-          className="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold flex items-center gap-1.5 transition"
-        >
-          <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
-          {showNaohNote ? 'Tutup Nota NaOH' : 'Mengapa NaOH Tidak Sesuai?'}
-        </button>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <div className="inline-flex rounded-lg bg-slate-200/75 p-0.5">
+            <button
+              type="button"
+              onClick={() => handleSwitchMode('solid')}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                mode === 'solid'
+                  ? 'bg-white text-indigo-700 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <FlaskConical className="w-3.5 h-3.5" />
+              Fasa 1: Sedia 1.0 M
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSwitchMode('dilution')}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                mode === 'dilution'
+                  ? 'bg-white text-sky-700 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Droplets className="w-3.5 h-3.5" />
+              Fasa 2: Cairkan ke {m2TargetM.toFixed(1)} M
+              {preparedSalts[selectedSaltId] && (
+                <span className="w-2 h-2 rounded-full bg-emerald-500" title="Larutan stok 1.0 M siap" />
+              )}
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowNaohNote((v) => !v)}
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
+              showNaohNote
+                ? 'bg-amber-100 text-amber-900 border-amber-300'
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-amber-50 hover:text-amber-800'
+            }`}
+          >
+            <Info className="w-3.5 h-3.5" />
+            Mengapa bukan NaOH?
+          </button>
+
+          <button
+            type="button"
+            onClick={handleResetPhase}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition-colors"
+            title="Ulang semula langkah fasa semasa"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Reset
+          </button>
+        </div>
       </div>
 
+      {/* Nota KSSM NaOH (jika dibuka) */}
       {showNaohNote && (
-        <div className="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-xs space-y-1.5 text-amber-950 animate-in fade-in duration-200">
-          <p className="font-bold text-sm">Fakta Buku Teks KSSM (m.s. 163):</p>
-          <p className="leading-relaxed">
-            Natrium hidroksida (<strong>NaOH</strong>) tidak sesuai digunakan untuk menyediakan larutan piawai kerana bersifat <strong>higroskopik</strong> (menyerap lembapan/wap air di dalam udara) dan juga menyerap gas karbon dioksida di udara:
-          </p>
-          <div className="font-mono bg-white p-2 rounded-lg border border-amber-200 text-center font-bold text-amber-900">
-            2NaOH(p) + CO₂(g) → Na₂CO₃(p) + H₂O(ce)
+        <div className="flex items-start justify-between gap-3 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2 text-xs text-amber-950">
+          <div className="flex items-start gap-2">
+            <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p>
+              <strong>Nota KSSM (m.s. 163):</strong> Pepejal natrium hidroksida (NaOH) tidak sesuai digunakan secara
+              terus untuk menyediakan larutan piawai kerana sifatnya yang{' '}
+              <span className="font-semibold">higroskopik</span> (menyerap wap air dan gas CO₂ daripada udara),
+              menyebabkan penimbangan jisim tepat sukar diperoleh. Oleh itu, garam stabil seperti{' '}
+              <span className="font-semibold">NaCl, CuSO₄ dan FeCl₃</span> digunakan.
+            </p>
           </div>
-          <p>Akibatnya, jisim pepejal NaOH tidak dapat ditimbang dengan tepat! Bahan yang sesuai ialah <strong>Na₂CO₃</strong> atau <strong>asid oksalik (H₂C₂O₄·2H₂O)</strong>.</p>
+          <button
+            type="button"
+            onClick={() => setShowNaohNote(false)}
+            className="text-amber-700 hover:text-amber-900 font-semibold shrink-0"
+          >
+            Tutup
+          </button>
         </div>
       )}
 
-      {/* Progress Stepper (a) to (f) matching Rajah 6.27 & Rajah 6.29 */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-        {steps.map(s => (
-          <button
-            key={s.step}
-            onClick={() => {
-              setCurrentStep(s.step);
-              setShowZoomMeniscus(s.step === 5);
-              analytics.recordSimulationClick(SIM_ID, 1);
-            }}
-            className={`p-2 rounded-xl border text-left transition ${
-              currentStep === s.step
-                ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-                : currentStep > s.step
-                ? 'bg-teal-50 text-teal-800 border-teal-200'
-                : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+      {/* Susun Atur Utama 2 Lajur (Muat Kemas Tanpa Scroll Berlebihan) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+        {/* LAJUR KIRI: Pentas Radas Drag-and-Drop + Dulangan Radas (a)-(f) */}
+        <div className="lg:col-span-7 flex flex-col gap-2.5">
+          {/* Bar Status Langkah (a) - (f) + Warna Garam */}
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+            <div className="flex items-center gap-1">
+              {steps.map((s) => {
+                const isDone = s.step <= completedStep;
+                const isCurrent = s.step === completedStep + 1;
+                return (
+                  <div
+                    key={s.step}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold transition-all ${
+                      isDone
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        : isCurrent
+                        ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-200'
+                        : 'bg-slate-100 text-slate-400 border border-slate-200'
+                    }`}
+                  >
+                    {isDone ? '✓' : s.code}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-2 text-[11px] text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+              <span
+                className="w-2.5 h-2.5 rounded-full border"
+                style={{
+                  backgroundColor: mode === 'solid' ? salt.stockHex : salt.dilutedHex,
+                  opacity: mode === 'solid' ? Math.max(0.55, salt.stockOpacity) : Math.max(0.45, salt.dilutedOpacity),
+                  borderColor: salt.solidStrokeHex,
+                }}
+              />
+              <span className="font-medium">
+                {mode === 'solid'
+                  ? `Pepejal: ${salt.solidColorLabel} → ${salt.solutionColorLabel}`
+                  : `Pencairan: ${salt.solutionColorLabel} → ${salt.dilutedColorLabel}`}
+              </span>
+            </div>
+          </div>
+
+          {/* Zon Drop Radas Makmal (StandardSolutionApparatusSVG) */}
+          <div
+            onDragOver={handleDragOverStage}
+            onDragLeave={handleDragLeaveStage}
+            onDrop={handleDropOnStage}
+            data-testid="lab-dropzone"
+            className={`relative rounded-xl border-2 transition-all bg-white overflow-hidden ${
+              isDragOver
+                ? 'border-indigo-500 ring-4 ring-indigo-100 bg-indigo-50/20'
+                : 'border-slate-200'
             }`}
           >
-            <div className="text-[10px] font-mono font-bold opacity-80">Langkah {s.code}</div>
-            <div className="text-[11px] font-bold line-clamp-1">{s.title}</div>
-          </button>
-        ))}
-      </div>
+            <StandardSolutionApparatusSVG
+              salt={salt}
+              mode={mode}
+              completedStep={completedStep}
+              mass2dp={solidStoich.mass2dp}
+              volumeCm3={solidStoich.volumeCm3}
+              v1StockCm3={dilutionStoich.v1StockCm3}
+              vWaterNeededCm3={dilutionStoich.vWaterNeededCm3}
+              m2TargetM={dilutionStoich.m2TargetM}
+              v2FinalCm3={dilutionStoich.v2FinalCm3}
+              isDragOver={isDragOver}
+            />
 
-      {/* Main Lab Stage */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
-        
-        {/* Left: Textbook-Exact SVG Apparatus Diagram */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-center min-h-[380px] bg-gradient-to-b from-slate-50 to-sky-50/40 rounded-2xl p-5 border border-slate-200 relative">
-          
-          <div className="absolute top-3 left-3 bg-white/95 px-3 py-1 rounded-xl border border-slate-200 text-[11px] font-bold text-slate-700 shadow-2xs">
-            {mode === 'solid' ? 'Rajah 6.27: Kelalang Volumetrik 250 cm³' : 'Rajah 6.29: Kelalang Volumetrik 100 cm³'} — Fasa {activeStepObj.code}
+            {feedbackError && (
+              <div className="mx-3 mb-2.5 flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg px-3 py-1.5 text-xs font-medium">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{feedbackError}</span>
+              </div>
+            )}
           </div>
 
-          {/* Eye-level meniscus zoom helper in Step 5 */}
-          {showZoomMeniscus && (
-            <div className="absolute top-3 right-3 bg-white border-2 border-teal-500 rounded-2xl p-3 shadow-xl w-44 z-20 animate-in fade-in duration-300">
-              <div className="flex items-center gap-1 text-[10px] font-bold text-teal-800 mb-1.5">
-                <Eye className="w-3.5 h-3.5 text-teal-600" /> Paras Mata (Elak Paralaks)
-              </div>
-              <svg viewBox="0 0 120 70" className="w-full h-16 bg-sky-50/40 rounded border border-slate-200">
-                {/* Volumetric flask neck zoomed */}
-                <line x1="42" y1="5" x2="42" y2="65" stroke="#475569" strokeWidth="2.5" />
-                <line x1="78" y1="5" x2="78" y2="65" stroke="#475569" strokeWidth="2.5" />
-                {/* Calibration mark (Tanda senggatan) */}
-                <line x1="36" y1="38" x2="84" y2="38" stroke="#dc2626" strokeWidth="1.5" strokeDasharray="3,2" />
-                <text x="86" y="40" fontSize="7" fill="#dc2626" fontWeight="bold">Senggatan</text>
-                {/* Concave Meniscus curve touching exact mark */}
-                <path d="M 43 32 Q 60 44 77 32 L 77 65 L 43 65 Z" fill="#38bdf8" fillOpacity="0.45" />
-                <path d="M 43 32 Q 60 44 77 32" fill="none" stroke="#0284c7" strokeWidth="2" />
-                {/* Eye sight dashed line */}
-                <line x1="8" y1="38" x2="42" y2="38" stroke="#0f766e" strokeWidth="1" strokeDasharray="2,2" />
-                <circle cx="10" cy="38" r="3" fill="#0f766e" />
-              </svg>
-              <p className="text-[9px] text-slate-600 mt-1 text-center">Bahagian bawah meniskus tepat pada tanda senggatan.</p>
+          {/* Dulangan Radas & Reagen Boleh Seret (Drag & Drop + Klik) */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5">
+            <div className="flex items-center justify-between mb-2 px-0.5">
+              <span className="text-[11px] font-bold uppercase tracking-wide text-slate-600">
+                Dulangan Radas & Bahan (Seret ke Meja Makmal atau Klik Langkah)
+              </span>
+              <span className="text-[11px] text-slate-500 font-medium">
+                Kemajuan: {completedStep}/6 langkah
+              </span>
             </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {steps.map((s) => {
+                const isDone = s.step <= completedStep;
+                const isNext = s.step === completedStep + 1;
+                return (
+                  <button
+                    key={s.toolId}
+                    type="button"
+                    draggable={!isDone}
+                    onDragStart={(e) => handleDragStart(e, s.step)}
+                    onDragEnd={() => {
+                      setDraggingToolStep(null);
+                      setIsDragOver(false);
+                    }}
+                    onClick={() => executeStep(s.step)}
+                    data-testid={`tool-step-${s.step}`}
+                    className={`group flex items-center gap-2 text-left p-2 rounded-lg border transition-all ${
+                      isDone
+                        ? 'bg-emerald-50/90 border-emerald-300 text-emerald-900 cursor-default'
+                        : isNext
+                        ? 'bg-white border-indigo-500 ring-2 ring-indigo-100 shadow-sm hover:bg-indigo-50/40 cursor-grab active:cursor-grabbing'
+                        : 'bg-white/80 border-slate-200 text-slate-500 hover:border-slate-300 cursor-grab active:cursor-grabbing'
+                    }`}
+                  >
+                    <div
+                      className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 ${
+                        isDone
+                          ? 'bg-emerald-600 text-white'
+                          : isNext
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : s.code}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold leading-tight truncate">{s.toolName}</div>
+                      <div className="text-[10px] text-slate-500 leading-tight truncate mt-0.5">
+                        {isDone ? 'Selesai' : s.toolSub}
+                      </div>
+                    </div>
+                    {!isDone && (
+                      <GripVertical
+                        className={`w-3.5 h-3.5 shrink-0 ${
+                          isNext ? 'text-indigo-500' : 'text-slate-300'
+                        }`}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* LAJUR KANAN: Arahan Langkah / CTA Pencairan + Pengiraan Stoikiometri + Nota KSSM */}
+        <div className="lg:col-span-5 flex flex-col gap-2.5">
+          {/* Kad Arahan Langkah Semasa / Siap Fasa */}
+          {completedStep === 6 ? (
+            <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3.5 space-y-2.5 shadow-sm">
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-bold text-emerald-950">
+                    {mode === 'solid'
+                      ? `Larutan Piawai ${salt.formula} 1.0 M (${solidStoich.volumeCm3} cm³) Siap!`
+                      : `Pencairan ${salt.formula} kepada ${dilutionStoich.m2TargetM.toFixed(1)} M Selesai!`}
+                  </h3>
+                  {mode === 'solid' ? (
+                    <p className="text-xs text-emerald-900 mt-1 leading-relaxed">
+                      Sebanyak <strong>{solidStoich.mass2dp.toFixed(2)} g</strong> pepejal{' '}
+                      {salt.name} ({salt.formula}) telah dilarutkan tepat ke dalam{' '}
+                      <strong>{solidStoich.volumeCm3} cm³</strong> larutan berwarna{' '}
+                      <strong>{salt.solutionColorLabel.toLowerCase()}</strong>.
+                    </p>
+                  ) : (
+                    <p className="text-xs text-emerald-900 mt-1 leading-relaxed">
+                      <strong>{dilutionStoich.v1StockCm3.toFixed(1)} cm³</strong> larutan stok{' '}
+                      {salt.formula} 1.0 M ditambah dengan{' '}
+                      <strong>{dilutionStoich.vWaterNeededCm3.toFixed(1)} cm³ air suling</strong> sehingga{' '}
+                      {dilutionStoich.v2FinalCm3} cm³ menghasilkan warna{' '}
+                      <strong>{salt.dilutedColorLabel.toLowerCase()}</strong>.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                {mode === 'solid' ? (
+                  <button
+                    type="button"
+                    onClick={handleStartDilutionFromPrepared}
+                    data-testid="cta-dilute-to-05m"
+                    className="w-full inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm transition-colors"
+                  >
+                    <Droplets className="w-4 h-4" />
+                    Cairkan Larutan Ini ke 0.5 M (Aktiviti 6.8)
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchMode('solid')}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-semibold transition-colors"
+                  >
+                    <FlaskConical className="w-3.5 h-3.5" />
+                    Kembali ke Penyediaan 1.0 M
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            activeNextStepObj && (
+              <div className="bg-indigo-50/80 border border-indigo-200 rounded-xl p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-indigo-700">
+                    <span className="px-1.5 py-0.5 rounded bg-indigo-600 text-white">
+                      Langkah {activeNextStepObj.code}
+                    </span>
+                    {mode === 'solid' ? 'Aktiviti 6.7 (Rajah 6.27)' : 'Aktiviti 6.8 (Rajah 6.29)'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => executeStep(activeNextStepObj.step)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold transition-colors"
+                  >
+                    Jalankan
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+                <h3 className="text-xs font-bold text-slate-900">{activeNextStepObj.title}</h3>
+                <p className="text-xs text-slate-700 leading-relaxed">{activeNextStepObj.instruction}</p>
+              </div>
+            )
           )}
 
-          {/* SVG Apparatus for each step */}
-          <svg viewBox="0 0 360 250" className="w-full max-w-md h-64 mt-4">
-            {/* SOLID MODE: Aktiviti 6.7 */}
-            {mode === 'solid' && currentStep === 1 && (
-              <g>
-                {/* Electronic Balance */}
-                <rect x="35" y="185" width="110" height="32" rx="5" fill="#e2e8f0" stroke="#64748b" strokeWidth="2" />
-                <rect x="55" y="193" width="70" height="16" rx="2" fill="#0f172a" />
-                <text x="90" y="204" fontSize="9" fill="#34d399" fontFamily="monospace" fontWeight="bold" textAnchor="middle">26.50 g</text>
-                <rect x="65" y="177" width="50" height="8" fill="#cbd5e1" stroke="#64748b" strokeWidth="1.5" />
-                {/* Weighing boat with Na2CO3 white powder */}
-                <path d="M 65 177 L 115 177 L 108 168 L 72 168 Z" fill="#ffffff" stroke="#94a3b8" strokeWidth="1.5" />
-                <path d="M 76 173 Q 90 160 104 173 Z" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
-                <text x="90" y="232" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">Penimbang Elektronik (Na₂CO₃)</text>
-
-                {/* Beaker + Wash Bottle pouring distilled water */}
-                <path d="M 210 120 L 210 212 Q 210 218 218 218 L 282 218 Q 290 218 290 212 L 290 120" fill="#f0f9ff" fillOpacity="0.4" stroke="#0284c7" strokeWidth="2.5" />
-                {/* Liquid in beaker */}
-                <rect x="212" y="165" width="76" height="51" rx="2" fill="#bae6fd" fillOpacity="0.6" />
-                {/* Solid particles at bottom */}
-                <circle cx="235" cy="211" r="3" fill="#ffffff" stroke="#94a3b8" />
-                <circle cx="246" cy="213" r="3.5" fill="#ffffff" stroke="#94a3b8" />
-                <circle cx="258" cy="210" r="3" fill="#ffffff" stroke="#94a3b8" />
-                <circle cx="268" cy="213" r="3" fill="#ffffff" stroke="#94a3b8" />
-                {/* Wash bottle pouring */}
-                <g transform="translate(185, 55) rotate(25)">
-                  <rect x="0" y="0" width="46" height="28" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.8" />
-                  <path d="M 46 14 L 68 14 L 74 24" fill="none" stroke="#0284c7" strokeWidth="2" />
-                  <text x="23" y="17" fontSize="7" fill="#0369a1" fontWeight="bold" textAnchor="middle">Air Suling</text>
-                </g>
-                <circle cx="250" cy="115" r="2" fill="#0ea5e9" />
-                <circle cx="250" cy="135" r="2" fill="#0ea5e9" />
-                <text x="250" y="232" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">Bikar 250 cm³ + 100 cm³ Air Suling</text>
-              </g>
-            )}
-
-            {mode === 'solid' && currentStep === 2 && (
-              <g>
-                {/* Beaker with Glass Rod stirring */}
-                <path d="M 135 110 L 135 212 Q 135 218 143 218 L 217 218 Q 225 218 225 212 L 225 110" fill="#f0f9ff" fillOpacity="0.4" stroke="#0284c7" strokeWidth="2.5" />
-                <rect x="137" y="155" width="86" height="61" rx="2" fill="#bae6fd" fillOpacity="0.7" />
-                {/* Glass Rod */}
-                <line x1="195" y1="60" x2="165" y2="210" stroke="#64748b" strokeWidth="4" strokeLinecap="round" />
-                <path d="M 162 85 A 20 8 0 1 1 198 85" fill="none" stroke="#ef4444" strokeWidth="1.8" />
-                <polygon points="162,85 167,81 167,89" fill="#ef4444" />
-                <text x="150" y="75" fontSize="9" fill="#dc2626" fontWeight="bold">Kacau</text>
-                <text x="225" y="70" fontSize="9" fill="#334155" fontWeight="bold">Rod Kaca</text>
-                <text x="180" y="235" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">Pepejal Na₂CO₃ Larut Sepenuhnya</text>
-              </g>
-            )}
-
-            {mode === 'solid' && (currentStep === 3 || currentStep === 4) && (
-              <g>
-                {/* Volumetric Flask 250 cm3 */}
-                <path d="M 168 85 L 168 140 C 130 155 125 218 155 218 L 205 218 C 235 218 230 155 192 140 L 192 85" fill="#f8fafc" stroke="#0284c7" strokeWidth="2.5" />
-                {/* Graduation mark */}
-                <line x1="164" y1="115" x2="196" y2="115" stroke="#dc2626" strokeWidth="1.5" />
-                <text x="202" y="118" fontSize="8" fill="#dc2626" fontWeight="bold">Tanda senggatan</text>
-                {/* Liquid inside flask */}
-                <path d={currentStep === 3 ? "M 139 185 C 135 215 150 216 155 216 L 205 216 C 210 216 225 215 221 185 Z" : "M 142 162 C 128 215 150 216 155 216 L 205 216 C 210 216 232 215 218 162 Z"} fill="#bae6fd" fillOpacity="0.75" />
-                {/* Filter Funnel (Corong Turas) on top */}
-                <path d="M 155 55 L 205 55 L 185 82 L 185 102 L 175 102 L 175 82 Z" fill="#e0f2fe" fillOpacity="0.6" stroke="#475569" strokeWidth="2" />
-                <text x="215" y="70" fontSize="9" fill="#334155" fontWeight="bold">Corong Turas</text>
-                {/* Beaker or Wash bottle pouring */}
-                {currentStep === 3 ? (
-                  <g transform="translate(88, 12) rotate(35)">
-                    <path d="M 0 0 L 0 42 L 32 42 L 32 0" fill="#bae6fd" fillOpacity="0.5" stroke="#0284c7" strokeWidth="2" />
-                  </g>
-                ) : (
-                  <g transform="translate(75, 18) rotate(20)">
-                    <rect x="0" y="0" width="44" height="24" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.8" />
-                    <path d="M 44 12 L 72 12 L 76 22" fill="none" stroke="#0284c7" strokeWidth="2" />
-                    <text x="22" y="15" fontSize="6.5" fill="#0369a1" fontWeight="bold" textAnchor="middle">Air Suling</text>
-                  </g>
-                )}
-                <circle cx="180" cy="88" r="2" fill="#0284c7" />
-                <circle cx="180" cy="110" r="2" fill="#0284c7" />
-                <text x="180" y="236" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">
-                  {currentStep === 3 ? 'Pindah Larutan Melalui Corong Turas' : 'Bilas Bikar & Corong Turas Dengan Air Suling'}
-                </text>
-              </g>
-            )}
-
-            {mode === 'solid' && currentStep === 5 && (
-              <g>
-                {/* Volumetric Flask filled exactly to mark */}
-                <path d="M 168 85 L 168 140 C 130 155 125 218 155 218 L 205 218 C 235 218 230 155 192 140 L 192 85" fill="#f8fafc" stroke="#0284c7" strokeWidth="2.5" />
-                {/* Liquid filling bulb + neck up to mark y=115 */}
-                <path d="M 169 115 L 191 115 L 191 140 C 228 155 233 216 205 216 L 155 216 C 127 216 132 155 169 140 Z" fill="#7dd3fc" fillOpacity="0.65" />
-                {/* Graduation mark */}
-                <line x1="162" y1="115" x2="198" y2="115" stroke="#dc2626" strokeWidth="2" />
-                <text x="204" y="118" fontSize="8" fill="#dc2626" fontWeight="bold">Tanda senggatan (250 cm³)</text>
-                {/* Dropper (Penitis) */}
-                <rect x="176" y="25" width="8" height="25" rx="3" fill="#334155" />
-                <path d="M 176 50 L 184 50 L 181 70 L 179 70 Z" fill="#e0f2fe" stroke="#475569" strokeWidth="1.5" />
-                <circle cx="180" cy="80" r="2.5" fill="#0ea5e9" />
-                <text x="158" y="45" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="end">Penitis</text>
-                <text x="180" y="236" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">Laraskan Aras Meniskus Tepat Segaris Tanda Senggatan</text>
-              </g>
-            )}
-
-            {mode === 'solid' && currentStep === 6 && (
-              <g>
-                {/* Stoppered Volumetric Flask */}
-                <path d="M 168 85 L 168 140 C 130 155 125 218 155 218 L 205 218 C 235 218 230 155 192 140 L 192 85" fill="#f8fafc" stroke="#0284c7" strokeWidth="2.5" />
-                <path d="M 169 115 L 191 115 L 191 140 C 228 155 233 216 205 216 L 155 216 C 127 216 132 155 169 140 Z" fill="#38bdf8" fillOpacity="0.65" />
-                <line x1="162" y1="115" x2="198" y2="115" stroke="#dc2626" strokeWidth="1.5" />
-                {/* Stopper (Penutup) */}
-                <path d="M 171 68 L 189 68 L 187 86 L 173 86 Z" fill="#0284c7" />
-                <circle cx="180" cy="63" r="6" fill="#0284c7" />
-                <text x="155" y="68" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="end">Penutup</text>
-                {/* Invert arrows */}
-                <path d="M 118 145 A 30 30 0 0 1 130 105" fill="none" stroke="#7c3aed" strokeWidth="2" markerEnd="url(#arrow)" />
-                <path d="M 242 105 A 30 30 0 0 1 230 145" fill="none" stroke="#7c3aed" strokeWidth="2" />
-                <text x="180" y="236" fontSize="9" fill="#0f766e" fontWeight="bold" textAnchor="middle">Larutan Piawai Na₂CO₃ 1.0 mol dm⁻³ Sedia Digunakan!</text>
-              </g>
-            )}
-
-            {/* DILUTION MODE: Aktiviti 6.8 */}
-            {mode === 'dilution' && currentStep === 1 && (
-              <g>
-                {/* Stock bottle pouring into beaker */}
-                <path d="M 135 125 L 135 212 Q 135 218 143 218 L 217 218 Q 225 218 225 212 L 225 125" fill="#f0f9ff" fillOpacity="0.4" stroke="#0284c7" strokeWidth="2.5" />
-                <rect x="137" y="160" width="86" height="56" rx="2" fill="#818cf8" fillOpacity="0.45" />
-                <text x="180" y="192" fontSize="8.5" fill="#312e81" fontWeight="bold" textAnchor="middle">Larutan Stok 1.0 M</text>
-                <text x="180" y="236" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">Tuangkan Larutan Stok Na₂CO₃ ke Dalam Bikar</text>
-              </g>
-            )}
-
-            {mode === 'dilution' && currentStep === 2 && (
-              <g>
-                {/* Beaker + Pipette drawing 20.0 cm3 */}
-                <path d="M 135 140 L 135 212 Q 135 218 143 218 L 217 218 Q 225 218 225 212 L 225 140" fill="#f0f9ff" fillOpacity="0.4" stroke="#0284c7" strokeWidth="2.5" />
-                <rect x="137" y="170" width="86" height="46" rx="2" fill="#818cf8" fillOpacity="0.45" />
-                {/* Bulb Pipette */}
-                <path d="M 177 35 L 177 75 C 168 85 168 110 177 120 L 177 195 L 183 195 L 183 120 C 192 110 192 85 183 75 L 183 35 Z" fill="#e0e7ff" stroke="#4f46e5" strokeWidth="2" />
-                {/* Liquid inside pipette */}
-                <path d="M 178 65 L 178 75 C 169 85 169 110 178 120 L 178 193 L 182 193 L 182 120 C 191 110 191 85 182 75 L 182 65 Z" fill="#6366f1" fillOpacity="0.65" />
-                <line x1="173" y1="65" x2="187" y2="65" stroke="#dc2626" strokeWidth="1.5" />
-                <text x="195" y="68" fontSize="8" fill="#4f46e5" fontWeight="bold">Pipet (V₁ = 20.0 cm³)</text>
-                <text x="180" y="236" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">Gunakan Pengisi Pipet untuk Menyukat Tepat 20.0 cm³</text>
-              </g>
-            )}
-
-            {mode === 'dilution' && currentStep === 3 && (
-              <g>
-                {/* Pipette transferring into Volumetric Flask 100 cm3 */}
-                <path d="M 168 100 L 168 148 C 135 162 130 218 158 218 L 202 218 C 230 218 225 162 192 148 L 192 100" fill="#f8fafc" stroke="#0284c7" strokeWidth="2.5" />
-                <path d="M 140 192 C 136 215 152 216 158 216 L 202 216 C 208 216 224 215 220 192 Z" fill="#818cf8" fillOpacity="0.6" />
-                <line x1="164" y1="125" x2="196" y2="125" stroke="#dc2626" strokeWidth="1.5" />
-                {/* Pipette above neck */}
-                <path d="M 177 10 L 177 45 C 170 52 170 70 177 77 L 177 110 L 183 110 L 183 77 C 190 70 190 52 183 45 L 183 10 Z" fill="#e0e7ff" stroke="#4f46e5" strokeWidth="1.8" />
-                <circle cx="180" cy="122" r="2.5" fill="#6366f1" />
-                <text x="180" y="236" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">Pindahkan 20.0 cm³ Larutan Stok ke Kelalang Volumetrik 100 cm³</text>
-              </g>
-            )}
-
-            {mode === 'dilution' && (currentStep === 4 || currentStep === 5 || currentStep === 6) && (
-              <g>
-                <path d="M 168 85 L 168 140 C 130 155 125 218 155 218 L 205 218 C 235 218 230 155 192 140 L 192 85" fill="#f8fafc" stroke="#0284c7" strokeWidth="2.5" />
-                <path 
-                  d={currentStep === 4 
-                    ? "M 169 130 L 191 130 L 191 140 C 228 155 233 216 205 216 L 155 216 C 127 216 132 155 169 140 Z"
-                    : "M 169 115 L 191 115 L 191 140 C 228 155 233 216 205 216 L 155 216 C 127 216 132 155 169 140 Z"} 
-                  fill="#818cf8" fillOpacity="0.45" 
-                />
-                <line x1="162" y1="115" x2="198" y2="115" stroke="#dc2626" strokeWidth="2" />
-                <text x="204" y="118" fontSize="8" fill="#dc2626" fontWeight="bold">Tanda senggatan (100 cm³)</text>
-
-                {currentStep === 4 && (
-                  <g transform="translate(80, 20) rotate(22)">
-                    <rect x="0" y="0" width="44" height="24" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.8" />
-                    <path d="M 44 12 L 72 12 L 76 22" fill="none" stroke="#0284c7" strokeWidth="2" />
-                    <text x="22" y="15" fontSize="6.5" fill="#0369a1" fontWeight="bold" textAnchor="middle">Air Suling</text>
-                  </g>
-                )}
-
-                {currentStep === 5 && (
-                  <g>
-                    <rect x="176" y="25" width="8" height="25" rx="3" fill="#334155" />
-                    <path d="M 176 50 L 184 50 L 181 70 L 179 70 Z" fill="#e0f2fe" stroke="#475569" strokeWidth="1.5" />
-                    <circle cx="180" cy="80" r="2.5" fill="#0ea5e9" />
-                  </g>
-                )}
-
-                {currentStep === 6 && (
-                  <g>
-                    <path d="M 171 68 L 189 68 L 187 86 L 173 86 Z" fill="#4f46e5" />
-                    <circle cx="180" cy="63" r="6" fill="#4f46e5" />
-                  </g>
-                )}
-
-                <text x="180" y="236" fontSize="9" fill="#334155" fontWeight="bold" textAnchor="middle">
-                  {currentStep === 4 ? 'Tambah Air Suling Hingga Menghampiri Tanda Senggatan' :
-                   currentStep === 5 ? 'Laraskan Aras Meniskus dengan Penitis' :
-                   'Larutan Piawai Na₂CO₃ 0.2 mol dm⁻³ Siap Disediakan!'}
-                </text>
-              </g>
-            )}
-          </svg>
-        </div>
-
-        {/* Right: Step Instructions, Stoichiometry & Calculator */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
-          
-          <div className="space-y-4">
-            {/* Step Instruction Box */}
-            <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-2xl space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800 bg-white px-2.5 py-0.5 rounded-full border border-teal-200">
-                  Prosedur {activeStepObj.code} daripada 6
-                </span>
+          {/* Panel Pengiraan Stoikiometri (Jisim Molar, Bilangan Mol & Isipadu Air Pencairan) */}
+          <div className="bg-white border border-slate-200 rounded-xl p-3 space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+              <div className="flex items-center gap-1.5">
+                <Scale className="w-4 h-4 text-indigo-600" />
+                <h4 className="text-xs font-bold text-slate-900">
+                  {mode === 'solid'
+                    ? `Pengiraan Jisim Pepejal ${salt.formula} (1.0 M)`
+                    : `Pengiraan Pencairan ${salt.formula} (M₁V₁ = M₂V₂)`}
+                </h4>
               </div>
-              <h4 className="font-display font-bold text-base text-slate-900">{activeStepObj.title}</h4>
-              <p className="text-xs text-slate-700 leading-relaxed">{activeStepObj.instruction}</p>
+
+              {mode === 'solid' ? (
+                <div className="inline-flex rounded-md bg-slate-100 p-0.5 text-[11px]">
+                  {[250, 100].map((vol) => (
+                    <button
+                      key={vol}
+                      type="button"
+                      onClick={() => {
+                        setSolidVolumeCm3(vol);
+                        setSolidCompletedStep(0);
+                        setFeedbackError(null);
+                      }}
+                      className={`px-2 py-0.5 rounded font-semibold transition-colors ${
+                        solidVolumeCm3 === vol
+                          ? 'bg-white text-indigo-700 shadow-sm'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      {vol} cm³
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <div className="inline-flex rounded-md bg-slate-100 p-0.5 text-[11px]">
+                    {[0.5, 0.2].map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => {
+                          setM2TargetM(m);
+                          setDilutionCompletedStep(0);
+                          setFeedbackError(null);
+                        }}
+                        className={`px-2 py-0.5 rounded font-semibold transition-colors ${
+                          m2TargetM === m
+                            ? 'bg-white text-sky-700 shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        {m.toFixed(1)} M
+                      </button>
+                    ))}
+                  </div>
+                  <div className="inline-flex rounded-md bg-slate-100 p-0.5 text-[11px]">
+                    {[100, 250].map((v) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => {
+                          setV2FinalCm3(v);
+                          setDilutionCompletedStep(0);
+                          setFeedbackError(null);
+                        }}
+                        className={`px-2 py-0.5 rounded font-semibold transition-colors ${
+                          v2FinalCm3 === v
+                            ? 'bg-white text-sky-700 shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        {v} cm³
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Stoichiometric Formula Box */}
             {mode === 'solid' ? (
-              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5 text-xs">
-                <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <Calculator className="w-4 h-4 text-teal-600" /> Penghitungan Jisim Pepejal Na₂CO₃:
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center justify-between bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-100">
+                  <span className="text-slate-600">1. Jisim Molar ({salt.formula})</span>
+                  <span className="font-mono font-semibold text-slate-900">
+                    {salt.jarFormulaText} = <strong className="text-indigo-700">{salt.molarMass.toFixed(1)} g mol⁻¹</strong>
+                  </span>
                 </div>
-                <div className="font-mono text-[11px] bg-white p-2.5 rounded-lg border border-slate-200 space-y-1 text-slate-700">
-                  <p>n = (M × V) / 1000 = (1.0 × 250) / 1000 = <strong>0.25 mol</strong></p>
-                  <p>Jisim Molar Na₂CO₃ = 2(23) + 12 + 3(16) = <strong>106 g mol⁻¹</strong></p>
-                  <p>Jisim = 0.25 × 106 = <strong className="text-teal-700">26.50 g</strong></p>
+
+                <div className="flex items-center justify-between bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-100">
+                  <span className="text-slate-600">2. Bilangan Mol (n = MV / 1000)</span>
+                  <span className="font-mono font-semibold text-slate-900">
+                    (1.0 × {solidStoich.volumeCm3}) / 1000 ={' '}
+                    <strong className="text-indigo-700">{solidStoich.moles.toFixed(2)} mol</strong>
+                  </span>
                 </div>
+
+                <div className="flex items-center justify-between gap-2 bg-indigo-50 rounded-lg px-2.5 py-2 border border-indigo-200">
+                  <span className="font-semibold text-indigo-950">3. Jisim (m = n × Jisim Molar)</span>
+                  <span className="font-mono font-bold text-indigo-700 text-[13px] whitespace-nowrap shrink-0">
+                    {solidStoich.moles.toFixed(2)} × {salt.molarMass.toFixed(1)} = {solidStoich.mass2dp.toFixed(2)} g
+                  </span>
+                </div>
+
+                <p className="text-[11px] text-slate-500 pt-0.5 leading-snug">{salt.formulaNote}</p>
               </div>
             ) : (
-              <div className="p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-2 text-xs">
-                <div className="font-bold text-indigo-950 flex items-center gap-1.5">
-                  <Calculator className="w-4 h-4 text-indigo-600" /> Kalkulator Pencairan (M₁V₁ = M₂V₂):
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center justify-between bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-100">
+                  <span className="text-slate-600">1. Persamaan Pencairan (M₁V₁ = M₂V₂)</span>
+                  <span className="font-mono font-semibold text-slate-900">
+                    1.0 × V₁ = {dilutionStoich.m2TargetM.toFixed(1)} × {dilutionStoich.v2FinalCm3}
+                  </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-[11px]">
-                  <label className="block">
-                    <span className="text-slate-600 font-semibold">M₁ (Stok)</span>
-                    <input type="number" step="0.1" min="0.1" value={m1} onChange={e => setM1(+e.target.value)} className="mt-0.5 w-full bg-white border border-indigo-200 rounded-lg px-2 py-1 font-mono font-bold text-slate-900" />
-                  </label>
-                  <label className="block">
-                    <span className="text-slate-600 font-semibold">M₂ (Akhir)</span>
-                    <input type="number" step="0.05" min="0.05" value={m2} onChange={e => setM2(+e.target.value)} className="mt-0.5 w-full bg-white border border-indigo-200 rounded-lg px-2 py-1 font-mono font-bold text-slate-900" />
-                  </label>
-                  <label className="block">
-                    <span className="text-slate-600 font-semibold">V₂ (cm³)</span>
-                    <input type="number" step="50" min="50" value={v2} onChange={e => setV2(+e.target.value)} className="mt-0.5 w-full bg-white border border-indigo-200 rounded-lg px-2 py-1 font-mono font-bold text-slate-900" />
-                  </label>
+
+                <div className="flex items-center justify-between bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-100">
+                  <span className="text-slate-600">2. Isi Padu Larutan Stok 1.0 M (V₁)</span>
+                  <span className="font-mono font-bold text-indigo-700">
+                    V₁ = {dilutionStoich.v1StockCm3.toFixed(1)} cm³
+                  </span>
                 </div>
-                <div className="font-mono text-xs bg-white p-2 rounded-lg border border-indigo-200 text-center text-indigo-900 font-bold">
-                  V₁ Diperlukan = ({m2} × {v2}) / {m1} = <span className="text-indigo-600">{v1Calc} cm³</span>
+
+                <div
+                  data-testid="water-needed-callout"
+                  className="flex items-center justify-between gap-2 bg-sky-50 rounded-lg px-2.5 py-2 border border-sky-300"
+                >
+                  <span className="font-semibold text-sky-950">3. Air Suling Diperlukan (V₂ − V₁)</span>
+                  <span className="font-mono font-bold text-sky-700 text-[13px] whitespace-nowrap shrink-0">
+                    {dilutionStoich.v2FinalCm3} − {dilutionStoich.v1StockCm3.toFixed(1)} ={' '}
+                    {dilutionStoich.vWaterNeededCm3.toFixed(1)} cm³
+                  </span>
                 </div>
+
+                <p className="text-[11px] text-slate-500 pt-0.5 leading-snug">
+                  Rajah 6.28: Bilangan mol zat terlarut kekal malar ({dilutionStoich.molesBefore.toFixed(3)} mol →{' '}
+                  {dilutionStoich.molesAfter.toFixed(3)} mol) sebelum dan selepas penambahan air suling.
+                </p>
               </div>
             )}
+          </div>
 
-            {/* Cabaran Minda / Discussion Question */}
-            <div className="p-3 bg-purple-50 border border-purple-200 rounded-xl text-[11px] text-slate-700 space-y-1">
-              <p className="font-bold text-purple-900 flex items-center gap-1">
-                <Info className="w-3.5 h-3.5 text-purple-600" />
-                {mode === 'solid' ? 'Soalan Perbincangan KSSM:' : 'Cabaran Minda (m.s. 165):'}
-              </p>
-              <p className="leading-relaxed">
-                {mode === 'solid'
-                  ? 'Mengapakah semua air bilasan bikar dan corong turas mesti dipindahkan ke dalam kelalang volumetrik? Supaya tiada zat terlarut Na₂CO₃ yang tertinggal bagi memastikan kepekatan tepat 1.0 mol dm⁻³.'
-                  : 'Mengapakah pipet perlu dibilas dengan larutan stok Na₂CO₃ 1.0 mol dm⁻³ dan bukan air suling? Supaya titisan air suling tidak mencairkan larutan stok yang disukat ke dalam pipet.'}
-              </p>
+          {/* Perbincangan Ringkas KSSM (Tab Ringkas Tanpa Scroll Panjang) */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
+                <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+                Perbincangan KSSM (m.s. 163–165)
+              </span>
+              <div className="flex items-center gap-1">
+                {KSSM_TIPS.map((tip) => (
+                  <button
+                    key={tip.id}
+                    type="button"
+                    onClick={() => setActiveTipId(tip.id)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                      activeTip.id === tip.id
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {tip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white rounded-lg border border-slate-200/80 px-2.5 py-2 text-[11px] space-y-1">
+              <div className="font-semibold text-slate-800">{activeTip.question}</div>
+              <p className="text-slate-600 leading-relaxed">{activeTip.answer}</p>
             </div>
           </div>
-
-          {/* Navigation Controls */}
-          <div className="flex items-center gap-2 pt-1">
-            <button
-              onClick={handlePrev}
-              disabled={currentStep === 1}
-              className="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 text-xs font-bold flex items-center gap-1 border border-slate-200 transition"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> Undur
-            </button>
-
-            <button
-              onClick={handleNext}
-              className="flex-1 py-2.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-teal-600/25 transition"
-            >
-              {currentStep === 6 ? (
-                <>
-                  <CheckCircle2 className="w-4 h-4" /> Selesai Penyediaan!
-                </>
-              ) : (
-                <>
-                  <span>{activeStepObj.actionLabel}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={() => { setCurrentStep(1); setShowZoomMeniscus(false); }}
-              className="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition"
-              title="Reset Semula"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-          </div>
-
         </div>
-
       </div>
     </div>
   );

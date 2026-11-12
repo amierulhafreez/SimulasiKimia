@@ -151,12 +151,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 6: Asid, Bes dan Garam',
     category: 'Asid, Bes & Garam',
-    description: 'Sediakan larutan piawai natrium karbonat 1.0 mol dm⁻³ daripada pepejal (Aktiviti 6.7) dan lakukan pencairan kepada 0.2 mol dm⁻³ (Aktiviti 6.8) mengikut langkah tepat Rajah 6.27 & 6.29.',
-    learningStandard: 'SP 6.6.1 & 6.6.2 - Menyediakan larutan piawai daripada bahan pepejal dan kaedah pencairan (M₁V₁ = M₂V₂)',
+    description: 'Sediakan larutan piawai 1.0 M bagi NaCl, CuSO₄ dan FeCl₃ daripada bahan pepejal menggunakan seret dan lepas (Aktiviti 6.7) serta lakukan pencairan kepada 0.5 M lengkap dengan pengiraan isi padu air diperlukan (Aktiviti 6.8).',
+    learningStandard: 'SP 6.6.1–6.6.3 - Menyediakan larutan piawai daripada bahan pepejal dan kaedah pencairan (M₁V₁ = M₂V₂)',
     iconName: 'Beaker',
     colorTheme: 'blue',
     isImplemented: true,
-    tags: ['Na₂CO₃', 'Kelalang Volumetrik', 'Senggatan Meniskus', 'M₁V₁ = M₂V₂']
+    tags: ['NaCl, CuSO₄ & FeCl₃', 'Seret & Lepas', '1.0 M → 0.5 M', 'M₁V₁ = M₂V₂']
   },
   {
     id: 'kadar-tindak-balas-saiz',
