@@ -212,16 +212,16 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
   },
   {
     id: 'keadaan-zarah-jirim',
-    title: 'Keadaan Zarah: Perubahan Keadaan Fizikal',
+    title: 'Keadaan Zarah: Perubahan Keadaan Jirim',
     form: 'Tingkatan 4',
     chapter: 'Bab 2: Jirim dan Struktur Atom',
     category: 'Jirim & Struktur Atom',
-    description: 'Terokai susunan, pergerakan dan tenaga kinetik zarah dalam keadaan pepejal, cecair dan gas serta 6 proses perubahan fizikal (Rajah 2.2).',
+    description: 'Kawal suhu 8 bahan (Air, Naftalena, CO₂, O₂, He, Na, NaCl, CuSO₄) untuk melihat perubahan zarah semasa pemanasan & penyejukkan serta takat lebur, beku & didih.',
     learningStandard: 'SP 2.1.1 - Menghuraikan perubahan keadaan fizikal jirim berdasarkan teori kinetik jirim',
     iconName: 'Boxes',
     colorTheme: 'cyan',
     isImplemented: true,
-    tags: ['Pepejal', 'Cecair', 'Gas', 'Pemejalwapan', 'Haba Diserap/Dibebas']
+    tags: ['Slider Suhu', '8 Bahan', 'Takat Lebur/Beku/Didih', 'Pemanasan & Penyejukkan']
   },
 
   // ================= TINGKATAN 5 =================
