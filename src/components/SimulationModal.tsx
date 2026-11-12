@@ -42,6 +42,7 @@ import { EsterificationLab } from '../simulations/EsterificationLab';
 import { AlkeneReactionsHubLab } from '../simulations/AlkeneReactionsHubLab';
 import { EthanolFermentationDistillationLab } from '../simulations/EthanolFermentationDistillationLab';
 import { AlkaneVsAlkeneLab } from '../simulations/AlkaneVsAlkeneLab';
+import { HeatOfNeutralisationLab } from '../simulations/HeatOfNeutralisationLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -148,6 +149,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <EthanolFermentationDistillationLab />;
       case 'ujian-kimia-alkana-alkena':
         return <AlkaneVsAlkeneLab />;
+      case 'haba-peneutralan':
+        return <HeatOfNeutralisationLab />;
       default:
         return (
           <div className="space-y-6">

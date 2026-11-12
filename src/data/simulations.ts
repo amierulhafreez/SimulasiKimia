@@ -526,8 +526,8 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     learningStandard: 'SP 3.2.3 - Mengeksperimen untuk menentukan haba peneutralan asid dan alkali',
     iconName: 'Thermometer',
     colorTheme: 'rose',
-    isImplemented: false,
-    tags: ['Haba Peneutralan', 'Asid Kuat & Lemah', '-57.3 kJ mol⁻¹', 'Q = mcθ']
+    isImplemented: true,
+    tags: ['Haba Peneutralan', 'Asid Kuat & Lemah', '-57.0 kJ mol⁻¹', 'Q = mcθ']
   },
   {
     id: 'haba-pemendakan',
