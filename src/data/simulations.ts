@@ -362,12 +362,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 1: Keseimbangan Redoks',
     category: 'Elektrokimia',
-    description: 'Mengkaji penyesaran halogen (klorin, bromin, iodin) daripada larutan halida dengan ujian lapisan 1,1,1-trikloroetana.',
+    description: 'Makmal Dwi-Lapisan 1,1,1-trikloroetana (CH₃CCl₃), Kanta Tarikan Elektron Kumpulan 17 & Matriks Eksplorasi 3×3 untuk 9 pasangan halogen-halida.',
     learningStandard: 'SP 1.1.3 - Menjalankan eksperimen penyesaran halogen daripada larutan halidanya',
     iconName: 'Droplets',
     colorTheme: 'amber',
-    isImplemented: false,
-    tags: ['Cl₂, Br₂, I₂', 'Penyesaran Halogen', 'Larutan Halida', 'Lapisan Organik']
+    isImplemented: true,
+    tags: ['Cl₂, Br₂, I₂', 'Penyesaran Halogen', '1,1,1-Trikloroetana', 'Matriks 3×3']
   },
   {
     id: 'sel-kimia-voltan',
