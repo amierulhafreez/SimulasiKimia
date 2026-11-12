@@ -183,21 +183,58 @@ export const CombustionCalorimeterSVG: React.FC<CombustionCalorimeterSVGProps> =
           {/* Pipe-clay triangle */}
           <rect x="190" y="136" width="96" height="5" rx="2" fill="#e2e8f0" stroke="#64748b" strokeWidth="1.2" />
 
-          {/* Copper Calorimeter Can */}
-          <rect
-            x="195"
-            y="66"
-            width="86"
-            height="70"
-            rx="4"
-            fill="url(#copperGrad)"
-            stroke="#78350f"
+          {/* Open-top Cylindrical Copper Calorimeter Can (with flared open rim & rounded base) */}
+          {/* Back rim arch */}
+          <path
+            d="M 192 66 Q 238 58 284 66"
+            fill="#92400e"
+            fillOpacity="0.18"
+            stroke="#92400e"
             strokeWidth="1.6"
           />
-          {/* Water interior */}
-          <rect x="201" y="72" width="74" height="58" rx="2" fill="#ffffff" fillOpacity="0.88" />
-          <rect x="201" y="84" width="74" height="46" rx="2" fill="url(#waterGradComb)" />
-          <path d="M 201 84 Q 220 81 238 84 T 275 84" fill="none" stroke="#0284c7" strokeWidth="1.5" />
+
+          {/* Outer cylindrical copper shell (open at top, rounded bottom corners) */}
+          <path
+            d="M 191 65 Q 195 67 195 72 L 195 124 Q 195 136 207 136 L 269 136 Q 281 136 281 124 L 281 72 Q 281 67 285 65 L 279 65 Q 275 68 275 72 L 275 123 Q 275 130 267 130 L 209 130 Q 201 130 201 123 L 201 72 Q 201 68 197 65 Z"
+            fill="url(#copperGrad)"
+            stroke="#78350f"
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+          />
+
+          {/* Inner open cavity backdrop */}
+          <path
+            d="M 201 66 L 201 123 Q 201 130 209 130 L 267 130 Q 275 130 275 123 L 275 66 Q 238 71 201 66 Z"
+            fill="#fffbeb"
+            fillOpacity="0.55"
+          />
+
+          {/* 200 cm³ Water inside open copper calorimeter */}
+          <path
+            d="M 201 86 L 201 123 Q 201 130 209 130 L 267 130 Q 275 130 275 123 L 275 86 Z"
+            fill="url(#waterGradComb)"
+          />
+          {/* Elliptical water top surface (meniscus) */}
+          <ellipse
+            cx="238"
+            cy="86"
+            rx="37"
+            ry="4.8"
+            fill="#bae6fd"
+            stroke="#0284c7"
+            strokeWidth="1.3"
+          />
+
+          {/* Subtle front rim lip curve showing open cylindrical mouth */}
+          <path
+            d="M 192 66 Q 238 73 284 66"
+            fill="none"
+            stroke="#b45309"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+          />
+          <ellipse cx="192" cy="65.5" rx="2.2" ry="1.5" fill="#d97706" stroke="#78350f" strokeWidth="1" />
+          <ellipse cx="284" cy="65.5" rx="2.2" ry="1.5" fill="#d97706" stroke="#78350f" strokeWidth="1" />
 
           {/* Heat convection bubbles */}
           {isBurning && (
