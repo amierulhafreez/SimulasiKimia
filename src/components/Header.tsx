@@ -51,7 +51,7 @@ export const Header: React.FC<Props> = ({
             onClick={() => onNavigateSection('bento')}
             className="hover:text-[#0071e3] transition cursor-pointer whitespace-nowrap"
           >
-            Sorotan Bento
+            Sorotan Pembelajaran
           </button>
           <button
             type="button"
