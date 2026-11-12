@@ -308,16 +308,16 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
   // --- Bab 3: Termokimia ---
   {
     id: 'haba-penyesaran',
-    title: 'Termokimia: Haba Penyesaran Logam',
+    title: 'Termokimia: Haba Penyesaran',
     form: 'Tingkatan 5',
     chapter: 'Bab 3: Termokimia',
     category: 'Termokimia',
-    description: 'Ukur kenaikan suhu apabila serbuk zink berlebihan dimasukkan ke dalam larutan kuprum(II) sulfat dan hitung nilai ΔH penyesaran.',
-    learningStandard: 'SP 3.1.2 - Menentukan haba penyesaran melalui eksperimen',
+    description: 'Makmal maya berprosedur berpandu (Aktiviti 3C) untuk dua set penyesaran kuprum daripada CuSO₄ oleh Magnesium (Mg) & Zink (Zn), beserta perancah pengiraan berperingkat Q = mcθ hingga ΔH.',
+    learningStandard: 'SP 3.2.2 - Menentukan dan membandingkan haba penyesaran kuprum oleh Mg dan Zn',
     iconName: 'FlameKindling',
     colorTheme: 'red',
     isImplemented: true,
-    tags: ['ΔH Penyesaran', 'Cawan Polistirena', 'Kenaikan Suhu', 'Eksotermik']
+    tags: ['Mg & Zn + CuSO₄', 'Q = mcθ', 'Haba Penyesaran ΔH', 'Rajah Aras Tenaga']
   },
   {
     id: 'haba-pembakaran',
