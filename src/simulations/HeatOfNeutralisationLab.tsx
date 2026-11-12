@@ -66,6 +66,12 @@ function getThermochemicalEquation(acid: AcidSpec, alkali: AlkaliSpec, deltaH: n
   return `CH₃COOH(ak) + NH₃(ak) → CH₃COONH₄(ak)   ΔH = ${dh} kJ mol⁻¹`;
 }
 
+function getReactantsAndProducts(acid: AcidSpec, alkali: AlkaliSpec): { reactants: string; products: string } {
+  const eq = getThermochemicalEquation(acid, alkali, -57.0).split('   ΔH')[0];
+  const [reactants, products] = eq.split(' → ');
+  return { reactants, products };
+}
+
 interface RecordRow {
   pair: string;
   conc: number;
@@ -129,7 +135,7 @@ const CalorimeterCanvas: React.FC<{
       const t = (now - startMs) / 1000;
       const dpr = window.devicePixelRatio || 1;
       const cssW = 460;
-      const cssH = 240;
+      const cssH = 276;
       if (canvas.width !== cssW * dpr || canvas.height !== cssH * dpr) {
         canvas.width = cssW * dpr;
         canvas.height = cssH * dpr;
@@ -150,90 +156,146 @@ const CalorimeterCanvas: React.FC<{
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Bench
+      // Lab Bench
+      const benchY = 248;
       ctx.fillStyle = '#cbd5e1';
-      ctx.fillRect(14, 214, 432, 7);
+      ctx.fillRect(14, benchY, 432, 6);
 
-      const cupCx = 185;
-      const cupBottom = 214;
-      const cupTop = 104;
+      const cupCx = 186;
+      const beakerTop = 128;
+      const beakerBottom = benchY;
+      const cupTop = 108;
+      const cupBottom = benchY - 6;
 
-      // Polystyrene Cup (Cawan polistirena)
+      // Outer 250 cm³ Glass Beaker (Bikar 250 cm³ — menyokong cawan polistirena seperti buku teks)
+      ctx.save();
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.22)';
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      // Left pouring lip
+      ctx.moveTo(cupCx - 58, beakerTop - 4);
+      ctx.lineTo(cupCx - 52, beakerTop + 4);
+      ctx.lineTo(cupCx - 52, beakerBottom - 6);
+      ctx.quadraticCurveTo(cupCx - 52, beakerBottom, cupCx - 44, beakerBottom);
+      ctx.lineTo(cupCx + 44, beakerBottom);
+      ctx.quadraticCurveTo(cupCx + 52, beakerBottom, cupCx + 52, beakerBottom - 6);
+      ctx.lineTo(cupCx + 52, beakerTop);
+      ctx.stroke();
+      ctx.fill();
+      ctx.restore();
+
+      // Polystyrene Cup (Cawan polistirena) sitting inside the beaker
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(cupCx - 48, cupTop);
-      ctx.lineTo(cupCx - 38, cupBottom);
-      ctx.lineTo(cupCx + 38, cupBottom);
-      ctx.lineTo(cupCx + 48, cupTop);
+      ctx.moveTo(cupCx - 44, cupTop);
+      ctx.lineTo(cupCx - 35, cupBottom);
+      ctx.lineTo(cupCx + 35, cupBottom);
+      ctx.lineTo(cupCx + 44, cupTop);
       ctx.closePath();
 
-      // Liquid inside cup (rises when poured)
+      // Liquid inside cup (rises when alkali is poured)
       ctx.save();
       ctx.clip();
-      const fillFrac = prog > 0 ? 0.42 + Math.min(1, prog / 0.3) * 0.34 : 0.42;
+      const fillFrac = prog > 0 ? 0.38 + Math.min(1, prog / 0.3) * 0.34 : 0.38;
       const liqTop = cupBottom - (cupBottom - cupTop) * fillFrac;
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
-      ctx.fillRect(cupCx - 50, liqTop, 100, cupBottom - liqTop);
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.32)';
+      ctx.fillRect(cupCx - 48, liqTop, 96, cupBottom - liqTop);
       ctx.strokeStyle = '#0284c7';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(cupCx - 50, liqTop);
-      ctx.lineTo(cupCx + 50, liqTop);
+      ctx.moveTo(cupCx - 48, liqTop);
+      ctx.lineTo(cupCx + 48, liqTop);
       ctx.stroke();
       ctx.restore();
 
-      ctx.fillStyle = 'rgba(241, 245, 249, 0.35)';
+      ctx.fillStyle = 'rgba(248, 250, 252, 0.45)';
       ctx.fill();
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Flared top rim of polystyrene cup
+      ctx.fillStyle = '#f1f5f9';
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.roundRect(cupCx - 47, cupTop - 3, 94, 5, 2);
+      ctx.fill();
       ctx.stroke();
       ctx.restore();
 
       // Perforated Lid (Penutup berlubang)
       ctx.fillStyle = '#94a3b8';
-      ctx.strokeStyle = '#334155';
+      ctx.strokeStyle = '#1e293b';
       ctx.lineWidth = 1.5;
-      ctx.fillRect(cupCx - 52, cupTop - 6, 104, 6);
-      ctx.strokeRect(cupCx - 52, cupTop - 6, 104, 6);
+      ctx.beginPath();
+      ctx.roundRect(cupCx - 49, cupTop - 9, 98, 6, 1.5);
+      ctx.fill();
+      ctx.stroke();
 
-      // Thermometer (0 - 110 °C)
-      const thermX = cupCx - 10;
+      // Thermometer (0–110 °C) with graduations
+      const thermX = cupCx - 11;
       ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(thermX - 3.5, 22, 7, 152);
-      ctx.strokeStyle = '#475569';
+      ctx.fillRect(thermX - 3.5, 24, 7, 178);
+      ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1.2;
-      ctx.strokeRect(thermX - 3.5, 22, 7, 152);
-      // Bulb
+      ctx.strokeRect(thermX - 3.5, 24, 7, 178);
+      // Scale ticks
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 0.8;
+      for (let ty = 34; ty <= 156; ty += 8) {
+        ctx.beginPath();
+        ctx.moveTo(thermX - 3.5, ty);
+        ctx.lineTo(thermX - 0.5, ty);
+        ctx.stroke();
+      }
+      // Bulb submerged in solution
       ctx.fillStyle = '#dc2626';
       ctx.beginPath();
-      ctx.arc(thermX, 176, 5, 0, Math.PI * 2);
+      ctx.arc(thermX, 205, 5, 0, Math.PI * 2);
       ctx.fill();
       // Mercury column
-      const mercH = 40 + ((curT - 25) / 25) * 85;
-      ctx.fillRect(thermX - 1.5, 174 - Math.min(140, mercH), 3, Math.min(140, mercH));
+      const mercH = 55 + ((curT - 25) / 25) * 95;
+      ctx.fillRect(thermX - 1.5, 203 - Math.min(165, mercH), 3, Math.min(165, mercH));
 
-      // Stirring Rod (Rod pengacau) — animates up/down when stirring
+      // Glass Stirring Rod (Rod kaca / pengacau) — animates gently when stirring
       const stirOffset = running && prog > 0.25 && prog < 0.95 ? Math.sin(t * 14) * 6 : 0;
-      const rodX = cupCx + 18;
+      const rodX = cupCx + 16;
       ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2.6;
       ctx.beginPath();
-      ctx.moveTo(rodX, 42 + stirOffset);
-      ctx.lineTo(rodX, 192 + stirOffset);
+      ctx.moveTo(rodX, 46 + stirOffset);
+      ctx.lineTo(rodX, 222 + stirOffset);
       ctx.stroke();
-      // Stirrer ring at bottom
       ctx.beginPath();
-      ctx.ellipse(rodX, 192 + stirOffset, 8, 2.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(rodX, 222 + stirOffset, 7, 2.2, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Pouring Alkali stream during start of animation (prog < 0.3)
+      // Pouring second cup animation at start (0 < prog < 0.3)
       if (running && prog > 0 && prog < 0.3) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
-        ctx.lineWidth = 4;
+        ctx.translate(cupCx - 76, 48);
+        ctx.rotate(0.55);
+        ctx.fillStyle = '#f1f5f9';
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(cupCx - 62, 58);
-        ctx.quadraticCurveTo(cupCx - 22, 72, cupCx - 8, 98);
+        ctx.moveTo(-14, -18);
+        ctx.lineTo(-10, 14);
+        ctx.lineTo(10, 14);
+        ctx.lineTo(14, -18);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(cupCx - 58, 56);
+        ctx.quadraticCurveTo(cupCx - 24, 72, cupCx - 4, 99);
         ctx.stroke();
         ctx.restore();
       }
@@ -244,35 +306,36 @@ const CalorimeterCanvas: React.FC<{
       ctx.strokeStyle = prog >= 0.9 ? '#dc2626' : '#cbd5e1';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(thermX + 12, 22, 62, 22, 6);
+      ctx.roundRect(thermX + 12, 20, 62, 22, 6);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = prog >= 0.9 ? '#dc2626' : '#0f172a';
       ctx.font = '800 11px ui-monospace, monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`${curT.toFixed(1)} °C`, thermX + 43, 33);
+      ctx.fillText(`${curT.toFixed(1)} °C`, thermX + 43, 31);
       ctx.restore();
 
-      // Textbook Leader Labels
-      drawLeader(thermX - 3, 56, 'left', 14, 56, 'Termometer (0–110 °C)');
-      drawLeader(cupCx - 50, cupTop - 3, 'left', 14, 98, 'Penutup berlubang');
-      drawLeader(cupCx - 43, 155, 'left', 14, 155, 'Cawan polistirena');
-      drawLeader(rodX, 66, 'left', 14, 196, 'Rod pengacau');
+      // Non-crossing Textbook Leader Labels
+      drawLeader(thermX - 3.5, 56, 'left', 12, 56, 'Termometer (0–110 °C)');
+      drawLeader(cupCx - 49, cupTop - 6, 'left', 12, 102, 'Penutup berlubang');
+      drawLeader(cupCx - 41, 142, 'left', 12, 142, 'Cawan polistirena');
+      drawLeader(cupCx - 52, 192, 'left', 12, 192, 'Bikar 250 cm³');
+      drawLeader(rodX + 2, 74, 'right', 284, 74, 'Rod pengacau');
 
-      // Solution label
+      // Solution label below bench
       ctx.fillStyle = '#0369a1';
-      ctx.font = '700 9px ui-sans-serif, system-ui, sans-serif';
+      ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`${acF} + ${alF} (100 cm³)`, cupCx, 229);
+      ctx.fillText(`Campuran: ${acF} + ${alF} (100 cm³)`, cupCx, 265);
 
       // ==========================================
       // MINI GRAPH: SUHU (°C) MELAWAN MASA (s)
       // ==========================================
-      const gx = 292;
-      const gy = 30;
-      const gw = 152;
-      const gh = 112;
+      const gx = 294;
+      const gy = 104;
+      const gw = 154;
+      const gh = 128;
 
       ctx.save();
       ctx.fillStyle = '#f8fafc';
@@ -286,17 +349,17 @@ const CalorimeterCanvas: React.FC<{
       ctx.fillStyle = '#0f172a';
       ctx.font = '800 9px ui-sans-serif, system-ui, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Graf Suhu (°C) vs Masa (s)', gx + gw / 2, gy + 12);
+      ctx.fillText('Graf Suhu (°C) vs Masa (s)', gx + gw / 2, gy + 13);
 
       // Axes
-      const ox = gx + 24;
-      const oy = gy + gh - 18;
-      const axW = gw - 36;
-      const axH = gh - 40;
-      ctx.strokeStyle = '#475569';
+      const ox = gx + 28;
+      const oy = gy + gh - 20;
+      const axW = gw - 40;
+      const axH = gh - 46;
+      ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1.2;
       ctx.beginPath();
-      ctx.moveTo(ox, gy + 22);
+      ctx.moveTo(ox, gy + 24);
       ctx.lineTo(ox, oy);
       ctx.lineTo(ox + axW, oy);
       ctx.stroke();
@@ -309,7 +372,6 @@ const CalorimeterCanvas: React.FC<{
       for (let i = 0; i <= steps; i++) {
         const u = i / 30;
         const px = ox + u * axW;
-        // Smooth rise reaching peak at u=0.8
         const rise = u < 0.8 ? Math.sin((u / 0.8) * (Math.PI / 2)) : 1 - (u - 0.8) * 0.08;
         const tempAtU = 28.0 + (maxT - 28.0) * rise;
         const py = oy - Math.min(1, (tempAtU - 26) / 20) * axH;
@@ -318,12 +380,31 @@ const CalorimeterCanvas: React.FC<{
       }
       ctx.stroke();
 
+      // Dashed T_maks reference when finished
+      if (prog >= 0.85) {
+        const peakY = oy - Math.min(1, (maxT - 26) / 20) * axH;
+        ctx.save();
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(ox, peakY);
+        ctx.lineTo(ox + axW * 0.8, peakY);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.fillStyle = '#dc2626';
+        ctx.font = '700 8px ui-sans-serif, system-ui, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${maxT.toFixed(1)}°`, ox - 3, peakY + 2);
+      }
+
       ctx.fillStyle = '#64748b';
       ctx.font = '600 8px ui-sans-serif, system-ui, sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('28°', ox - 3, oy - 4);
+      ctx.fillText('28°', ox - 3, oy - 2);
       ctx.textAlign = 'center';
-      ctx.fillText('Masa (s)', ox + axW / 2, oy + 11);
+      ctx.fillText('Masa (s)', ox + axW / 2, oy + 12);
       ctx.restore();
 
       ctx.restore();
@@ -337,7 +418,7 @@ const CalorimeterCanvas: React.FC<{
   return (
     <canvas
       ref={canvasRef}
-      className="w-full max-w-[460px] aspect-[460/240] mx-auto block rounded-xl border border-slate-200 bg-white"
+      className="w-full max-w-[460px] aspect-[460/276] mx-auto block rounded-xl border border-slate-200 bg-white"
     />
   );
 };
@@ -647,13 +728,13 @@ export const HeatOfNeutralisationLab: React.FC = () => {
                 {records.map((r, idx) => (
                   <div
                     key={idx}
-                    className="flex justify-between text-[10px] bg-slate-50 px-2 py-1 rounded border border-slate-200 font-bold"
+                    className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-[10px] bg-slate-50 px-2 py-1 rounded border border-slate-200 font-bold"
                   >
-                    <span>
+                    <span className="truncate">
                       {r.pair} ({r.conc}M)
                     </span>
-                    <span className="text-rose-700">{r.deltaTheta}</span>
-                    <span className="text-indigo-700">{r.deltaH}</span>
+                    <span className="text-rose-700 whitespace-nowrap">{r.deltaTheta}</span>
+                    <span className="text-indigo-700 whitespace-nowrap">{r.deltaH}</span>
                   </div>
                 ))}
               </div>
@@ -749,31 +830,130 @@ export const HeatOfNeutralisationLab: React.FC = () => {
           </div>
         </div>
 
-        {/* Gambar Rajah Aras Tenaga Dinamik */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between">
-          <div className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500">
-            Gambar Rajah Aras Tenaga (Eksotermik)
-          </div>
-          <div className="flex items-center gap-3 py-1">
-            <div className="flex flex-col items-center justify-center border-l-2 border-b-2 border-slate-700 px-4 py-2 flex-1 relative min-h-[96px]">
-              {/* Reactant level */}
-              <div className="w-36 border-t-2 border-red-600 text-[10px] font-extrabold text-red-800 text-center pb-1">
-                Bahan Tindak Balas ({acid.formula} + {alkali.formula})
+        {/* Gambar Rajah Aras Tenaga Dinamik (Format Buku Teks Kimia KSSM) */}
+        {(() => {
+          const { reactants, products } = getReactantsAndProducts(acid, alkali);
+          const topY = 36;
+          const bottomY = 36 + Math.max(46, energyGapPx + 14);
+          return (
+            <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between">
+              <div className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500">
+                Gambar Rajah Aras Tenaga (Eksotermik)
               </div>
-              {/* Arrow down */}
-              <div
-                className="flex items-center gap-1.5 text-[10.5px] font-extrabold text-rose-700 border-l-2 border-dashed border-rose-500 pl-2"
-                style={{ height: `${energyGapPx}px` }}
+              <svg
+                viewBox="0 0 320 132"
+                className="w-full h-[126px] mx-auto block"
+                role="img"
+                aria-label="Gambar Rajah Aras Tenaga Eksotermik"
               >
-                <span>↓ ΔH = {deltaH.toFixed(1)} kJ mol⁻¹</span>
-              </div>
-              {/* Product level */}
-              <div className="w-36 border-t-2 border-blue-600 text-[10px] font-extrabold text-blue-800 text-center pt-1">
-                Hasil (Garam + H₂O)
-              </div>
+                <defs>
+                  <marker
+                    id="energyAxisArrow"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="6"
+                    refY="4"
+                    orient="auto"
+                  >
+                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#1e293b" />
+                  </marker>
+                  <marker
+                    id="deltaHArrow"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="6"
+                    refY="4"
+                    orient="auto"
+                  >
+                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#be123c" />
+                  </marker>
+                </defs>
+
+                {/* Paksi Menegak Tenaga */}
+                <line
+                  x1="34"
+                  y1="120"
+                  x2="34"
+                  y2="18"
+                  stroke="#1e293b"
+                  strokeWidth="2"
+                  markerEnd="url(#energyAxisArrow)"
+                />
+                <text
+                  x="34"
+                  y="11"
+                  textAnchor="middle"
+                  fontSize="10"
+                  fontWeight="800"
+                  fill="#0f172a"
+                >
+                  Tenaga
+                </text>
+
+                {/* Aras Bahan Tindak Balas (Atas) */}
+                <text
+                  x="166"
+                  y={topY - 8}
+                  textAnchor="middle"
+                  fontSize="10.5"
+                  fontWeight="800"
+                  fill="#0f172a"
+                >
+                  {reactants}
+                </text>
+                <line
+                  x1="78"
+                  y1={topY}
+                  x2="256"
+                  y2={topY}
+                  stroke="#dc2626"
+                  strokeWidth="2.4"
+                />
+
+                {/* Anak Panah ΔH Menegak ke Bawah */}
+                <line
+                  x1="136"
+                  y1={topY + 2}
+                  x2="136"
+                  y2={bottomY - 3}
+                  stroke="#be123c"
+                  strokeWidth="2"
+                  markerEnd="url(#deltaHArrow)"
+                />
+                <text
+                  x="146"
+                  y={(topY + bottomY) / 2 + 3}
+                  textAnchor="start"
+                  fontSize="11"
+                  fontWeight="800"
+                  fill="#be123c"
+                >
+                  ΔH = {deltaH.toFixed(1)} kJ mol⁻¹
+                </text>
+
+                {/* Aras Hasil Tindak Balas (Bawah) */}
+                <line
+                  x1="78"
+                  y1={bottomY}
+                  x2="256"
+                  y2={bottomY}
+                  stroke="#2563eb"
+                  strokeWidth="2.4"
+                />
+                <text
+                  x="166"
+                  y={bottomY + 14}
+                  textAnchor="middle"
+                  fontSize="10.5"
+                  fontWeight="800"
+                  fill="#0f172a"
+                >
+                  {products}
+                </text>
+              </svg>
             </div>
-          </div>
-        </div>
+          );
+        })()}
       </div>
     </div>
   );
