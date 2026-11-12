@@ -37,6 +37,7 @@ import { IronIonConversionLab } from '../simulations/IronIonConversionLab';
 import { HalogenDisplacementLab } from '../simulations/HalogenDisplacementLab';
 import { VoltaicCellLab } from '../simulations/VoltaicCellLab';
 import { IronRustingLab } from '../simulations/IronRustingLab';
+import { EthanolOxidationLab } from '../simulations/EthanolOxidationLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -133,6 +134,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <VoltaicCellLab />;
       case 'pengaratan-besi-sentuhan-logam':
         return <IronRustingLab />;
+      case 'pengoksidaan-etanol':
+        return <EthanolOxidationLab />;
       default:
         return (
           <div className="space-y-6">

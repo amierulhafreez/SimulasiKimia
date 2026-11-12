@@ -468,12 +468,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 2: Sebatian Karbon',
     category: 'Kimia Karbon',
-    description: 'Pengoksidaan etanol menggunakan larutan kalium dikromat(VI) berasid atau KMnO₄ berasid di bawah refluks untuk menghasilkan asid etanoik.',
+    description: 'Radas penyulingan etanol dengan KMnO₄ / K₂Cr₂O₇ berasid, Kanta Kumpulan Berfungsi (-OH → -COOH), serta ujian litmus, Mg & Na₂CO₃.',
     learningStandard: 'SP 2.3.3 - Menghuraikan sifat kimia alkohol termasuk pengoksidaan etanol',
     iconName: 'Beaker',
     colorTheme: 'orange',
-    isImplemented: false,
-    tags: ['Pengoksidaan Alkohol', 'K₂Cr₂O₇ Berasid', 'Asid Etanoik', 'Refluks']
+    isImplemented: true,
+    tags: ['Pengoksidaan Alkohol', 'K₂Cr₂O₇ & KMnO₄', 'Asid Etanoik', 'Ujian Litmus & Mg']
   },
   {
     id: 'pengesteran-alkohol-asid-karboksilik',
