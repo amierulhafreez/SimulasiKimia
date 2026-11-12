@@ -375,12 +375,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 1: Keseimbangan Redoks',
     category: 'Elektrokimia',
-    description: 'Menentukan nilai voltan dan kekutuban elektrod pelbagai pasangan logam berdasarkan nilai keupayaan elektrod piawai E⁰.',
+    description: 'Simulasi dwi-tab Sel Kimia Ringkas & Sel Daniell (Jambatan Garam / Pasu Berliang), pengiraan E°sel masa nyata, notasi sel piawai & cabaran misi voltan.',
     learningStandard: 'SP 1.3.1 - Mengeksperimen untuk menentukan voltan pelbagai pasangan logam dalam sel kimia',
     iconName: 'BatteryCharging',
     colorTheme: 'indigo',
-    isImplemented: false,
-    tags: ['Sel Voltan', 'Nilai E⁰', 'Pasangan Logam', 'Terminal Anod & Katod']
+    isImplemented: true,
+    tags: ['Sel Kimia Ringkas', 'Sel Daniell', 'Nilai E⁰', 'Notasi Sel']
   },
   {
     id: 'pengaratan-besi-sentuhan-logam',

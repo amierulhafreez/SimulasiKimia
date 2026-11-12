@@ -35,6 +35,7 @@ import { AlloyHardnessLab } from '../simulations/AlloyHardnessLab';
 import { UTubeElectronTransferLab } from '../simulations/UTubeElectronTransferLab';
 import { IronIonConversionLab } from '../simulations/IronIonConversionLab';
 import { HalogenDisplacementLab } from '../simulations/HalogenDisplacementLab';
+import { VoltaicCellLab } from '../simulations/VoltaicCellLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -127,6 +128,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <IronIonConversionLab />;
       case 'penyesaran-halogen-halida':
         return <HalogenDisplacementLab />;
+      case 'sel-kimia-voltan':
+        return <VoltaicCellLab />;
       default:
         return (
           <div className="space-y-6">
