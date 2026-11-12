@@ -1,74 +1,106 @@
 import React from 'react';
-import { Users, BarChart3, Sparkles } from 'lucide-react';
+import { BarChart3, Search, FlaskConical } from 'lucide-react';
 
 interface Props {
   totalVisitors: number;
   onOpenAnalytics: () => void;
+  onNavigateSection: (section: 'hero' | 'bento' | 't4' | 't5') => void;
+  onFocusSearch: () => void;
 }
 
-export const Header: React.FC<Props> = ({ totalVisitors, onOpenAnalytics }) => {
+export const Header: React.FC<Props> = ({
+  totalVisitors,
+  onOpenAnalytics,
+  onNavigateSection,
+  onFocusSearch,
+}) => {
   return (
-    <header className="relative pt-10 pb-8 px-4 border-b border-purple-100 bg-gradient-to-b from-purple-50/80 via-white to-[#f8fafc]">
-      
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-        
-        {/* Left Branding */}
-        <div className="text-center md:text-left space-y-2">
-          
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 text-purple-800 border border-purple-200 text-xs font-bold uppercase tracking-wider shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-            amierul hafreez | mrsm bagan datuk
+    <nav
+      aria-label="Navigasi utama"
+      className="sticky top-0 z-40 apple-glass border-b border-black/[0.06] transition-shadow"
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-12 sm:h-13 flex items-center justify-between gap-4">
+        {/* Left: Minimal Brand */}
+        <button
+          type="button"
+          onClick={() => onNavigateSection('hero')}
+          className="flex items-center gap-2 text-[#1d1d1f] hover:opacity-80 transition cursor-pointer shrink-0"
+        >
+          <div className="w-7 h-7 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-2xs">
+            <FlaskConical className="w-3.5 h-3.5" />
           </div>
+          <span className="font-display font-semibold text-xs sm:text-[13px] tracking-tight whitespace-nowrap">
+            Simulasi Kimia
+          </span>
+          <span className="hidden lg:inline-block text-[11px] text-[#6e6e73] font-medium">
+            · Cikgu Hafreez
+          </span>
+        </button>
 
-          <h1 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-slate-900 uppercase">
-            SIMULASI KIMIA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-800">CIKGU HAFREEZ</span>
-          </h1>
-
-          <div className="flex items-center justify-center md:justify-start gap-3">
-            <span className="font-display font-bold text-xs tracking-wide text-amber-900 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
-              KAMI NAK KIMIA A+
-            </span>
-            <span className="text-xs text-slate-600 font-medium">
-              Makmal Maya SPM KSSM (Tingkatan 4 & 5)
-            </span>
-          </div>
-
+        {/* Center: Clear Navigation Links */}
+        <div className="hidden md:flex items-center gap-6 text-[12px] font-medium text-[#1d1d1f]/80">
+          <button
+            type="button"
+            onClick={() => onNavigateSection('hero')}
+            className="hover:text-[#0071e3] transition cursor-pointer whitespace-nowrap"
+          >
+            Utama
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateSection('bento')}
+            className="hover:text-[#0071e3] transition cursor-pointer whitespace-nowrap"
+          >
+            Sorotan Bento
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateSection('t4')}
+            className="hover:text-[#0071e3] transition cursor-pointer whitespace-nowrap"
+          >
+            Tingkatan 4
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateSection('t5')}
+            className="hover:text-[#0071e3] transition cursor-pointer whitespace-nowrap"
+          >
+            Tingkatan 5
+          </button>
         </div>
 
-        {/* Right Visitor Counter & Analytics Pill */}
-        <div className="flex flex-col sm:flex-row items-center gap-3">
-          
-          {/* Live Visitor Counter Badge */}
-          <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white border border-purple-200 shadow-sm">
-            <div className="relative flex items-center justify-center">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping absolute"></span>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 relative"></span>
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Jumlah Pelawat</span>
-              <div className="flex items-baseline gap-1">
-                <span className="font-mono font-extrabold text-lg text-slate-900">
-                  {totalVisitors.toLocaleString()}
-                </span>
-                <span className="text-[10px] text-emerald-600 font-bold">Aktif</span>
-              </div>
-            </div>
-            <Users className="w-5 h-5 text-purple-600 ml-1 opacity-80" />
-          </div>
-
-          {/* Analytics Dashboard Trigger Button */}
+        {/* Right: Quick Search, Visitor Live Pill & Statistics */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={onOpenAnalytics}
-            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-purple-600/20 transition transform hover:-translate-y-0.5"
+            type="button"
+            onClick={onFocusSearch}
+            aria-label="Cari simulasi"
+            className="p-1.5 rounded-full text-[#1d1d1f]/70 hover:text-[#1d1d1f] hover:bg-black/[0.05] transition cursor-pointer"
           >
-            <BarChart3 className="w-4 h-4" />
-            Statistik Makmal
+            <Search className="w-4 h-4" />
           </button>
 
+          <div
+            title="Jumlah pelawat aktif"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/[0.04] border border-black/[0.05] text-[11px] font-medium text-[#1d1d1f]"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-mono font-semibold tabular-nums">
+              {totalVisitors.toLocaleString()}
+            </span>
+            <span className="text-[#6e6e73]">pelawat</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenAnalytics}
+            className="px-3 py-1 rounded-full bg-[#1d1d1f] hover:bg-[#0071e3] text-white text-[11px] font-medium flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap"
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Statistik</span>
+          </button>
         </div>
-
       </div>
-
-    </header>
+    </nav>
   );
 };

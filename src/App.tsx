@@ -1,13 +1,25 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SIMULATIONS_DATA } from './data/simulations';
 import { FormLevel, SimulationAnalytics, SimulationItem } from './types/simulation';
 import { analytics } from './services/analytics';
 import { Header } from './components/Header';
+import { AppleHeroShowcase } from './components/AppleHeroShowcase';
 import { SimulationCard } from './components/SimulationCard';
 import { SimulationModal } from './components/SimulationModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { Footer } from './components/Footer';
-import { BookOpen, Layers, Search } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUpRight,
+  Atom,
+  BookOpen,
+  Calculator,
+  ChevronRight,
+  Layers,
+  Search,
+  Sparkles,
+  X,
+} from 'lucide-react';
 
 interface TopicGroup {
   key: string;
@@ -88,10 +100,7 @@ const T5_TOPICS: Array<{ key: string; babCode: string; title: string; match: (s:
   },
 ];
 
-function groupByTopics(
-  sims: SimulationItem[],
-  defs: typeof T4_TOPICS
-): TopicGroup[] {
+function groupByTopics(sims: SimulationItem[], defs: typeof T4_TOPICS): TopicGroup[] {
   return defs
     .map((def) => ({
       key: def.key,
@@ -111,6 +120,13 @@ export const App: React.FC = () => {
   const [selectedT5Topic, setSelectedT5Topic] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  const heroRef = useRef<HTMLElement | null>(null);
+  const bentoRef = useRef<HTMLElement | null>(null);
+  const catalogRef = useRef<HTMLElement | null>(null);
+  const t4Ref = useRef<HTMLElement | null>(null);
+  const t5Ref = useRef<HTMLElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
     const updated = analytics.recordHomeVisit();
     setAnalyticsData(updated);
@@ -121,6 +137,45 @@ export const App: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
+
+  // Scrollytelling reveal observer
+  useEffect(() => {
+    const elements = Array.from(document.querySelectorAll('.apple-reveal'));
+    if (elements.length === 0) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      elements.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
+
+    const vh = window.innerHeight || 800;
+    elements.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < vh + 80) {
+        el.classList.add('is-visible');
+      }
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -32px 0px' }
+    );
+
+    elements.forEach((el) => {
+      if (!el.classList.contains('is-visible')) {
+        observer.observe(el);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [activeFormTab, selectedT4Topic, selectedT5Topic, searchQuery]);
 
   const t4Sims = useMemo(
     () => SIMULATIONS_DATA.filter((s) => s.form === 'Tingkatan 4'),
@@ -167,36 +222,71 @@ export const App: React.FC = () => {
   const t4Count = t4Sims.length;
   const t5Count = t5Sims.length;
 
+  const handleLaunchById = (simId: string) => {
+    const found = SIMULATIONS_DATA.find((s) => s.id === simId);
+    if (found) setSelectedSimulation(found);
+  };
+
+  const scrollToElement = (el: HTMLElement | null) => {
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleNavigateSection = (section: 'hero' | 'bento' | 't4' | 't5') => {
+    if (section === 'hero') {
+      scrollToElement(heroRef.current);
+      return;
+    }
+    if (section === 'bento') {
+      scrollToElement(bentoRef.current);
+      return;
+    }
+    if (section === 't4') {
+      setSearchQuery('');
+      setActiveFormTab('Tingkatan 4');
+      window.setTimeout(() => scrollToElement(t4Ref.current ?? catalogRef.current), 60);
+      return;
+    }
+    if (section === 't5') {
+      setSearchQuery('');
+      setActiveFormTab('Tingkatan 5');
+      window.setTimeout(() => scrollToElement(t5Ref.current ?? catalogRef.current), 60);
+    }
+  };
+
+  const handleFocusSearch = () => {
+    scrollToElement(catalogRef.current);
+    window.setTimeout(() => searchInputRef.current?.focus(), 320);
+  };
+
   const renderT4Section = () => (
     <section
+      ref={t4Ref}
+      id="tingkatan-4"
       data-testid="section-tingkatan-4"
-      className="rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-[#F7FBFF] via-[#F2F8FF] to-[#F4F1FF]/60 border border-[#BBD9FB] shadow-xs space-y-5"
+      className="scroll-mt-20 rounded-[32px] p-6 sm:p-10 bg-[#f5f5f7] border border-black/[0.05] space-y-8"
     >
-      {/* Tingkatan 4 Section Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[#C7DFFE]">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-xs">
-            <Layers className="w-4 h-4" />
+      {/* Apple Clean Section Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-black/[0.07]">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#0071e3]">
+            <Layers className="w-3.5 h-3.5" />
+            <span>Kurikulum Standard Sekolah Menengah</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="font-display font-extrabold text-xl text-slate-900 tracking-wide uppercase">
-                TINGKATAN 4
-              </h2>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 font-bold font-mono">
-                {t4Count} Simulasi KSSM
-              </span>
-            </div>
-            <p className="text-xs text-slate-600 font-medium">
-              Himpunan simulasi makmal maya Tingkatan 4 • Disusun mengikut topik Bab 2 – Bab 7
-            </p>
+          <div className="flex flex-wrap items-baseline gap-3">
+            <h2 className="font-display font-bold text-3xl sm:text-4xl text-[#1d1d1f] tracking-tight">
+              Tingkatan 4.
+            </h2>
+            <span className="text-base sm:text-lg font-medium text-[#6e6e73]">
+              Bab 2 hingga Bab 7 · {t4Count} Simulasi
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Topic Quick Filter Bar for Tingkatan 4 */}
+      {/* Topic Filter Pills */}
       <div
-        className="flex flex-wrap items-center gap-1.5"
+        className="flex flex-wrap items-center gap-2"
         role="tablist"
         aria-label="Penapis topik Tingkatan 4"
       >
@@ -204,10 +294,10 @@ export const App: React.FC = () => {
           type="button"
           data-testid="t4-topic-all"
           onClick={() => setSelectedT4Topic('all')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
+          className={`px-4 py-2 rounded-full text-xs font-semibold transition cursor-pointer ${
             selectedT4Topic === 'all'
-              ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
-              : 'bg-white/90 text-slate-700 border-[#BFDBFE] hover:border-purple-300 hover:text-purple-700'
+              ? 'bg-[#1d1d1f] text-white shadow-xs'
+              : 'bg-white text-[#1d1d1f]/80 border border-black/[0.07] hover:border-black/20'
           }`}
         >
           Semua Topik ({t4Count})
@@ -220,16 +310,16 @@ export const App: React.FC = () => {
               type="button"
               data-testid={`t4-topic-${group.key}`}
               onClick={() => setSelectedT4Topic(group.key)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-full text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                 isActive
-                  ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
-                  : 'bg-white/90 text-slate-700 border-[#BFDBFE] hover:border-purple-300 hover:text-purple-700'
+                  ? 'bg-[#0071e3] text-white shadow-xs'
+                  : 'bg-white text-[#1d1d1f]/80 border border-black/[0.07] hover:border-[#0071e3]/40'
               }`}
             >
               <span>{group.babCode}</span>
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                  isActive ? 'bg-purple-800 text-white' : 'bg-[#E5F1FF] text-slate-600'
+                className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-[#f5f5f7] text-[#6e6e73]'
                 }`}
               >
                 {group.items.length}
@@ -240,28 +330,28 @@ export const App: React.FC = () => {
       </div>
 
       {/* Topic Subsections */}
-      <div className="space-y-6">
+      <div className="space-y-10">
         {visibleT4Groups.map((group) => (
           <div
             key={group.key}
             data-testid={`topic-group-${group.key}`}
-            className="space-y-3"
+            className="space-y-4"
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-lg bg-purple-600 text-white text-[11px] font-extrabold uppercase tracking-wider shadow-2xs">
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#0071e3]">
                   {group.babCode}
                 </span>
-                <h3 className="font-display font-bold text-sm sm:text-base text-slate-900">
+                <h3 className="font-display font-semibold text-lg sm:text-xl text-[#1d1d1f]">
                   {group.title}
                 </h3>
               </div>
-              <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200 whitespace-nowrap">
+              <span className="text-xs font-medium text-[#86868b] whitespace-nowrap">
                 {group.items.length} simulasi
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {group.items.map((sim) => (
                 <SimulationCard
                   key={sim.id}
@@ -280,34 +370,32 @@ export const App: React.FC = () => {
 
   const renderT5Section = () => (
     <section
+      ref={t5Ref}
+      id="tingkatan-5"
       data-testid="section-tingkatan-5"
-      className="rounded-3xl p-5 sm:p-6 bg-white border border-emerald-200/80 shadow-xs space-y-5"
+      className="scroll-mt-20 rounded-[32px] p-6 sm:p-10 bg-white border border-black/[0.08] apple-bento-shadow space-y-8"
     >
-      {/* Tingkatan 5 Section Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-emerald-100">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-            <BookOpen className="w-4 h-4" />
+      {/* Apple Clean Section Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-black/[0.07]">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#059669]">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Kurikulum Standard Sekolah Menengah</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="font-display font-extrabold text-xl text-slate-900 tracking-wide uppercase">
-                TINGKATAN 5
-              </h2>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold font-mono">
-                {t5Count} Simulasi KSSM
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Simulasi Tingkatan 5 • Disusun mengikut topik Bab 1 – Bab 5
-            </p>
+          <div className="flex flex-wrap items-baseline gap-3">
+            <h2 className="font-display font-bold text-3xl sm:text-4xl text-[#1d1d1f] tracking-tight">
+              Tingkatan 5.
+            </h2>
+            <span className="text-base sm:text-lg font-medium text-[#6e6e73]">
+              Bab 1 hingga Bab 5 · {t5Count} Simulasi
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Topic Quick Filter Bar for Tingkatan 5 */}
+      {/* Topic Filter Pills */}
       <div
-        className="flex flex-wrap items-center gap-1.5"
+        className="flex flex-wrap items-center gap-2"
         role="tablist"
         aria-label="Penapis topik Tingkatan 5"
       >
@@ -315,10 +403,10 @@ export const App: React.FC = () => {
           type="button"
           data-testid="t5-topic-all"
           onClick={() => setSelectedT5Topic('all')}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
+          className={`px-4 py-2 rounded-full text-xs font-semibold transition cursor-pointer ${
             selectedT5Topic === 'all'
-              ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-              : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'
+              ? 'bg-[#1d1d1f] text-white shadow-xs'
+              : 'bg-[#f5f5f7] text-[#1d1d1f]/80 hover:bg-black/[0.07]'
           }`}
         >
           Semua Topik ({t5Count})
@@ -331,16 +419,16 @@ export const App: React.FC = () => {
               type="button"
               data-testid={`t5-topic-${group.key}`}
               onClick={() => setSelectedT5Topic(group.key)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border flex items-center gap-1.5 ${
+              className={`px-4 py-2 rounded-full text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                 isActive
-                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'
+                  ? 'bg-[#059669] text-white shadow-xs'
+                  : 'bg-[#f5f5f7] text-[#1d1d1f]/80 hover:bg-[#ecfdf5] hover:text-[#047857]'
               }`}
             >
               <span>{group.babCode}</span>
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                  isActive ? 'bg-emerald-800 text-white' : 'bg-slate-200 text-slate-600'
+                className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-white text-[#6e6e73]'
                 }`}
               >
                 {group.items.length}
@@ -351,28 +439,28 @@ export const App: React.FC = () => {
       </div>
 
       {/* Topic Subsections */}
-      <div className="space-y-6">
+      <div className="space-y-10">
         {visibleT5Groups.map((group) => (
           <div
             key={group.key}
             data-testid={`topic-group-${group.key}`}
-            className="space-y-3"
+            className="space-y-4"
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-extrabold uppercase tracking-wider shadow-2xs">
+            <div className="flex items-baseline justify-between gap-2">
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#059669]">
                   {group.babCode}
                 </span>
-                <h3 className="font-display font-bold text-sm sm:text-base text-slate-900">
+                <h3 className="font-display font-semibold text-lg sm:text-xl text-[#1d1d1f]">
                   {group.title}
                 </h3>
               </div>
-              <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 whitespace-nowrap">
+              <span className="text-xs font-medium text-[#86868b] whitespace-nowrap">
                 {group.items.length} simulasi
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {group.items.map((sim) => (
                 <SimulationCard
                   key={sim.id}
@@ -390,43 +478,281 @@ export const App: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col justify-between selection:bg-purple-600 selection:text-white">
+    <div className="min-h-screen bg-white text-[#1d1d1f] flex flex-col justify-between selection:bg-[#0071e3] selection:text-white">
       <div>
-        {/* Top Header */}
+        {/* Sticky Apple Frosted Glass Navbar */}
         <Header
           totalVisitors={analyticsData.totalHomeVisits}
           onOpenAnalytics={() => setShowAnalyticsModal(true)}
+          onNavigateSection={handleNavigateSection}
+          onFocusSearch={handleFocusSearch}
         />
 
-        {/* Main Content Area */}
-        <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-          {/* Filter Bar & Search */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2.5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-            {/* Form Level Tabs (Semua / T4 / T5) */}
-            <div className="flex items-center gap-1.5 w-full sm:w-auto p-1 rounded-xl bg-slate-100">
+        {/* SECTION 1: APPLE HERO WITH GENEROUS WHITESPACE & STUDIO SHOWCASE */}
+        <section
+          ref={heroRef}
+          id="hero"
+          className="relative bg-white pt-7 sm:pt-10 pb-12 sm:pb-16 px-4 sm:px-6 overflow-hidden"
+        >
+          <div className="max-w-5xl mx-auto text-center space-y-3.5 apple-reveal is-visible">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#f5f5f7] border border-black/[0.06] text-[11px] font-semibold text-[#6e6e73] tracking-wide">
+              <Sparkles className="w-3.5 h-3.5 text-[#0071e3]" />
+              <span>MRSM Bagan Datuk · Kami Nak Kimia A+</span>
+            </div>
+
+            <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-[58px] leading-[1.06] tracking-[-0.03em] text-[#1d1d1f]">
+              Makmal Maya Kimia.
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0071e3] via-[#4f46e5] to-[#059669]">
+                Dirumus untuk A+.
+              </span>
+            </h1>
+
+            <p className="text-sm sm:text-[18px] text-[#6e6e73] font-normal max-w-2xl mx-auto leading-relaxed">
+              {SIMULATIONS_DATA.length} simulasi interaktif Kimia SPM KSSM — gabungkan pemerhatian makroskopik, zarah submikroskopik dan pengiraan langkah demi langkah.
+            </p>
+
+            {/* Primary Apple CTAs */}
+            <div className="pt-1 flex flex-wrap items-center justify-center gap-3">
               <button
+                type="button"
+                onClick={() => scrollToElement(catalogRef.current)}
+                className="px-6 py-3 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-sm font-semibold inline-flex items-center gap-2 shadow-sm transition transform active:scale-[0.98] cursor-pointer"
+              >
+                <span>Teroka Simulasi</span>
+                <ArrowDown className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleNavigateSection('t5')}
+                className="px-6 py-3 rounded-full bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] text-sm font-semibold inline-flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <span>Lihat Tingkatan 5</span>
+                <ChevronRight className="w-4 h-4 text-[#6e6e73]" />
+              </button>
+            </div>
+          </div>
+
+          {/* High-Craft Studio Product Showcase with Scrollytelling Parallax */}
+          <AppleHeroShowcase onLaunchById={handleLaunchById} />
+        </section>
+
+        {/* SECTION 2: APPLE BENTO GRID FEATURE HIGHLIGHTS */}
+        <section
+          ref={bentoRef}
+          id="bento"
+          className="scroll-mt-16 bg-[#f5f5f7] border-y border-black/[0.05] py-16 sm:py-24 px-4 sm:px-6"
+        >
+          <div className="max-w-6xl mx-auto space-y-10">
+            <div className="apple-reveal text-center sm:text-left max-w-2xl space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#0071e3]">
+                Sorotan Pembelajaran
+              </p>
+              <h2 className="font-display font-bold text-3xl sm:text-5xl tracking-tight text-[#1d1d1f]">
+                Lebih jelas. Lebih mendalam.
+              </h2>
+              <p className="text-base text-[#6e6e73]">
+                Setiap eksperimen disusun mengikut format rasmi buku teks KSSM agar pelajar terus faham tanpa kekeliruan.
+              </p>
+            </div>
+
+            {/* Bento Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              {/* Bento Card 1 (Large Dark Hero Tile) */}
+              <button
+                type="button"
+                onClick={() => handleLaunchById('elektrolisis')}
+                className="apple-reveal md:col-span-7 text-left rounded-[28px] p-7 sm:p-8 bg-[#111114] text-white border border-white/10 apple-bento-shadow-hover cursor-pointer flex flex-col justify-between min-h-[250px] relative overflow-hidden"
+              >
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-blue-500/20 blur-3xl"
+                />
+                <div className="relative z-10 space-y-3 max-w-lg">
+                  <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-sky-400">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Visualisasi Aras Johnstone</span>
+                  </div>
+                  <h3 className="font-display font-bold text-2xl sm:text-3xl leading-tight">
+                    Nampak atom &amp; elektron bergerak secara masa nyata.
+                  </h3>
+                  <p className="text-sm text-white/65 leading-relaxed">
+                    Selaraskan pemerhatian bikar makroskopik bersama nyahcas ion pada anod dan katod dalam satu paparan serentak.
+                  </p>
+                </div>
+
+                <div className="relative z-10 pt-6 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-sky-400 inline-flex items-center gap-1">
+                    Cuba Elektrolisis <ArrowUpRight className="w-4 h-4" />
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_12px_#fbbf24]" />
+                    <span className="w-3 h-3 rounded-full bg-sky-400 shadow-[0_0_12px_#38bdf8]" />
+                    <span className="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]" />
+                  </div>
+                </div>
+              </button>
+
+              {/* Bento Card 2 (Clean White Calculation Card) */}
+              <button
+                type="button"
+                onClick={() => handleLaunchById('haba-pembakaran')}
+                className="apple-reveal md:col-span-5 text-left rounded-[28px] p-7 sm:p-8 bg-white border border-black/[0.06] apple-bento-shadow apple-bento-shadow-hover cursor-pointer flex flex-col justify-between min-h-[250px]"
+              >
+                <div className="space-y-3">
+                  <div className="w-11 h-11 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
+                    <Calculator className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-display font-bold text-2xl text-[#1d1d1f] leading-tight">
+                    Perancah pengiraan langkah demi langkah.
+                  </h3>
+                  <p className="text-sm text-[#6e6e73] leading-relaxed">
+                    Daripada Q = mcθ hingga ΔH dan gambar rajah aras tenaga buku teks Rajah 3.1.
+                  </p>
+                </div>
+
+                <div className="pt-6 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-[#0071e3] inline-flex items-center gap-1">
+                    Buka Termokimia <ArrowUpRight className="w-4 h-4" />
+                  </span>
+                  <span className="font-mono text-xs font-semibold text-[#1d1d1f] bg-[#f5f5f7] px-3 py-1 rounded-full">
+                    ΔH = -1260 kJ
+                  </span>
+                </div>
+              </button>
+
+              {/* Bento Card 3 (Clean White Molecular Builder Card) */}
+              <button
+                type="button"
+                onClick={() => handleLaunchById('penentuan-isomer')}
+                className="apple-reveal md:col-span-5 text-left rounded-[28px] p-7 sm:p-8 bg-white border border-black/[0.06] apple-bento-shadow apple-bento-shadow-hover cursor-pointer flex flex-col justify-between min-h-[220px]"
+              >
+                <div className="space-y-3">
+                  <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <Atom className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-display font-bold text-2xl text-[#1d1d1f] leading-tight">
+                    Bina struktur karbon &amp; sahkan isomer IUPAC.
+                  </h3>
+                  <p className="text-sm text-[#6e6e73] leading-relaxed">
+                    Susun rantai alkana, alkena &amp; alkohol secara interaktif untuk mengumpul semua isomer sah.
+                  </p>
+                </div>
+
+                <div className="pt-5">
+                  <span className="text-xs font-semibold text-[#0071e3] inline-flex items-center gap-1">
+                    Bina Isomer Sekarang <ArrowUpRight className="w-4 h-4" />
+                  </span>
+                </div>
+              </button>
+
+              {/* Bento Card 4 (Quick Form Navigation Bento Card) */}
+              <div className="apple-reveal md:col-span-7 rounded-[28px] p-7 sm:p-8 bg-gradient-to-br from-[#eef4ff] via-[#f5f7ff] to-[#ecfdf5] border border-black/[0.06] apple-bento-shadow flex flex-col justify-between min-h-[220px]">
+                <div className="space-y-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[#0071e3]">
+                    Navigasi Pantas Mengikut Tingkatan
+                  </span>
+                  <h3 className="font-display font-bold text-2xl sm:text-3xl text-[#1d1d1f]">
+                    {SIMULATIONS_DATA.length} Simulasi KSSM Lengkap.
+                  </h3>
+                  <p className="text-sm text-[#6e6e73] max-w-lg">
+                    Pilih tingkatan anda untuk terus melompat ke senarai eksperimen yang tersusun kemas mengikut bab.
+                  </p>
+                </div>
+
+                <div className="pt-6 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleNavigateSection('t4')}
+                    className="px-5 py-2.5 rounded-full bg-white hover:bg-[#0071e3] text-[#1d1d1f] hover:text-white border border-black/[0.08] text-xs font-semibold inline-flex items-center gap-2 transition cursor-pointer shadow-2xs"
+                  >
+                    <span>Tingkatan 4 ({t4Count} Simulasi)</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavigateSection('t5')}
+                    className="px-5 py-2.5 rounded-full bg-white hover:bg-[#059669] text-[#1d1d1f] hover:text-white border border-black/[0.08] text-xs font-semibold inline-flex items-center gap-2 transition cursor-pointer shadow-2xs"
+                  >
+                    <span>Tingkatan 5 ({t5Count} Simulasi)</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3: CLEAN SIMULATION CATALOG & SPOTLIGHT FILTER */}
+        <main
+          ref={catalogRef}
+          id="katalog"
+          className="scroll-mt-16 max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20 space-y-10"
+        >
+          {/* Catalog Heading + Apple Segmented Control & Spotlight Search */}
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold uppercase tracking-widest text-[#86868b]">
+                  Direktori Makmal Maya
+                </p>
+                <h2 className="font-display font-bold text-3xl sm:text-4xl tracking-tight text-[#1d1d1f]">
+                  Pilih eksperimen anda.
+                </h2>
+              </div>
+
+              {/* Search Input (Apple Spotlight Pill) */}
+              <div className="relative w-full md:w-80">
+                <Search className="w-4 h-4 text-[#86868b] absolute left-4 top-1/2 -translate-y-1/2" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Cari eksperimen, topik, gas, radas..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#f5f5f7] border border-transparent rounded-full pl-10 pr-9 py-2.5 text-xs font-medium text-[#1d1d1f] placeholder-[#86868b] focus:outline-none focus:bg-white focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20 transition"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    aria-label="Kosongkan carian"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868b] hover:text-[#1d1d1f] cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Apple Segmented Control (Semua / T4 / T5) */}
+            <div className="inline-flex flex-wrap items-center gap-1 p-1.5 rounded-full bg-[#f5f5f7] border border-black/[0.05]">
+              <button
+                type="button"
                 onClick={() => setActiveFormTab('all')}
-                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                className={`px-5 py-2 rounded-full text-xs font-semibold transition cursor-pointer ${
                   activeFormTab === 'all'
-                    ? 'bg-white text-purple-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white text-[#1d1d1f] shadow-xs'
+                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
                 }`}
               >
                 Semua ({SIMULATIONS_DATA.length})
               </button>
 
               <button
+                type="button"
                 onClick={() => setActiveFormTab('Tingkatan 4')}
-                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`px-5 py-2 rounded-full text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                   activeFormTab === 'Tingkatan 4'
-                    ? 'bg-purple-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-[#0071e3] text-white shadow-xs'
+                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
                 }`}
               >
                 <span>Tingkatan 4</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                    activeFormTab === 'Tingkatan 4' ? 'bg-purple-800' : 'bg-slate-200'
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
+                    activeFormTab === 'Tingkatan 4' ? 'bg-white/20 text-white' : 'bg-black/[0.06] text-[#6e6e73]'
                   }`}
                 >
                   {t4Count}
@@ -434,57 +760,47 @@ export const App: React.FC = () => {
               </button>
 
               <button
+                type="button"
                 onClick={() => setActiveFormTab('Tingkatan 5')}
-                className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`px-5 py-2 rounded-full text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                   activeFormTab === 'Tingkatan 5'
-                    ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-[#059669] text-white shadow-xs'
+                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
                 }`}
               >
                 <span>Tingkatan 5</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                    activeFormTab === 'Tingkatan 5' ? 'bg-emerald-800' : 'bg-slate-200'
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
+                    activeFormTab === 'Tingkatan 5' ? 'bg-white/20 text-white' : 'bg-black/[0.06] text-[#6e6e73]'
                   }`}
                 >
                   {t5Count}
                 </span>
               </button>
             </div>
-
-            {/* Search Input */}
-            <div className="relative w-full sm:w-80">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Cari eksperimen, topik, gas, radas..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white transition"
-              />
-            </div>
           </div>
 
-          {/* Simulations Section */}
+          {/* Simulations Content */}
           {!searchQuery.trim() ? (
-            <div className="space-y-8">
+            <div className="space-y-12">
               {(activeFormTab === 'all' || activeFormTab === 'Tingkatan 4') && renderT4Section()}
               {(activeFormTab === 'all' || activeFormTab === 'Tingkatan 5') && renderT5Section()}
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <span>Memaparkan {searchFilteredSimulations.length} simulasi</span>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between text-xs text-[#6e6e73]">
+                <span>Memaparkan {searchFilteredSimulations.length} simulasi untuk "{searchQuery}"</span>
                 <button
+                  type="button"
                   onClick={() => setSearchQuery('')}
-                  className="text-purple-600 font-bold hover:underline cursor-pointer"
+                  className="text-[#0071e3] font-semibold hover:underline cursor-pointer"
                 >
                   Kosongkan carian
                 </button>
               </div>
 
               {searchFilteredSimulations.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {searchFilteredSimulations.map((sim) => (
                     <SimulationCard
                       key={sim.id}
@@ -496,13 +812,14 @@ export const App: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 space-y-3 shadow-xs">
-                  <p className="text-slate-500 text-sm">
+                <div className="text-center py-20 bg-[#f5f5f7] rounded-[28px] space-y-4">
+                  <p className="text-[#6e6e73] text-sm">
                     Tiada simulasi ditemui untuk carian "{searchQuery}".
                   </p>
                   <button
+                    type="button"
                     onClick={() => setSearchQuery('')}
-                    className="px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-[#0071e3] text-white text-xs font-semibold cursor-pointer"
                   >
                     Papar Semua Eksperimen
                   </button>
@@ -527,7 +844,7 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* Footer */}
+      {/* Minimalist Footer */}
       <Footer />
     </div>
   );

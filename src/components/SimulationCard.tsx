@@ -1,23 +1,23 @@
 import React from 'react';
 import { SimulationItem } from '../types/simulation';
-import { 
-  Play, 
-  FlaskConical, 
-  Flame, 
-  Thermometer, 
-  Scale, 
-  Binary, 
-  Zap, 
-  Atom, 
-  BatteryCharging, 
-  Droplets, 
-  TestTube, 
-  Layers, 
-  Magnet, 
-  Disc, 
-  Network, 
-  Share2, 
-  Sparkles, 
+import {
+  Play,
+  FlaskConical,
+  Flame,
+  Thermometer,
+  Scale,
+  Binary,
+  Zap,
+  Atom,
+  BatteryCharging,
+  Droplets,
+  TestTube,
+  Layers,
+  Magnet,
+  Disc,
+  Network,
+  Share2,
+  Sparkles,
   FlameKindling,
   Timer,
   Fuel,
@@ -25,7 +25,8 @@ import {
   Boxes,
   Beaker,
   Eye,
-  CheckCircle2
+  CheckCircle2,
+  ChevronRight,
 } from 'lucide-react';
 
 interface Props {
@@ -63,109 +64,88 @@ const renderIcon = (name: string, className: string) => {
   }
 };
 
-export const SimulationCard: React.FC<Props> = ({ simulation, views, completed, onSelect }) => {
+export const SimulationCard: React.FC<Props> = ({
+  simulation,
+  views,
+  completed,
+  onSelect,
+}) => {
   const isT4 = simulation.form === 'Tingkatan 4';
 
   return (
-    <div 
+    <div
       data-testid={`sim-card-${simulation.id}`}
       data-form={simulation.form}
       onClick={() => onSelect(simulation)}
-      className={`group relative rounded-2xl p-5 flex flex-col justify-between transition-all duration-200 shadow-xs cursor-pointer overflow-hidden transform hover:-translate-y-1 border ${
-        isT4
-          ? 'bg-gradient-to-br from-[#F0F7FF] via-[#E9F3FF] to-[#E3EEFF] hover:from-[#F4F9FF] hover:to-[#EBF3FF] border-[#B6D7FB] hover:border-purple-400 hover:shadow-lg hover:shadow-purple-600/15'
-          : 'bg-white hover:bg-emerald-50/20 border-slate-200 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-600/10'
-      }`}
+      className="group relative rounded-[24px] p-6 bg-white border border-black/[0.06] flex flex-col justify-between cursor-pointer apple-bento-shadow apple-bento-shadow-hover"
     >
-      <div className="space-y-3 relative z-10">
-        
-        {/* Card Header with Level badge and Icon */}
-        <div className="flex items-start justify-between gap-2">
-          
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition duration-200 border ${
-            isT4
-              ? 'bg-purple-100/90 border-purple-200 group-hover:bg-purple-600 group-hover:border-purple-600 text-purple-700 group-hover:text-white'
-              : 'bg-emerald-50 border-emerald-200 group-hover:bg-emerald-600 group-hover:border-emerald-600 text-emerald-700 group-hover:text-white'
-          }`}>
+      <div className="space-y-4">
+        {/* Card Header: Apple Minimal Icon Tile & Metadata */}
+        <div className="flex items-start justify-between gap-3">
+          <div
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-300 ${
+              isT4
+                ? 'bg-[#eef4ff] text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white'
+                : 'bg-[#ecfdf5] text-[#059669] group-hover:bg-[#059669] group-hover:text-white'
+            }`}
+          >
             {renderIcon(simulation.iconName, 'w-5 h-5')}
           </div>
 
           <div className="flex flex-col items-end gap-1">
-            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-              isT4
-                ? 'bg-purple-100 text-purple-800 border border-purple-300/80' 
-                : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-            }`}>
-              {simulation.form}
-            </span>
-
-            {/* Live interaction count tag */}
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
-              <Eye className="w-3 h-3 text-slate-400" />
-              <span>{views} views</span>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Title and Chapter */}
-        <div>
-          <h3 className={`font-display font-bold text-base text-slate-900 transition duration-150 line-clamp-1 ${
-            isT4 ? 'group-hover:text-purple-700' : 'group-hover:text-emerald-700'
-          }`}>
-            {simulation.title}
-          </h3>
-          <p className={`text-xs font-medium line-clamp-1 mt-0.5 ${
-            isT4 ? 'text-slate-600' : 'text-slate-500'
-          }`}>
-            {simulation.chapter}
-          </p>
-        </div>
-
-        {/* Description */}
-        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-          {simulation.description}
-        </p>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1 pt-1">
-          {simulation.tags.slice(0, 3).map((tag, idx) => (
-            <span 
-              key={idx}
-              className={`text-[9px] px-2 py-0.5 rounded-md border ${
+            <span
+              className={`text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                 isT4
-                  ? 'bg-white/80 text-slate-700 border-[#C7DFFE]'
-                  : 'bg-slate-100 text-slate-600 border-slate-200'
+                  ? 'bg-[#eef4ff] text-[#005bb5]'
+                  : 'bg-[#ecfdf5] text-[#047857]'
               }`}
             >
-              #{tag}
+              {simulation.form}
             </span>
-          ))}
+            <div className="flex items-center gap-1 text-[11px] text-[#86868b] font-medium">
+              <Eye className="w-3 h-3" />
+              <span className="tabular-nums">{views}</span>
+            </div>
+          </div>
         </div>
 
+        {/* Title & Chapter */}
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#86868b] line-clamp-1">
+            {simulation.chapter}
+          </p>
+          <h3 className="font-display font-semibold text-[17px] leading-snug text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors line-clamp-2">
+            {simulation.title}
+          </h3>
+        </div>
+
+        {/* Concise Description */}
+        <p className="text-[13px] text-[#6e6e73] line-clamp-2 leading-relaxed">
+          {simulation.description}
+        </p>
       </div>
 
-      {/* Card Footer Button */}
-      <div className={`pt-4 mt-4 border-t flex items-center justify-between relative z-10 ${
-        isT4 ? 'border-[#C7DFFE]' : 'border-slate-100'
-      }`}>
-        <span className="text-[11px] text-slate-500 flex items-center gap-1">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-          <span className="font-bold text-slate-700">{completed}</span> selesai
+      {/* Minimalist Card Footer */}
+      <div className="pt-5 mt-5 border-t border-black/[0.06] flex items-center justify-between gap-2">
+        <span className="text-[12px] text-[#6e6e73] flex items-center gap-1.5 font-medium">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          <span className="tabular-nums font-semibold text-[#1d1d1f]">{completed}</span>
+          <span>selesai</span>
         </span>
 
-        <button 
-          className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition duration-150 shadow-2xs ${
+        <button
+          type="button"
+          className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold inline-flex items-center gap-1 transition-all duration-200 ${
             isT4
-              ? 'bg-white/90 group-hover:bg-purple-600 border-purple-200 group-hover:border-purple-600 text-purple-700 group-hover:text-white'
-              : 'bg-emerald-50 group-hover:bg-emerald-600 border-emerald-200 group-hover:border-emerald-600 text-emerald-700 group-hover:text-white'
+              ? 'bg-[#0071e3]/10 text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white'
+              : 'bg-[#059669]/10 text-[#059669] group-hover:bg-[#059669] group-hover:text-white'
           }`}
         >
-          <span>Cuba Simulasi</span>
           <Play className="w-3 h-3 fill-current" />
+          <span>Buka</span>
+          <ChevronRight className="w-3.5 h-3.5 -ml-0.5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
-
     </div>
   );
 };
