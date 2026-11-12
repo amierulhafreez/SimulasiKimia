@@ -99,12 +99,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 6: Asid, Bes dan Garam',
     category: 'Asid, Bes & Garam',
-    description: 'Uji keterlarutan pelbagai garam (NO₃⁻, SO₄²⁻, Cl⁻, CO₃²⁻) dan pelajari teknik mnemonik mudah ingat keterlarutan garam.',
-    learningStandard: 'SP 6.7.1 - Mengelaskan garam larut dan garam tak terlarut',
+    description: 'Bina garam daripada kation dan anion, seret sampel pepejal ke dalam bikar air (Eksperimen 6.5) serta perhati keterlarutan dan warna pepejal lawan larutan akueus.',
+    learningStandard: 'SP 6.9.1 & 6.11.1 - Mengelaskan garam terlarutkan/tak terlarutkan serta warna pepejal dan akueus',
     iconName: 'Droplets',
     colorTheme: 'teal',
     isImplemented: true,
-    tags: ['Garam Larut', 'Garam Tak Larut', 'Mendakan', 'Tindak Balas Penguraian Ganda Dua']
+    tags: ['Drag & Drop', 'NO ANaK / PBC / HPA', 'Warna Garam', 'Air Panas PbCl₂ & PbI₂']
   },
   {
     id: 'ujian-kation',
