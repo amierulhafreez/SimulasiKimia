@@ -33,6 +33,7 @@ import { CopperOxideLab } from '../simulations/CopperOxideLab';
 import { Period3OxidesLab } from '../simulations/Period3OxidesLab';
 import { AlloyHardnessLab } from '../simulations/AlloyHardnessLab';
 import { UTubeElectronTransferLab } from '../simulations/UTubeElectronTransferLab';
+import { IronIonConversionLab } from '../simulations/IronIonConversionLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -121,6 +122,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <AlloyHardnessLab />;
       case 'pemindahan-elektron-tiub-u':
         return <UTubeElectronTransferLab />;
+      case 'penukaran-ion-ferum':
+        return <IronIonConversionLab />;
       default:
         return (
           <div className="space-y-6">

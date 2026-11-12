@@ -349,12 +349,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 1: Keseimbangan Redoks',
     category: 'Elektrokimia',
-    description: 'Mengkaji pengoksidaan ion ferum(II), Fe²⁺ kepada ion ferum(III), Fe³⁺ dan penurunannya semula serta ujian pengesahan dengan larutan NaOH.',
+    description: 'Kitaran Redoks Boleh Balik Fe²⁺ ↔ Fe³⁺ dengan 4 agen pengoksidaan & 4 agen penurunan, Kanta Pembesar elektron (e⁻) serta stesen ujian NaOH, K₄[Fe(CN)₆] & KSCN.',
     learningStandard: 'SP 1.1.2 - Menjalankan aktiviti penukaran ion Fe²⁺ kepada Fe³⁺ dan sebaliknya',
     iconName: 'TestTube',
     colorTheme: 'emerald',
-    isImplemented: false,
-    tags: ['Ion Fe²⁺ & Fe³⁺', 'Air Bromin', 'Serbuk Zink', 'Ujian NaOH']
+    isImplemented: true,
+    tags: ['Fe²⁺ ↔ Fe³⁺', 'Kanta Elektron', 'NaOH, K₄[Fe(CN)₆], KSCN', 'Kitaran Redoks']
   },
   {
     id: 'penyesaran-halogen-halida',
