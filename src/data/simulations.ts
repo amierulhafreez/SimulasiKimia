@@ -172,6 +172,19 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['CaCO₃ + HCl', 'Sesaran Air Buret', 'Graf Masa Nyata', 'Tangen & Luas Permukaan']
   },
   {
+    id: 'kadar-tindak-balas-kepekatan',
+    title: 'Kadar Tindak Balas: Faktor Kepekatan',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 7: Kadar Tindak Balas',
+    category: 'Kadar Tindak Balas',
+    description: 'Kaji tindak balas natrium tiosulfat (Na₂S₂O₃) dengan asid sulfurik (H₂SO₄) menggunakan kaedah tanda \'✕\' (Eksperimen 7.2, Rajah 7.14) lengkap dengan lengkung kekeruhan masa nyata dan graf 1/masa melawan kepekatan.',
+    learningStandard: 'SP 7.2.1 - Mengkaji kesan kepekatan bahan tindak balas terhadap kadar tindak balas',
+    iconName: 'Timer',
+    colorTheme: 'amber',
+    isImplemented: true,
+    tags: ['Na₂S₂O₃ + H₂SO₄', 'Tanda ✕ Sulfur', 'Graf 1/Masa vs M₂', 'M₁V₁ = M₂V₂']
+  },
+  {
     id: 'keadaan-zarah-jirim',
     title: 'Keadaan Zarah: Perubahan Keadaan Fizikal',
     form: 'Tingkatan 4',
