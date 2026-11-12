@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { analytics } from '../services/analytics';
 import confetti from 'canvas-confetti';
 import {
+  TextbookAtomDiagram,
+  ElectronShellBreakdown,
+  AtomDiagramVariant,
+} from '../components/TextbookAtomDiagram';
+import {
   Flame,
   Droplets,
   Wind,
@@ -548,62 +553,17 @@ const K17_ELEMENTS: ElementCardData[] = [
   },
 ];
 
-// Rajah SVG petala atom ringkas untuk perbandingan saiz atom pada setiap kad
-const AtomShellMiniSVG: React.FC<{
-  symbol: string;
-  shells: number[];
-  isCationGroup: boolean;
-}> = ({ symbol, shells, isCationGroup }) => {
-  const maxRings = 6;
-  const ringCount = shells.length;
-  const center = 36;
-  const maxR = 32;
-  const accent = isCationGroup ? '#ea580c' : '#0284c7';
-  const fillBg = isCationGroup ? '#fff7ed' : '#f0f9ff';
-
-  return (
-    <svg viewBox="0 0 72 72" className="w-14 h-14 shrink-0" aria-label={`Petala atom ${symbol}`}>
-      <circle cx={center} cy={center} r={maxR} fill={fillBg} stroke="#e2e8f0" strokeWidth="1" />
-      {shells.map((elecCount, idx) => {
-        const radius = 12 + ((idx + 1) / maxRings) * 20;
-        const isValence = idx === ringCount - 1;
-        return (
-          <g key={idx}>
-            <circle
-              cx={center}
-              cy={center}
-              r={radius}
-              fill="none"
-              stroke={isValence ? accent : '#94a3b8'}
-              strokeWidth={isValence ? '1.3' : '0.8'}
-              strokeDasharray={isValence ? undefined : '2 1.5'}
-            />
-            {isValence && (
-              <circle
-                cx={center + radius}
-                cy={center}
-                r="2.4"
-                fill={accent}
-              >
-                <title>{`${elecCount} elektron valens`}</title>
-              </circle>
-            )}
-          </g>
-        );
-      })}
-      <circle cx={center} cy={center} r="8.5" fill="#1e293b" />
-      <text
-        x={center}
-        y={center + 3}
-        textAnchor="middle"
-        fontSize="8.5"
-        fontWeight="800"
-        fill="#ffffff"
-      >
-        {symbol}
-      </text>
-    </svg>
-  );
+// Bilangan neutron berdasarkan nombor nukleon lazim mengikut Jadual Data Unsur m.s. 276
+const NEUTRONS_BY_ID: Record<string, number> = {
+  li: 4,
+  na: 12,
+  k: 20,
+  rb: 48,
+  cs: 78,
+  f2: 10,
+  cl2: 18,
+  br2: 45,
+  i2: 74,
 };
 
 // Format persamaan kimia agar nombor subskrip kelihatan kemas
@@ -630,6 +590,7 @@ const ChemText: React.FC<{ text: string }> = ({ text }) => {
 export const ReactivityLab: React.FC = () => {
   const [group, setGroup] = useState<GroupId>('k1');
   const [activeTab, setActiveTab] = useState<ActiveTab>('physical');
+  const [atomVariant, setAtomVariant] = useState<AtomDiagramVariant>('electron-arrangement');
   const [selectedIds, setSelectedIds] = useState<[string, string]>(['li', 'k']);
   const [k1Reagent, setK1Reagent] = useState<K1Reagent>('water');
   const [k17Reagent, setK17Reagent] = useState<K17Reagent>('water');
@@ -756,6 +717,40 @@ export const ReactivityLab: React.FC = () => {
       {/* TAB 1: KAD PERBANDINGAN SIFAT FIZIK MENURUNI KUMPULAN */}
       {activeTab === 'physical' && (
         <div className="space-y-2.5">
+          {/* Penukar Gaya Rajah Buku Teks (Susunan Elektron vs Struktur Atom p & n) */}
+          <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px]">
+            <span className="font-semibold text-slate-600 flex items-center gap-1.5">
+              <Atom className="w-3.5 h-3.5 text-orange-600" />
+              <span>
+                Rajah berpandukan Buku Teks Kimia T4 KSSM (Rajah 2.13–2.14, 4.9 &amp; 4.11) — setiap titik jingga = 1 elektron.
+              </span>
+            </span>
+            <div className="inline-flex bg-slate-100 border border-slate-200 rounded-lg p-0.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setAtomVariant('electron-arrangement')}
+                className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
+                  atomVariant === 'electron-arrangement'
+                    ? 'bg-slate-900 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Susunan Elektron (Simbol)
+              </button>
+              <button
+                type="button"
+                onClick={() => setAtomVariant('atomic-structure')}
+                className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
+                  atomVariant === 'atomic-structure'
+                    ? 'bg-slate-900 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Struktur Atom (p &amp; n)
+              </button>
+            </div>
+          </div>
+
           {/* Siri Kad Unsur Sebelah-Menyebelah */}
           <div
             className={`grid gap-2.5 ${
@@ -783,19 +778,19 @@ export const ReactivityLab: React.FC = () => {
                 >
                   {/* Kepala Kad dengan Warna Sebenar Unsur */}
                   <div
-                    className={`bg-gradient-to-br ${el.headerGradient} px-3 py-2 border-b flex items-start justify-between gap-1`}
+                    className={`bg-gradient-to-br ${el.headerGradient} px-2.5 py-1.5 border-b flex items-start justify-between gap-1`}
                   >
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-white/80 text-slate-800 border border-black/10">
-                          Z={el.protonNumber}
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-white/80 text-slate-800 border border-black/10">
+                          {el.protonNumber}p • {NEUTRONS_BY_ID[el.id]}n
                         </span>
                         <span className="text-[10px] font-semibold opacity-75">
                           Kala {idx + 2}
                         </span>
                       </div>
-                      <div className="flex items-baseline gap-1.5 mt-1">
-                        <span className="text-xl font-black tracking-tight">
+                      <div className="flex items-baseline gap-1.5 mt-0.5">
+                        <span className="text-lg font-black tracking-tight">
                           <ChemText text={el.formulaDisplay} />
                         </span>
                         <span className="text-xs font-extrabold">{el.name}</span>
@@ -818,39 +813,32 @@ export const ReactivityLab: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Visual Petala Atom + Swatch Warna Fizik */}
-                  <div className="px-3 py-2 flex items-center justify-between gap-2 bg-slate-50/60 border-b border-slate-100">
-                    <AtomShellMiniSVG
-                      symbol={el.symbol}
-                      shells={el.shells}
-                      isCationGroup={group === 'k1'}
-                    />
-                    <div className="text-right min-w-0">
-                      <span className="text-[10px] font-bold text-slate-500 block">
-                        Susunan Elektron
-                      </span>
-                      <span className="font-mono text-xs font-extrabold text-slate-900 block">
-                        {el.electronConfig}
-                      </span>
-                      <span className="text-[10px] text-slate-600 block mt-0.5 leading-tight">
-                        {el.shells.length} petala • JAR {el.relativeMass}
-                      </span>
+                  {/* Rajah Piawai Buku Teks + Bilangan Petala & Elektron Setiap Petala */}
+                  <div className="px-2.5 py-2 bg-slate-50/70 border-b border-slate-100 space-y-1.5">
+                    <div className="flex justify-center">
+                      <TextbookAtomDiagram
+                        symbol={el.symbol}
+                        shells={el.shells}
+                        protonNumber={el.protonNumber}
+                        neutronNumber={NEUTRONS_BY_ID[el.id]}
+                        variant={atomVariant}
+                        nucleusFill={group === 'k1' ? '#bbf7d0' : '#bae6fd'}
+                        className="w-24 h-24"
+                      />
                     </div>
+                    <ElectronShellBreakdown
+                      shells={el.shells}
+                      protonNumber={el.protonNumber}
+                    />
                   </div>
 
                   {/* Statistik Sifat Fizik Pada Kad */}
-                  <div className="p-2.5 space-y-1.5 text-[11px] flex-1 flex flex-col justify-between">
+                  <div className="p-2.5 space-y-1 text-[11px] flex-1 flex flex-col justify-between">
                     <div className="space-y-1">
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-500">Takat Lebur</span>
+                        <span className="text-slate-500">Takat Lebur / Didih</span>
                         <span className="font-mono font-extrabold text-slate-900">
-                          {el.meltingPointC} °C
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-500">Takat Didih</span>
-                        <span className="font-mono font-extrabold text-slate-900">
-                          {el.boilingPointC} °C
+                          {el.meltingPointC}° / {el.boilingPointC}°C
                         </span>
                       </div>
                       {/* Bar Visual Takat Didih */}
@@ -870,7 +858,7 @@ export const ReactivityLab: React.FC = () => {
                       </div>
                       {el.atomicRadiusNm && (
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-500">Jejari Atom</span>
+                          <span className="text-slate-500">Jejari Atom (JAR {el.relativeMass})</span>
                           <span className="font-mono font-bold text-orange-700">
                             {el.atomicRadiusNm} nm
                           </span>
@@ -878,7 +866,7 @@ export const ReactivityLab: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between gap-1.5">
+                    <div className="pt-1 border-t border-slate-100 flex items-center justify-between gap-1.5">
                       <span className="flex items-center gap-1.5 text-[10px] text-slate-600 truncate">
                         <span
                           className={`w-2.5 h-2.5 rounded-full shrink-0 border border-black/20 ${el.swatchClass}`}
@@ -895,32 +883,41 @@ export const ReactivityLab: React.FC = () => {
           {/* Panel Bawah: Perbandingan Kad A vs Kad B + Rumusan Trend KSSM */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5">
             {/* Perbandingan Pantas 2 Kad Pilihan */}
-            <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between">
-              <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-100">
+            <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between space-y-2">
+              <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-100">
                 <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wide">
                   Bandingkan 2 Kad ({cardA.symbol} vs {cardB.symbol})
                 </span>
                 <span className="text-[10px] text-slate-500">Klik mana-mana kad di atas</span>
               </div>
-              <div className="grid grid-cols-3 gap-2 pt-2 text-center text-xs">
-                <div className="bg-slate-50 rounded-xl p-2 border border-slate-100">
-                  <span className="text-[10px] text-slate-500 block">Bil. Petala</span>
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="bg-slate-50 rounded-xl p-1.5 border border-slate-100">
+                  <span className="text-[10px] text-slate-500 block">Petala &amp; Elektron</span>
                   <span className="font-extrabold text-slate-900">
-                    {cardA.shells.length} → {cardB.shells.length}
+                    {cardA.shells.length} ({cardA.protonNumber}e⁻) → {cardB.shells.length} ({cardB.protonNumber}e⁻)
                   </span>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-2 border border-slate-100">
+                <div className="bg-slate-50 rounded-xl p-1.5 border border-slate-100">
                   <span className="text-[10px] text-slate-500 block">Takat Lebur</span>
                   <span className="font-extrabold text-slate-900">
                     {cardA.meltingPointC}° → {cardB.meltingPointC}°
                   </span>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-2 border border-slate-100">
+                <div className="bg-slate-50 rounded-xl p-1.5 border border-slate-100">
                   <span className="text-[10px] text-slate-500 block">Takat Didih</span>
                   <span className="font-extrabold text-slate-900">
                     {cardA.boilingPointC}° → {cardB.boilingPointC}°
                   </span>
                 </div>
+              </div>
+              <div className="text-[10px] text-slate-600 bg-slate-50 rounded-lg px-2 py-1 border border-slate-100 flex justify-between gap-2">
+                <span>
+                  <strong>{cardA.symbol}:</strong> {cardA.electronConfig}
+                </span>
+                <span className="text-slate-400">|</span>
+                <span>
+                  <strong>{cardB.symbol}:</strong> {cardB.electronConfig}
+                </span>
               </div>
             </div>
 
@@ -1239,6 +1236,40 @@ export const ReactivityLab: React.FC = () => {
       {/* TAB 3: PERBANDINGAN TREND KEREAKTIFAN K1 VS K17 */}
       {activeTab === 'compare' && (
         <div className="space-y-2.5">
+          {/* Penukar Gaya Rajah Buku Teks */}
+          <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-[11px]">
+            <span className="font-semibold text-slate-600 flex items-center gap-1.5">
+              <Atom className="w-3.5 h-3.5 text-indigo-600" />
+              <span>
+                Perbandingan rajah susunan elektron mengikut Rajah 4.9 (m.s. 91) dan Rajah 4.11 (m.s. 95) Buku Teks KSSM.
+              </span>
+            </span>
+            <div className="inline-flex bg-slate-100 border border-slate-200 rounded-lg p-0.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setAtomVariant('electron-arrangement')}
+                className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
+                  atomVariant === 'electron-arrangement'
+                    ? 'bg-slate-900 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Susunan Elektron (Simbol)
+              </button>
+              <button
+                type="button"
+                onClick={() => setAtomVariant('atomic-structure')}
+                className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${
+                  atomVariant === 'atomic-structure'
+                    ? 'bg-slate-900 text-white'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Struktur Atom (p &amp; n)
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {/* Kad Kiri: Mengapa Kumpulan 1 BERTAMBAH Reaktif */}
             <div className="bg-white border border-orange-200 rounded-2xl p-3.5 shadow-sm space-y-2.5">
@@ -1262,19 +1293,30 @@ export const ReactivityLab: React.FC = () => {
                   <button
                     key={el.id}
                     onClick={() => setPairK1(el.id)}
-                    className={`rounded-xl border p-2 flex flex-col items-center text-center transition cursor-pointer ${
+                    className={`rounded-xl border p-2 flex flex-col items-center text-center transition cursor-pointer space-y-1 ${
                       pairK1 === el.id
                         ? 'bg-orange-50 border-orange-500 ring-2 ring-orange-200'
                         : 'bg-slate-50 border-slate-200 hover:bg-orange-50/50'
                     }`}
                   >
-                    <AtomShellMiniSVG symbol={el.symbol} shells={el.shells} isCationGroup={true} />
-                    <span className="text-xs font-extrabold text-slate-900 mt-1">
-                      {el.name} ({el.electronConfig})
+                    <span className="text-xs font-extrabold text-slate-900">
+                      {el.name} ({el.symbol})
                     </span>
-                    <span className="text-[10px] font-bold text-orange-700">
-                      {el.shells.length} petala
-                    </span>
+                    <TextbookAtomDiagram
+                      symbol={el.symbol}
+                      shells={el.shells}
+                      protonNumber={el.protonNumber}
+                      neutronNumber={NEUTRONS_BY_ID[el.id]}
+                      variant={atomVariant}
+                      nucleusFill="#bbf7d0"
+                      className="w-24 h-24"
+                    />
+                    <div className="w-full">
+                      <ElectronShellBreakdown
+                        shells={el.shells}
+                        protonNumber={el.protonNumber}
+                      />
+                    </div>
                   </button>
                 ))}
               </div>
@@ -1319,19 +1361,30 @@ export const ReactivityLab: React.FC = () => {
                   <button
                     key={el.id}
                     onClick={() => setPairK17(el.id)}
-                    className={`rounded-xl border p-2 flex flex-col items-center text-center transition cursor-pointer ${
+                    className={`rounded-xl border p-2 flex flex-col items-center text-center transition cursor-pointer space-y-1 ${
                       pairK17 === el.id
                         ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-200'
                         : 'bg-slate-50 border-slate-200 hover:bg-sky-50/50'
                     }`}
                   >
-                    <AtomShellMiniSVG symbol={el.symbol} shells={el.shells} isCationGroup={false} />
-                    <span className="text-xs font-extrabold text-slate-900 mt-1">
-                      {el.name} ({el.electronConfig})
+                    <span className="text-xs font-extrabold text-slate-900">
+                      {el.name} ({el.symbol})
                     </span>
-                    <span className="text-[10px] font-bold text-sky-700">
-                      {el.shells.length} petala
-                    </span>
+                    <TextbookAtomDiagram
+                      symbol={el.symbol}
+                      shells={el.shells}
+                      protonNumber={el.protonNumber}
+                      neutronNumber={NEUTRONS_BY_ID[el.id]}
+                      variant={atomVariant}
+                      nucleusFill="#bae6fd"
+                      className="w-24 h-24"
+                    />
+                    <div className="w-full">
+                      <ElectronShellBreakdown
+                        shells={el.shells}
+                        protonNumber={el.protonNumber}
+                      />
+                    </div>
                   </button>
                 ))}
               </div>
