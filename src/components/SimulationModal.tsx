@@ -29,6 +29,7 @@ import { AluminumExtractionLab } from '../simulations/AluminumExtractionLab';
 import { HeatOfCombustionLab } from '../simulations/HeatOfCombustionLab';
 import { FuelValueLab } from '../simulations/FuelValueLab';
 import { MagnesiumOxideLab } from '../simulations/MagnesiumOxideLab';
+import { CopperOxideLab } from '../simulations/CopperOxideLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -109,6 +110,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <FuelValueLab />;
       case 'formula-empirik-mgo':
         return <MagnesiumOxideLab />;
+      case 'formula-empirik-cuo':
+        return <CopperOxideLab />;
       default:
         return (
           <div className="space-y-6">

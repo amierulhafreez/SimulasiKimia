@@ -76,12 +76,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 3: Konsep Mol, Formula dan Persamaan Kimia',
     category: 'Jirim & Struktur Atom',
-    description: 'Menentukan formula empirik kuprum(II) oksida (CuO) menggunakan aliran gas hidrogen kering.',
+    description: 'Rajah 3.13 & Jadual 3.5: alirkan gas H₂ kering, panaskan serbuk CuO hingga jisim tetap & kira nisbah mol CuO.',
     learningStandard: 'SP 3.3.3 - Menentukan formula empirik kuprum(II) oksida melalui aktiviti',
     iconName: 'FlameKindling',
     colorTheme: 'orange',
-    isImplemented: false,
-    tags: ['Formula Empirik', 'CuO', 'Gas Hidrogen Kering', 'Penurunan']
+    isImplemented: true,
+    tags: ['Rajah 3.13', 'Gas H₂ Kering', 'Jisim Tetap', 'Nisbah Mol CuO']
   },
 
   // --- Bab 4: Jadual Berkala Unsur ---
