@@ -164,12 +164,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 7: Kadar Tindak Balas',
     category: 'Kadar Tindak Balas',
-    description: 'Bandingkan tindak balas ketulan besar vs serbuk kalsium karbonat (CaCO₃) dengan asid hidroklorik cair menggunakan buret sesaran air (Rajah 7.12) setiap 30 saat.',
+    description: 'Bandingkan tindak balas ketulan besar vs ketulan kecil kalsium karbonat (CaCO₃) dengan asid hidroklorik cair menggunakan buret sesaran air (Rajah 7.12) dan graf lengkung masa nyata setiap 30 saat.',
     learningStandard: 'SP 7.2.1 - Mengkaji kesan saiz bahan tindak balas terhadap kadar tindak balas',
     iconName: 'Timer',
     colorTheme: 'amber',
     isImplemented: true,
-    tags: ['CaCO₃ + HCl', 'Sesaran Air Buret', 'Graf Isi Padu Gas', 'Luas Permukaan']
+    tags: ['CaCO₃ + HCl', 'Sesaran Air Buret', 'Graf Masa Nyata', 'Tangen & Luas Permukaan']
   },
   {
     id: 'keadaan-zarah-jirim',
