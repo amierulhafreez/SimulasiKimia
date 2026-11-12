@@ -112,12 +112,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 6: Asid, Bes dan Garam',
     category: 'Asid, Bes & Garam',
-    description: 'Titiskan larutan NaOH dan NH₃ ke dalam larutan sampel untuk mengesan ion Cu²⁺, Fe²⁺, Fe³⁺, Al³⁺, Pb²⁺, Zn²⁺, Mg²⁺, Ca²⁺, NH₄⁺.',
-    learningStandard: 'SP 6.11.1 - Menjalankan ujian untuk mengenal pasti kation',
+    description: 'Kenal pasti larutan misteri melalui makmal maya gamifikasi: uji dengan NaOH, NH₃, KI, Reagen Nessler, K₃Fe(CN)₆, K₄Fe(CN)₆ dan KSCN serta cuci tabung uji untuk ujian berulang.',
+    learningStandard: 'SP 6.11.1 & 6.11.2 - Mengenal pasti dan mengesahkan kation dalam larutan akueus',
     iconName: 'TestTube',
     colorTheme: 'violet',
     isImplemented: true,
-    tags: ['Mendakan Putih', 'Larut Berlebihan', 'NaOH', 'Ammonia']
+    tags: ['Gamifikasi', 'Makmal Maya', 'NaOH & NH₃', 'Ujian Pengesahan']
   },
   {
     id: 'ujian-anion',

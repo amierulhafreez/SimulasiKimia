@@ -7,6 +7,7 @@ import { LatexCoagulation } from '../simulations/LatexCoagulation';
 import { NaphthaleneCooling } from '../simulations/NaphthaleneCooling';
 import { ChemicalEquationBalancer } from '../simulations/ChemicalEquationBalancer';
 import { CationAnionLab } from '../simulations/CationAnionLab';
+import { CationTestLab } from '../simulations/CationTestLab';
 import { ElectrolysisLab } from '../simulations/ElectrolysisLab';
 import { ThermochemistryLab } from '../simulations/ThermochemistryLab';
 import { CarbonIsomersLab } from '../simulations/CarbonIsomersLab';
@@ -58,6 +59,7 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
       case 'penggumpalan-lateks':
         return <LatexCoagulation />;
       case 'ujian-kation':
+        return <CationTestLab />;
       case 'ujian-anion':
         return <CationAnionLab />;
       case 'elektrolisis':
