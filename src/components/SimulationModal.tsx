@@ -40,6 +40,7 @@ import { IronRustingLab } from '../simulations/IronRustingLab';
 import { EthanolOxidationLab } from '../simulations/EthanolOxidationLab';
 import { EsterificationLab } from '../simulations/EsterificationLab';
 import { AlkeneReactionsHubLab } from '../simulations/AlkeneReactionsHubLab';
+import { EthanolFermentationDistillationLab } from '../simulations/EthanolFermentationDistillationLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -142,6 +143,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <EsterificationLab />;
       case 'tindak-balas-kimia-alkena':
         return <AlkeneReactionsHubLab />;
+      case 'penapaian-penyulingan-etanol':
+        return <EthanolFermentationDistillationLab />;
       default:
         return (
           <div className="space-y-6">

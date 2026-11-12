@@ -446,7 +446,7 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     learningStandard: 'SP 2.3.2 - Menghuraikan penyediaan etanol di makmal melalui penapaian dan penyulingan',
     iconName: 'FlaskConical',
     colorTheme: 'emerald',
-    isImplemented: false,
+    isImplemented: true,
     tags: ['Penapaian Glukosa', 'Yis & Zimase', 'Air Kapur', 'Penyulingan Berperingkat']
   },
   {
