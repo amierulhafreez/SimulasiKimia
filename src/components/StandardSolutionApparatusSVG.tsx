@@ -17,6 +17,42 @@ interface StandardSolutionApparatusSVGProps {
   isDragOver: boolean;
 }
 
+/**
+ * Botol pencuci dengan hujung muncung tepat pada (targetX, targetY)
+ * supaya pancutan / titisan air suling jatuh tepat ke dalam bikar, corong turas, atau kelalang volumetrik.
+ */
+const WashBottlePour: React.FC<{
+  targetX: number;
+  targetY: number;
+  dropYs?: number[];
+  tiltDeg?: number;
+}> = ({ targetX, targetY, dropYs = [8, 22], tiltDeg = 18 }) => (
+  <g transform={`translate(${targetX}, ${targetY})`}>
+    <g transform={`rotate(${tiltDeg})`}>
+      <rect x="-78" y="-17" width="44" height="28" rx="5" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.8" />
+      <rect x="-76" y="-4" width="40" height="13" rx="3" fill="#7dd3fc" fillOpacity="0.55" />
+      <rect x="-34" y="-10" width="8" height="14" rx="2" fill="#0369a1" />
+      <path
+        d="M -26 -5 L -11 -5 Q -4 -5 0 0"
+        fill="none"
+        stroke="#0284c7"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <text x="-56" y="-6" fontSize="7" fill="#0369a1" fontWeight="bold" textAnchor="middle">
+        Air suling
+      </text>
+    </g>
+    {dropYs.map((dy) => (
+      <path
+        key={dy}
+        d={`M 0 ${dy - 4} C 2.5 ${dy} 2.5 ${dy + 3.5} 0 ${dy + 3.5} C -2.5 ${dy + 3.5} -2.5 ${dy} 0 ${dy - 4} Z`}
+        fill="#0ea5e9"
+      />
+    ))}
+  </g>
+);
+
 export const StandardSolutionApparatusSVG: React.FC<StandardSolutionApparatusSVGProps> = ({
   salt,
   mode,
@@ -149,16 +185,8 @@ export const StandardSolutionApparatusSVG: React.FC<StandardSolutionApparatusSVG
             <circle cx="294" cy="196" r="3.2" fill={salt.solidHex} stroke={salt.solidStrokeHex} strokeWidth="0.9" />
             <circle cx="308" cy="198" r="3.4" fill={salt.solidHex} stroke={salt.solidStrokeHex} strokeWidth="0.9" />
 
-            {/* Botol pencuci menuang air suling */}
-            <g transform="translate(205, 42) rotate(24)">
-              <rect x="0" y="0" width="52" height="28" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.8" />
-              <path d="M 52 14 L 74 14 L 80 24" fill="none" stroke="#0284c7" strokeWidth="2.2" />
-              <text x="26" y="17" fontSize="7.5" fill="#0369a1" fontWeight="bold" textAnchor="middle">
-                Air Suling
-              </text>
-            </g>
-            <circle cx="288" cy="108" r="2.2" fill="#0ea5e9" />
-            <circle cx="288" cy="126" r="2.2" fill="#0ea5e9" />
+            {/* Botol pencuci menuang air suling tepat ke dalam bikar */}
+            <WashBottlePour targetX={282} targetY={92} dropYs={[10, 26, 42]} tiltDeg={18} />
             <text x="290" y="220" fontSize="9.5" fill="#334155" fontWeight="bold" textAnchor="middle">
               Bikar 250 cm³ + 100 cm³ Air Suling
             </text>
@@ -203,51 +231,92 @@ export const StandardSolutionApparatusSVG: React.FC<StandardSolutionApparatusSVG
               stroke="#1e293b"
               strokeWidth="2.3"
             />
-            <line x1="191" y1="112" x2="229" y2="112" stroke="#dc2626" strokeWidth="1.8" />
-            <text x="234" y="115" fontSize="8.5" fill="#dc2626" fontWeight="bold">
-              Tanda senggatan ({volumeCm3} cm³)
-            </text>
             <path
               d={
                 completedStep === 3
-                  ? 'M 164 180 C 160 206 177 208 182 208 L 238 208 C 243 208 260 206 256 180 Z'
-                  : 'M 168 156 C 154 206 177 208 182 208 L 238 208 C 243 208 266 206 252 156 Z'
+                  ? 'M 164 176 Q 210 181 256 176 C 260 206 243 208 238 208 L 182 208 C 177 208 160 206 164 176 Z'
+                  : 'M 197 125 Q 210 132 223 125 L 223 138 C 262 154 268 208 238 208 L 182 208 C 152 208 158 154 197 138 Z'
               }
               fill={salt.stockHex}
               fillOpacity={salt.stockOpacity}
             />
-            {/* Corong Turas */}
+            {completedStep === 4 && (
+              <path d="M 197 125 Q 210 132 223 125" fill="none" stroke="#0369a1" strokeWidth="1.4" />
+            )}
+            <line x1="191" y1="112" x2="229" y2="112" stroke="#dc2626" strokeWidth="1.8" />
+            <text x="234" y="114" fontSize="8.5" fill="#dc2626" fontWeight="bold">
+              Tanda senggatan ({volumeCm3} cm³)
+            </text>
+
+            {completedStep === 4 && (
+              <g>
+                <line x1="223" y1="129" x2="233" y2="134" stroke="#475569" strokeWidth="1" />
+                <text x="236" y="137" fontSize="8" fill="#334155" fontWeight="bold">
+                  Aras meniskus larutan
+                </text>
+              </g>
+            )}
+
+            {/* Label Kelalang Volumetrik seperti Rajah 6.27 (c) */}
+            <line x1="138" y1="180" x2="162" y2="180" stroke="#475569" strokeWidth="1.1" />
+            <text x="134" y="177" fontSize="8.5" fill="#334155" fontWeight="bold" textAnchor="end">
+              Kelalang
+            </text>
+            <text x="134" y="188" fontSize="8.5" fill="#334155" fontWeight="bold" textAnchor="end">
+              volumetrik
+            </text>
+
+            {/* Corong Turas (bahagian atas y=54, x=183..237) */}
             <path
-              d="M 183 54 L 237 54 L 216 80 L 216 100 L 204 100 L 204 80 Z"
+              d="M 183 54 L 237 54 L 216 80 L 216 102 L 204 102 L 204 80 Z"
               fill="#e0f2fe"
               fillOpacity="0.65"
               stroke="#475569"
               strokeWidth="2"
             />
-            <text x="244" y="69" fontSize="9.5" fill="#334155" fontWeight="bold">
+            <line x1="227" y1="64" x2="243" y2="60" stroke="#475569" strokeWidth="1.1" />
+            <text x="246" y="62" fontSize="9" fill="#334155" fontWeight="bold">
               Corong turas
             </text>
+
             {completedStep === 3 ? (
-              <g transform="translate(115, 14) rotate(36)">
+              <g>
+                {/* Bikar dicondongkan dengan muncung tepat di atas mulut corong turas (198, 44) */}
+                <g transform="translate(198, 44) rotate(48)">
+                  <path
+                    d="M -34 0 L -34 44 Q -34 48 -28 48 L -6 48 Q 0 48 0 44 L 0 0"
+                    fill="#f8fafc"
+                    stroke="#0284c7"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M -32 14 L -32 43 Q -32 46 -28 46 L -6 46 Q -2 46 -2 43 L -2 2 Z"
+                    fill={salt.stockHex}
+                    fillOpacity={salt.stockOpacity}
+                  />
+                </g>
+                {/* Aliran larutan terus masuk ke dalam corong turas */}
                 <path
-                  d="M 0 0 L 0 42 L 34 42 L 34 0"
-                  fill={salt.stockHex}
-                  fillOpacity={salt.stockOpacity}
-                  stroke="#0284c7"
-                  strokeWidth="2"
+                  d="M 198 44 Q 204 56 208 78"
+                  fill="none"
+                  stroke={salt.stockHex}
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                  strokeOpacity={Math.min(0.95, salt.stockOpacity + 0.2)}
                 />
+                <circle cx="210" cy="89" r="2.5" fill={salt.stockHex} />
+                <circle cx="210" cy="107" r="2.5" fill={salt.stockHex} />
               </g>
             ) : (
-              <g transform="translate(96, 18) rotate(22)">
-                <rect x="0" y="0" width="48" height="26" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.8" />
-                <path d="M 48 13 L 76 13 L 81 24" fill="none" stroke="#0284c7" strokeWidth="2" />
-                <text x="24" y="16" fontSize="7" fill="#0369a1" fontWeight="bold" textAnchor="middle">
-                  Air Suling
-                </text>
+              <g>
+                {/* Botol pencuci: muncung tepat di atas mulut dalam corong turas (204, 46) */}
+                <WashBottlePour targetX={204} targetY={46} dropYs={[8, 20]} tiltDeg={18} />
+                {/* Air bilasan menuruni dinding & batang corong turas ke dalam kelalang */}
+                <circle cx="210" cy="86" r="2.4" fill="#0ea5e9" />
+                <circle cx="210" cy="104" r="2.4" fill="#0ea5e9" />
               </g>
             )}
-            <circle cx="210" cy="88" r="2.3" fill={completedStep === 3 ? salt.stockHex : '#0ea5e9'} />
-            <circle cx="210" cy="108" r="2.3" fill={completedStep === 3 ? salt.stockHex : '#0ea5e9'} />
+
             <text x="210" y="228" fontSize="9.5" fill="#334155" fontWeight="bold" textAnchor="middle">
               {completedStep === 3
                 ? `Pindah Larutan ${salt.formula} Melalui Corong Turas`
@@ -265,18 +334,19 @@ export const StandardSolutionApparatusSVG: React.FC<StandardSolutionApparatusSVG
               strokeWidth="2.3"
             />
             <path
-              d="M 197 112 L 223 112 L 223 138 C 262 154 268 208 238 208 L 182 208 C 152 208 158 154 197 138 Z"
+              d="M 197 109 Q 210 115 223 109 L 223 138 C 262 154 268 208 238 208 L 182 208 C 152 208 158 154 197 138 Z"
               fill={salt.stockHex}
               fillOpacity={salt.stockOpacity}
             />
+            <path d="M 197 109 Q 210 115 223 109" fill="none" stroke="#0369a1" strokeWidth="1.5" />
             <line x1="189" y1="112" x2="231" y2="112" stroke="#dc2626" strokeWidth="2" />
             <text x="184" y="115" fontSize="8.5" fill="#dc2626" fontWeight="bold" textAnchor="end">
               Senggatan ({volumeCm3} cm³)
             </text>
-            {/* Penitis */}
+            {/* Penitis tepat di atas leher kelalang */}
             <rect x="206" y="24" width="8" height="24" rx="3" fill="#334155" />
             <path d="M 206 48 L 214 48 L 211 68 L 209 68 Z" fill="#e0f2fe" stroke="#475569" strokeWidth="1.5" />
-            <circle cx="210" cy="78" r="2.5" fill="#0ea5e9" />
+            <path d="M 210 73 C 212.5 77 212.5 80.5 210 80.5 C 207.5 80.5 207.5 77 210 73 Z" fill="#0ea5e9" />
             <text x="196" y="42" fontSize="9.5" fill="#334155" fontWeight="bold" textAnchor="end">
               Penitis
             </text>
@@ -450,11 +520,17 @@ export const StandardSolutionApparatusSVG: React.FC<StandardSolutionApparatusSVG
             <path
               d={
                 completedStep === 4
-                  ? 'M 197 128 L 223 128 L 223 138 C 262 154 268 208 238 208 L 182 208 C 152 208 158 154 197 138 Z'
-                  : 'M 197 112 L 223 112 L 223 138 C 262 154 268 208 238 208 L 182 208 C 152 208 158 154 197 138 Z'
+                  ? 'M 197 125 Q 210 132 223 125 L 223 138 C 262 154 268 208 238 208 L 182 208 C 152 208 158 154 197 138 Z'
+                  : 'M 197 109 Q 210 115 223 109 L 223 138 C 262 154 268 208 238 208 L 182 208 C 152 208 158 154 197 138 Z'
               }
               fill={salt.dilutedHex}
               fillOpacity={salt.dilutedOpacity}
+            />
+            <path
+              d={completedStep === 4 ? 'M 197 125 Q 210 132 223 125' : 'M 197 109 Q 210 115 223 109'}
+              fill="none"
+              stroke="#0369a1"
+              strokeWidth="1.4"
             />
             <line x1="189" y1="112" x2="231" y2="112" stroke="#dc2626" strokeWidth="2" />
             <text x="184" y="115" fontSize="8.5" fill="#dc2626" fontWeight="bold" textAnchor="end">
@@ -463,13 +539,8 @@ export const StandardSolutionApparatusSVG: React.FC<StandardSolutionApparatusSVG
 
             {completedStep === 4 && (
               <g>
-                <g transform="translate(94, 20) rotate(22)">
-                  <rect x="0" y="0" width="48" height="25" rx="4" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.8" />
-                  <path d="M 48 12 L 76 12 L 80 22" fill="none" stroke="#0284c7" strokeWidth="2" />
-                  <text x="24" y="16" fontSize="7" fill="#0369a1" fontWeight="bold" textAnchor="middle">
-                    Air Suling
-                  </text>
-                </g>
+                {/* Botol pencuci menuang air suling tepat ke dalam mulut kelalang volumetrik */}
+                <WashBottlePour targetX={208} targetY={72} dropYs={[10, 24, 38]} tiltDeg={18} />
                 <rect x="258" y="138" width="146" height="38" rx="8" fill="#ecfeff" stroke="#06b6d4" strokeWidth="1.2" />
                 <text x="331" y="154" fontSize="8.5" fontWeight="bold" fill="#0e7490" textAnchor="middle">
                   Air suling ditambah ≈ {vWaterNeededCm3.toFixed(1)} cm³
@@ -484,7 +555,7 @@ export const StandardSolutionApparatusSVG: React.FC<StandardSolutionApparatusSVG
               <g>
                 <rect x="206" y="24" width="8" height="24" rx="3" fill="#334155" />
                 <path d="M 206 48 L 214 48 L 211 68 L 209 68 Z" fill="#e0f2fe" stroke="#475569" strokeWidth="1.5" />
-                <circle cx="210" cy="78" r="2.5" fill="#0ea5e9" />
+                <path d="M 210 73 C 212.5 77 212.5 80.5 210 80.5 C 207.5 80.5 207.5 77 210 73 Z" fill="#0ea5e9" />
               </g>
             )}
 
