@@ -104,12 +104,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 4: Jadual Berkala Unsur',
     category: 'Jadual Berkala',
-    description: 'Mengkaji sifat oksida unsur merentasi Kala 3 (sifat bes, amfoterik atau asid) apabila bertindak balas dengan asid dan alkali.',
+    description: 'Peta Spektrum Kala 3 & 3 Tabung Uji Serentak (Eksperimen 4.2): uji Na₂O, MgO, Al₂O₃, SiO₂ & SO₂ dengan Air + pH, HNO₃ & NaOH.',
     learningStandard: 'SP 4.6.2 - Memerihal perubahan sifat oksida unsur apabila merentasi Kala 3',
     iconName: 'TestTube',
     colorTheme: 'cyan',
-    isImplemented: false,
-    tags: ['Kala 3', 'Oksida Bes', 'Amfoterik', 'Oksida Asid']
+    isImplemented: true,
+    tags: ['Rajah 4.13', '3 Tabung Uji', 'Bes · Amfoterik · Asid', 'Spektrum Kala 3']
   },
 
   // --- Bab 5: Ikatan Kimia ---
