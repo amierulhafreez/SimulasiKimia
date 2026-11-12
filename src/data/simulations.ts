@@ -198,6 +198,19 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['Na₂S₂O₃ + H₂SO₄', 'Suhu 30–55 °C', 'Pemanasan & Tanda ✕', 'Graf 1/Masa vs Suhu']
   },
   {
+    id: 'kadar-tindak-balas-mangkin',
+    title: 'Kadar Tindak Balas: Faktor Mangkin',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 7: Kadar Tindak Balas',
+    category: 'Kadar Tindak Balas',
+    description: 'Bandingkan penguraian hidrogen peroksida (H₂O₂) tanpa mangkin dan dengan mangkin MnO₂, Fe serta CuO (Eksperimen 7.4 & Jadual 7.8) lengkap dengan graf masa nyata dan rajah profil tenaga satu paksi (Rajah 7.26).',
+    learningStandard: 'SP 7.2.1 - Mengkaji kesan kehadiran mangkin terhadap kadar tindak balas dan tenaga pengaktifan',
+    iconName: 'Timer',
+    colorTheme: 'amber',
+    isImplemented: true,
+    tags: ['H₂O₂ + MnO₂', 'Ujian Kayu Uji', 'Graf O₂ vs Masa', 'Profil Tenaga Eₐ']
+  },
+  {
     id: 'keadaan-zarah-jirim',
     title: 'Keadaan Zarah: Perubahan Keadaan Fizikal',
     form: 'Tingkatan 4',

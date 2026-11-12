@@ -27,6 +27,7 @@ const DEFAULT_ANALYTICS: SimulationAnalytics = {
     'kadar-tindak-balas-saiz': { views: 235, clicks: 620, completed: 165 },
     'kadar-tindak-balas-kepekatan': { views: 0, clicks: 0, completed: 0 },
     'kadar-tindak-balas-suhu': { views: 0, clicks: 0, completed: 0 },
+    'kadar-tindak-balas-mangkin': { views: 0, clicks: 0, completed: 0 },
     'keadaan-zarah-jirim': { views: 265, clicks: 710, completed: 195 },
     'pengekstrakan-besi': { views: 195, clicks: 510, completed: 135 },
     'pengekstrakan-aluminium': { views: 205, clicks: 530, completed: 140 },
