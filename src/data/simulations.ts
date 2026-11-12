@@ -82,16 +82,16 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
   },
   {
     id: 'penghasilan-sebatian-kovalen',
-    title: 'Penghasilan Sebatian Kovalen & Ionik',
+    title: 'Penghasilan Sebatian Ion & Sebatian Kovalen',
     form: 'Tingkatan 4',
     chapter: 'Bab 5: Ikatan Kimia',
     category: 'Ikatan Kimia',
-    description: 'Cantumkan elektron valens antara atom bukan logam untuk membentuk ikatan kovalen tunggal, ganda dua dan ganda tiga.',
-    learningStandard: 'SP 5.3.1 - Menerangkan pembentukan ikatan kovalen',
+    description: 'Pilih dan seret unsur logam serta bukan logam untuk membina sebatian ion atau sebatian kovalen lengkap dengan rajah pemindahan/perkongsian elektron dan sifat fizik.',
+    learningStandard: 'SP 5.2.1, 5.3.1 & 5.7.1 - Pembentukan & sifat sebatian ion dan kovalen',
     iconName: 'Atom',
     colorTheme: 'indigo',
     isImplemented: true,
-    tags: ['Perkongsian Elektron', 'Oktet', 'Struktur Lewis']
+    tags: ['Pick & Drop', 'Ikatan Ion', 'Ikatan Kovalen', 'Sifat Fizik']
   },
   {
     id: 'keterlarutan-garam',
