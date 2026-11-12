@@ -269,12 +269,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 1: Keseimbangan Redoks',
     category: 'Elektrokimia',
-    description: 'Simulasi interaktif Relau Bagas (Rajah 1.38): pelajari 3 zon suhu, tindak balas penurunan hematit (Fe₂O₃) oleh karbon monoksida dan pembentukan sanga daripada batu kapur.',
+    description: 'Eksperimen makmal pemanasan ferum(III) oksida dengan karbon (ujian magnet & air kapur) serta pengekstrakan skala industri dalam Relau Bagas (Rajah 1.38).',
     learningStandard: 'SP 1.5.2 - Menerangkan pengekstrakan logam daripada bijihnya menggunakan karbon dalam relau bagas',
     iconName: 'Factory',
     colorTheme: 'orange',
     isImplemented: true,
-    tags: ['Hematit (Fe₂O₃)', 'Relau Bagas', 'Arang Kok', 'Batu Kapur', 'Sanga']
+    tags: ['Fe₂O₃ + Karbon', 'Mangkuk Pijar', 'Relau Bagas', 'Sanga (CaSiO₃)', 'Ujian Magnet']
   },
 
   // --- Bab 2: Sebatian Karbon ---
