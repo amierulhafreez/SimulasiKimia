@@ -73,12 +73,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 4: Jadual Berkala Unsur',
     category: 'Jadual Berkala',
-    description: 'Uji tindak balas logam alkali (Li, Na, K) dengan air dan oksigen, serta kereaktifan halogen menuruni kumpulan.',
-    learningStandard: 'SP 4.4.2 - Mencerakinkan perubahan kereaktifan unsur Kumpulan 1',
+    description: 'Bandingkan siri kad unsur Kumpulan 1 (Li–Cs) dan Kumpulan 17 (F₂–I₂) dari segi sifat fizik, sifat kimia serta persamaan kimia tindak balas.',
+    learningStandard: 'SP 4.4.1–4.4.3 & SP 4.5.1–4.5.3 - Sifat fizik, sifat kimia dan kereaktifan Kumpulan 1 & 17',
     iconName: 'Zap',
     colorTheme: 'orange',
     isImplemented: true,
-    tags: ['Logam Alkali', 'Gas Hidrogen', 'Nyalaan Logam', 'Halogen']
+    tags: ['Kumpulan 1', 'Kumpulan 17', 'Sifat Fizik', 'Persamaan Kimia']
   },
   {
     id: 'penghasilan-sebatian-kovalen',
