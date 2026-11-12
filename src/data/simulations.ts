@@ -336,12 +336,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 1: Keseimbangan Redoks',
     category: 'Elektrokimia',
-    description: 'Visualisasi Tiub-U & Kanta Elektrod untuk 3 pasangan redoks (FeSO₄+Br₂, FeSO₄+KMnO₄, KI+K₂Cr₂O₇), cabaran ramalan POE & ujian penitis NaOH/Kanji.',
+    description: 'Visualisasi Tiub-U & Kanta Elektrod untuk 3 pasangan redoks (FeSO₄+Br₂, FeSO₄+KMnO₄, KI+K₂Cr₂O₇), suis litar & ujian penitis NaOH/Kanji.',
     learningStandard: 'SP 1.1.1 - Menghuraikan tindak balas redoks melalui pemindahan elektron pada suatu jarak',
     iconName: 'Zap',
     colorTheme: 'blue',
     isImplemented: true,
-    tags: ['Tiub-U & H₂SO₄', 'Galvanometer', 'Ujian NaOH & Kanji', 'Ramalan POE']
+    tags: ['Tiub-U & H₂SO₄', 'Galvanometer', 'Ujian NaOH & Kanji', 'Suis Litar']
   },
   {
     id: 'penukaran-ion-ferum',

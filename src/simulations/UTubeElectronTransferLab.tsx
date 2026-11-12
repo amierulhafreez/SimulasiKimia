@@ -115,11 +115,6 @@ export const UTubeElectronTransferLab: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'lab' | 'reference'>('lab');
   const [pairId, setPairId] = useState<RedoxPair['id']>('feso4-br2');
 
-  // POE prediction states
-  const [predNegative, setPredNegative] = useState<'left' | 'right'>('left');
-  const [predDeflect, setPredDeflect] = useState<'right' | 'left'>('right');
-  const [poeFeedback, setPoeFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
-
   // Reaction progress
   const [progress, setProgress] = useState<number>(0);
   const [isReacting, setIsReacting] = useState<boolean>(false);
@@ -167,21 +162,12 @@ export const UTubeElectronTransferLab: React.FC = () => {
     stopAnim();
     setPairId(nextId);
     setProgress(0);
-    setPoeFeedback(null);
     setSampledArm(null);
     setAppliedReagent(null);
   };
 
   const handleConnectCircuit = () => {
     if (isReacting || isComplete) return;
-
-    const poeOk = predNegative === 'left' && predDeflect === 'right';
-    setPoeFeedback({
-      ok: poeOk,
-      msg: poeOk
-        ? 'Ramalan tepat! Terminal (-) ialah Lengan Kiri (Agen Penurunan); e⁻ mengalir ke Kanan dan jarum G terpesong ke kanan.'
-        : 'Perhatikan aliran sebenar: Agen penurunan di Lengan Kiri (Terminal -) menderma e⁻ → wayar luar ke Kanan, menyebabkan jarum G terpesong ke kanan.',
-    });
 
     setIsReacting(true);
     setProgress(0);
@@ -205,7 +191,6 @@ export const UTubeElectronTransferLab: React.FC = () => {
     stopAnim();
     setIsReacting(false);
     setProgress(0);
-    setPoeFeedback(null);
     setSampledArm(null);
     setAppliedReagent(null);
   };
@@ -376,13 +361,13 @@ export const UTubeElectronTransferLab: React.FC = () => {
       {/* TAB 1: JOHNSTONE SYNC + POE + DROPPER LAB TEST + LIVE REDOX TABLE */}
       {activeTab === 'lab' && (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-          {/* LEFT PANEL: POE Prediction + Connect Switch + Dropper Confirmatory Lab */}
+          {/* LEFT PANEL: Circuit Switch + Dropper Confirmatory Lab */}
           <div className="md:col-span-4 space-y-2.5">
-            {/* POE Prediction & Circuit Switch */}
+            {/* Circuit Switch & Reaction Control */}
             <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-xs space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-extrabold text-slate-800">
-                  1. Ramalan (POE) &amp; Suis Litar
+                  1. Kawalan Suis Litar
                 </span>
                 <span
                   className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
@@ -397,48 +382,14 @@ export const UTubeElectronTransferLab: React.FC = () => {
                 </span>
               </div>
 
-              {/* Prediction selectors */}
-              <div className="grid grid-cols-2 gap-2 text-[10.5px]">
-                <div className="space-y-1">
-                  <div className="font-bold text-slate-600">Terminal Negatif (-):</div>
-                  <div className="flex gap-1">
-                    {(['left', 'right'] as const).map((side) => (
-                      <button
-                        key={side}
-                        type="button"
-                        disabled={isReacting || isComplete}
-                        onClick={() => setPredNegative(side)}
-                        className={`flex-1 py-1 rounded border font-extrabold cursor-pointer transition ${
-                          predNegative === side
-                            ? 'bg-blue-600 text-white border-blue-700'
-                            : 'bg-slate-50 text-slate-600 border-slate-200'
-                        }`}
-                      >
-                        {side === 'left' ? 'Kiri' : 'Kanan'}
-                      </button>
-                    ))}
-                  </div>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-[10.5px] text-slate-700 space-y-1">
+                <div className="flex justify-between gap-2">
+                  <span className="text-slate-500 font-semibold">Lengan Kiri (-):</span>
+                  <span className="font-bold text-teal-800 text-right">{pair.leftShort}</span>
                 </div>
-
-                <div className="space-y-1">
-                  <div className="font-bold text-slate-600">Pesongan Jarum G:</div>
-                  <div className="flex gap-1">
-                    {(['right', 'left'] as const).map((dir) => (
-                      <button
-                        key={dir}
-                        type="button"
-                        disabled={isReacting || isComplete}
-                        onClick={() => setPredDeflect(dir)}
-                        className={`flex-1 py-1 rounded border font-extrabold cursor-pointer transition ${
-                          predDeflect === dir
-                            ? 'bg-blue-600 text-white border-blue-700'
-                            : 'bg-slate-50 text-slate-600 border-slate-200'
-                        }`}
-                      >
-                        {dir === 'right' ? 'Ke Kanan' : 'Ke Kiri'}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex justify-between gap-2">
+                  <span className="text-slate-500 font-semibold">Lengan Kanan (+):</span>
+                  <span className="font-bold text-amber-800 text-right">{pair.rightShort}</span>
                 </div>
               </div>
 
@@ -462,20 +413,14 @@ export const UTubeElectronTransferLab: React.FC = () => {
                 ) : (
                   <>
                     <Power className="w-3.5 h-3.5" />
-                    <span>{isReacting ? 'Menjalankan Pemindahan e⁻...' : 'Sambung Suis & Uji'}</span>
+                    <span>{isReacting ? 'Menjalankan Pemindahan e⁻...' : 'Sambung Suis Litar'}</span>
                   </>
                 )}
               </button>
 
-              {poeFeedback && (
-                <div
-                  className={`rounded-lg border p-2 text-[10px] leading-snug ${
-                    poeFeedback.ok
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                      : 'bg-amber-50 border-amber-200 text-amber-900'
-                  }`}
-                >
-                  {poeFeedback.msg}
+              {isComplete && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2 text-[10px] text-emerald-900 leading-snug">
+                  Elektron mengalir melalui wayar luar dari <strong>Lengan Kiri (-)</strong> ke <strong>Lengan Kanan (+)</strong>; jarum galvanometer G terpesong ke kanan.
                 </div>
               )}
             </div>
