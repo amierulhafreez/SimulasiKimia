@@ -63,12 +63,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 3: Konsep Mol, Formula dan Persamaan Kimia',
     category: 'Jirim & Struktur Atom',
-    description: 'Menentukan formula empirik magnesium oksida (MgO) melalui pembakaran reben magnesium dalam mangkuk pijar.',
+    description: 'Rajah 3.12 & Jadual 3.4: timbang mangkuk pijar, bakar pita Mg, ulang pemanasan hingga jisim tetap & kira nisbah mol MgO.',
     learningStandard: 'SP 3.3.2 - Menentukan formula empirik magnesium oksida melalui aktiviti',
     iconName: 'Flame',
     colorTheme: 'amber',
-    isImplemented: false,
-    tags: ['Formula Empirik', 'MgO', 'Mangkuk Pijar', 'Pembakaran Mg']
+    isImplemented: true,
+    tags: ['Rajah 3.12', 'Mangkuk Pijar', 'Jisim Tetap', 'Nisbah Mol MgO']
   },
   {
     id: 'formula-empirik-cuo',
