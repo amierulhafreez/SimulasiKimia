@@ -39,6 +39,7 @@ import { VoltaicCellLab } from '../simulations/VoltaicCellLab';
 import { IronRustingLab } from '../simulations/IronRustingLab';
 import { EthanolOxidationLab } from '../simulations/EthanolOxidationLab';
 import { EsterificationLab } from '../simulations/EsterificationLab';
+import { AlkeneReactionsHubLab } from '../simulations/AlkeneReactionsHubLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -139,6 +140,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <EthanolOxidationLab />;
       case 'pengesteran-alkohol-asid-karboksilik':
         return <EsterificationLab />;
+      case 'tindak-balas-kimia-alkena':
+        return <AlkeneReactionsHubLab />;
       default:
         return (
           <div className="space-y-6">

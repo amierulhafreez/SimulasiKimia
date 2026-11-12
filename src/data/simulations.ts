@@ -451,16 +451,16 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
   },
   {
     id: 'tindak-balas-kimia-alkena',
-    title: 'Tindak Balas Kimia Alkena',
+    title: 'Sifat Kimia Alkena (Peta Hub 7 Tindak Balas)',
     form: 'Tingkatan 5',
     chapter: 'Bab 2: Sebatian Karbon',
     category: 'Kimia Karbon',
-    description: 'Mengkaji tindak balas penambahan alkena (penghidrogenan, penghalogenan, penghidratan, pengoksidaan dan pempolimeran penambahan).',
+    description: 'Peta hub interaktif 7 tindak balas kimia alkena (pembakaran, penghidrogenan, penghalogenan, penambahan HX, penghidratan, pengoksidaan KMnO₄, dan pempolimeran penambahan) dengan visualisasi pembukaan ikatan ganda dua C=C.',
     learningStandard: 'SP 2.3.1 - Menghuraikan sifat kimia alkena dan menulis persamaan kimia berkaitan',
     iconName: 'Atom',
     colorTheme: 'indigo',
-    isImplemented: false,
-    tags: ['Tindak Balas Penambahan', 'Alkena', 'Mangkin Ni/H₃PO₄', 'Pempolimeran']
+    isImplemented: true,
+    tags: ['Tindak Balas Penambahan', 'Alkena C=C', 'Peta Hub', 'Mangkin Ni/H₃PO₄', 'Pempolimeran', 'Pembakaran Jelaga']
   },
   {
     id: 'pengoksidaan-etanol',
