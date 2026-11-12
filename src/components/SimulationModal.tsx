@@ -11,6 +11,7 @@ import { CationTestLab } from '../simulations/CationTestLab';
 import { ElectrolysisLab } from '../simulations/ElectrolysisLab';
 import { ThermochemistryLab } from '../simulations/ThermochemistryLab';
 import { CarbonIsomersLab } from '../simulations/CarbonIsomersLab';
+import { CarbonStructureBuilderLab } from '../simulations/CarbonStructureBuilderLab';
 import { ReactivityLab } from '../simulations/ReactivityLab';
 import { SaltSolubilityLab } from '../simulations/SaltSolubilityLab';
 import { CovalentFormulaLab } from '../simulations/CovalentFormulaLab';
@@ -70,8 +71,9 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
       case 'keterlarutan-garam':
         return <SaltSolubilityLab />;
       case 'penentuan-isomer':
-      case 'formula-struktur-karbon':
         return <CarbonIsomersLab />;
+      case 'formula-struktur-karbon':
+        return <CarbonStructureBuilderLab />;
       case 'kereaktifan-k1-dan-k17':
         return <ReactivityLab />;
       case 'penghasilan-sebatian-kovalen':

@@ -284,12 +284,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 2: Sebatian Karbon',
     category: 'Kimia Karbon',
-    description: 'Papan lukisan molekul karbon: bina rantai alkana, alkena, alkuna, alkohol, asid karboksilik dan ester.',
-    learningStandard: 'SP 2.1.2 - Melukis formula struktur hidrokarbon',
+    description: 'Sandbox drag & drop atom (C, H, O, N, Cl, Br, I): bina ikatan kovalen tunggal/ganda dua/tiga, terokai struktur yang mungkin dan sahkan siri homolog, kumpulan berfungsi serta sifat fizik.',
+    learningStandard: 'SP 2.2.2 - Membina formula molekul dan formula struktur serta menamakan ahli siri homolog',
     iconName: 'Share2',
     colorTheme: 'indigo',
     isImplemented: true,
-    tags: ['Kumpulan Berfungsi', 'Ester', 'Alkohol', 'Formula Molekul']
+    tags: ['Drag & Drop Atom', 'Ikatan Kovalen', 'Siri Homolog', 'Kumpulan Berfungsi', 'Sifat Fizik']
   },
   {
     id: 'penentuan-isomer',
