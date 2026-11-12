@@ -40,11 +40,97 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
     let rafId = 0;
     const startMs = performance.now();
 
+    const drawTextbookLabel = (
+      targetX: number,
+      targetY: number,
+      side: 'left' | 'right' | 'top' | 'bottom',
+      textX: number,
+      textY: number,
+      title: string,
+      subtitle?: string
+    ) => {
+      ctx.save();
+      ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+      ctx.textBaseline = 'middle';
+      const mainTw = ctx.measureText(title).width;
+      ctx.font = '600 8.5px ui-sans-serif, system-ui, sans-serif';
+      const subTw = subtitle ? ctx.measureText(subtitle).width : 0;
+      const maxTw = Math.max(mainTw, subTw);
+
+      let lineStartX = textX;
+      let lineStartY = textY;
+
+      if (side === 'left') {
+        ctx.textAlign = 'left';
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(title, textX, textY - (subtitle ? 5 : 0));
+        if (subtitle) {
+          ctx.font = '600 8.5px ui-sans-serif, system-ui, sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.fillText(subtitle, textX, textY + 7);
+        }
+        lineStartX = textX + maxTw + 4;
+        lineStartY = textY;
+      } else if (side === 'right') {
+        ctx.textAlign = 'right';
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(title, textX, textY - (subtitle ? 5 : 0));
+        if (subtitle) {
+          ctx.font = '600 8.5px ui-sans-serif, system-ui, sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.fillText(subtitle, textX, textY + 7);
+        }
+        lineStartX = textX - maxTw - 4;
+        lineStartY = textY;
+      } else if (side === 'top') {
+        ctx.textAlign = 'center';
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(title, textX, textY);
+        lineStartX = textX;
+        lineStartY = textY + 6;
+      } else {
+        ctx.textAlign = 'center';
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(title, textX, textY);
+        lineStartX = textX;
+        lineStartY = textY - 6;
+      }
+
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(lineStartX, lineStartY);
+
+      if (Math.abs(lineStartX - targetX) > 16 && Math.abs(lineStartY - targetY) > 6) {
+        const shelfLen = side === 'left' ? 10 : side === 'right' ? -10 : 0;
+        if (shelfLen !== 0) {
+          ctx.lineTo(lineStartX + shelfLen, lineStartY);
+          ctx.lineTo(targetX, targetY);
+        } else {
+          ctx.lineTo(targetX, targetY);
+        }
+      } else {
+        ctx.lineTo(targetX, targetY);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = '#475569';
+      ctx.beginPath();
+      ctx.arc(targetX, targetY, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    };
+
     const render = (now: number) => {
       const t = (now - startMs) / 1000;
       const dpr = window.devicePixelRatio || 1;
-      const cssW = 420;
-      const cssH = 225;
+      const cssW = 480;
+      const cssH = 240;
       if (canvas.width !== cssW * dpr || canvas.height !== cssH * dpr) {
         canvas.width = cssW * dpr;
         canvas.height = cssH * dpr;
@@ -64,22 +150,24 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Lab bench
-      ctx.fillStyle = '#e2e8f0';
-      ctx.fillRect(16, 204, 388, 8);
+      // Bench
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(16, 214, 448, 8);
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(16, 222, 448, 2);
 
-      // 1. Conical Flask (Left)
-      const fCx = 125;
+      // 1. Conical Flask (Left: cx = 135)
+      const fCx = 135;
       const drawFlaskPath = () => {
         ctx.beginPath();
-        ctx.moveTo(fCx - 16, 62);
-        ctx.lineTo(fCx - 16, 94);
-        ctx.lineTo(fCx - 62, 192);
-        ctx.quadraticCurveTo(fCx - 64, 204, fCx - 50, 204);
-        ctx.lineTo(fCx + 50, 204);
-        ctx.quadraticCurveTo(fCx + 64, 204, fCx + 62, 192);
-        ctx.lineTo(fCx + 16, 94);
-        ctx.lineTo(fCx + 16, 62);
+        ctx.moveTo(fCx - 15, 78);
+        ctx.lineTo(fCx - 15, 108);
+        ctx.lineTo(fCx - 58, 198);
+        ctx.quadraticCurveTo(fCx - 60, 214, fCx - 44, 214);
+        ctx.lineTo(fCx + 44, 214);
+        ctx.quadraticCurveTo(fCx + 60, 214, fCx + 58, 198);
+        ctx.lineTo(fCx + 15, 108);
+        ctx.lineTo(fCx + 15, 78);
         ctx.closePath();
       };
 
@@ -88,23 +176,33 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
       drawFlaskPath();
       ctx.clip();
       ctx.fillStyle = isHot ? '#fef2f2' : '#fef9c3';
-      ctx.fillRect(fCx - 65, 136, 130, 70);
+      ctx.fillRect(fCx - 65, 142, 130, 75);
       ctx.strokeStyle = '#eab308';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(fCx - 65, 136);
-      ctx.lineTo(fCx + 65, 136);
+      ctx.moveTo(fCx - 65, 142);
+      ctx.lineTo(fCx + 65, 142);
       ctx.stroke();
+
+      // Yeast sediment particles at bottom
+      ctx.fillStyle = '#ca8a04';
+      for (let p = 0; p < 12; p++) {
+        const px = fCx - 42 + ((p * 15) % 84);
+        const py = 210 - (p % 3) * 3;
+        ctx.beginPath();
+        ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // Bubbles inside flask
       if (activeBubbling) {
-        const count = isOptimum ? 12 : isCold ? 3 : 6;
+        const count = isOptimum ? 14 : isCold ? 3 : 6;
         for (let i = 0; i < count; i++) {
           const speed = isOptimum ? 1.4 : 0.4;
           const bt = (t * speed + i * 0.23) % 1;
-          const bx = fCx - 35 + ((i * 19) % 70) + Math.sin(t * 4 + i) * 3;
-          const by = 198 - bt * 60;
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+          const bx = fCx - 36 + ((i * 19) % 72) + Math.sin(t * 4 + i) * 3;
+          const by = 208 - bt * 64;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
           ctx.strokeStyle = '#94a3b8';
           ctx.lineWidth = 1;
           ctx.beginPath();
@@ -115,69 +213,76 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
       }
       ctx.restore();
 
-      // Flask outline (drawn outside clip so it's always crisp)
+      // Flask outline
       drawFlaskPath();
-      ctx.strokeStyle = '#334155';
+      ctx.strokeStyle = '#1e293b';
       ctx.lineWidth = 2.2;
       ctx.stroke();
 
       // Rubber stopper
       ctx.fillStyle = '#475569';
-      ctx.fillRect(fCx - 15, 50, 30, 14);
-      ctx.strokeStyle = '#1e293b';
+      ctx.fillRect(fCx - 14, 68, 28, 14);
+      ctx.strokeStyle = '#0f172a';
       ctx.lineWidth = 1.5;
-      ctx.strokeRect(fCx - 15, 50, 30, 14);
+      ctx.strokeRect(fCx - 14, 68, 28, 14);
 
       // Delivery tube (Salur penghantar)
       ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 5;
+      ctx.lineWidth = 4.5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
-      ctx.moveTo(fCx, 54);
-      ctx.lineTo(fCx, 28);
-      ctx.lineTo(310, 28);
-      ctx.lineTo(310, 178);
+      ctx.moveTo(fCx, 72);
+      ctx.lineTo(fCx, 36);
+      ctx.lineTo(345, 36);
+      ctx.lineTo(345, 186);
       ctx.stroke();
 
       ctx.strokeStyle = '#f8fafc';
-      ctx.lineWidth = 2.2;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(fCx, 54);
-      ctx.lineTo(fCx, 28);
-      ctx.lineTo(310, 28);
-      ctx.lineTo(310, 178);
+      ctx.moveTo(fCx, 72);
+      ctx.lineTo(fCx, 36);
+      ctx.lineTo(345, 36);
+      ctx.lineTo(345, 186);
       ctx.stroke();
 
-      // 2. Test Tube with Limewater (Right)
-      const tCx = 310;
+      // 2. Test Tube with Limewater (Right: cx = 345)
+      const tCx = 345;
+      // Test tube stand base
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(tCx - 32, 206, 64, 8);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(tCx - 32, 206, 64, 8);
+
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(tCx - 20, 88);
-      ctx.lineTo(tCx - 20, 184);
-      ctx.arc(tCx, 184, 20, Math.PI, 0, true);
-      ctx.lineTo(tCx + 20, 88);
+      ctx.moveTo(tCx - 16, 92);
+      ctx.lineTo(tCx - 16, 188);
+      ctx.arc(tCx, 188, 16, Math.PI, 0, true);
+      ctx.lineTo(tCx + 16, 92);
 
       // Limewater turbidity
       const turbidity = Math.min(1, eth / 8);
       ctx.save();
       ctx.clip();
       ctx.fillStyle = `rgba(226, 232, 240, ${0.35 + turbidity * 0.6})`;
-      ctx.fillRect(tCx - 22, 128, 44, 80);
+      ctx.fillRect(tCx - 18, 132, 36, 75);
       if (turbidity > 0.25) {
         // White precipitate particles
-        ctx.fillStyle = `rgba(255, 255, 255, ${turbidity * 0.9})`;
-        for (let k = 0; k < 14; k++) {
-          const px = tCx - 14 + ((k * 11) % 28);
-          const py = 136 + ((k * 17) % 58);
+        ctx.fillStyle = `rgba(255, 255, 255, ${turbidity * 0.95})`;
+        for (let k = 0; k < 16; k++) {
+          const px = tCx - 11 + ((k * 11) % 22);
+          const py = 142 + ((k * 17) % 52);
           ctx.beginPath();
-          ctx.arc(px, py, 2, 0, Math.PI * 2);
+          ctx.arc(px, py, 1.8, 0, Math.PI * 2);
           ctx.fill();
         }
       }
       ctx.restore();
 
-      ctx.strokeStyle = '#334155';
+      ctx.strokeStyle = '#1e293b';
       ctx.lineWidth = 2.2;
       ctx.stroke();
       ctx.restore();
@@ -187,10 +292,10 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
         const count = isOptimum ? 5 : 2;
         for (let b = 0; b < count; b++) {
           const bt = (t * (isOptimum ? 1.5 : 0.5) + b * 0.3) % 1;
-          const bx = tCx + Math.sin(t * 6 + b) * 4;
-          const by = 178 - bt * 48;
+          const bx = tCx + Math.sin(t * 6 + b) * 3;
+          const by = 186 - bt * 46;
           ctx.fillStyle = '#ffffff';
-          ctx.strokeStyle = '#64748b';
+          ctx.strokeStyle = '#475569';
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.arc(bx, by, 3, 0, Math.PI * 2);
@@ -199,26 +304,25 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
         }
       }
 
-      // Labels
-      ctx.fillStyle = '#0f172a';
-      ctx.font = '700 10px ui-sans-serif, system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Larutan Glukosa + Yis', fCx, 218);
-      ctx.fillText(
-        turbidity > 0.35 ? 'Air Kapur Keruh (CO₂)' : 'Air Kapur Jernih',
-        tCx,
-        218
+      // Crisp Textbook Leader Lines & Labels
+      drawTextbookLabel(fCx, 74, 'left', 16, 74, 'Penyumbat getah');
+      drawTextbookLabel(240, 36, 'top', 240, 18, 'Salur penghantar');
+      drawTextbookLabel(fCx - 42, 168, 'left', 16, 168, 'Campuran glukosa + yis');
+      drawTextbookLabel(
+        tCx + 16,
+        155,
+        'right',
+        464,
+        155,
+        turbidity > 0.35 ? 'Air kapur keruh' : 'Air kapur jernih',
+        '(Mengesan CO₂)'
       );
-
-      ctx.fillStyle = '#475569';
-      ctx.font = '600 9.5px ui-sans-serif, system-ui, sans-serif';
-      ctx.fillText('Penyumbat getah', fCx - 64, 59);
-      ctx.fillText('Salur penghantar', 220, 20);
 
       // Temperature badge inside canvas
       ctx.fillStyle = isHot ? '#dc2626' : isOptimum ? '#059669' : '#0284c7';
       ctx.font = '800 11px ui-sans-serif, system-ui, sans-serif';
-      ctx.fillText(`Suhu: ${curTemp} °C`, fCx, 118);
+      ctx.textAlign = 'center';
+      ctx.fillText(`Suhu Penapaian: ${curTemp} °C`, fCx, 126);
 
       ctx.restore();
       rafId = requestAnimationFrame(render);
@@ -231,7 +335,7 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="w-full max-w-[420px] aspect-[420/225] mx-auto block rounded-xl border border-slate-200 bg-white"
+      className="w-full max-w-[480px] aspect-[480/240] mx-auto block rounded-xl border border-slate-200 bg-white"
     />
   );
 };
@@ -389,11 +493,97 @@ const DistillationMacroCanvas: React.FC<DistillationCanvasProps> = ({
     let rafId = 0;
     const startMs = performance.now();
 
+    const drawTextbookLabel = (
+      targetX: number,
+      targetY: number,
+      side: 'left' | 'right' | 'top' | 'bottom',
+      textX: number,
+      textY: number,
+      title: string,
+      subtitle?: string
+    ) => {
+      ctx.save();
+      ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+      ctx.textBaseline = 'middle';
+      const mainTw = ctx.measureText(title).width;
+      ctx.font = '600 8.5px ui-sans-serif, system-ui, sans-serif';
+      const subTw = subtitle ? ctx.measureText(subtitle).width : 0;
+      const maxTw = Math.max(mainTw, subTw);
+
+      let lineStartX = textX;
+      let lineStartY = textY;
+
+      if (side === 'left') {
+        ctx.textAlign = 'left';
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(title, textX, textY - (subtitle ? 5 : 0));
+        if (subtitle) {
+          ctx.font = '600 8.5px ui-sans-serif, system-ui, sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.fillText(subtitle, textX, textY + 7);
+        }
+        lineStartX = textX + maxTw + 4;
+        lineStartY = textY;
+      } else if (side === 'right') {
+        ctx.textAlign = 'right';
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(title, textX, textY - (subtitle ? 5 : 0));
+        if (subtitle) {
+          ctx.font = '600 8.5px ui-sans-serif, system-ui, sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.fillText(subtitle, textX, textY + 7);
+        }
+        lineStartX = textX - maxTw - 4;
+        lineStartY = textY;
+      } else if (side === 'top') {
+        ctx.textAlign = 'center';
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(title, textX, textY);
+        lineStartX = textX;
+        lineStartY = textY + 6;
+      } else {
+        ctx.textAlign = 'center';
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(title, textX, textY);
+        lineStartX = textX;
+        lineStartY = textY - 6;
+      }
+
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(lineStartX, lineStartY);
+
+      if (Math.abs(lineStartX - targetX) > 16 && Math.abs(lineStartY - targetY) > 6) {
+        const shelfLen = side === 'left' ? 10 : side === 'right' ? -10 : 0;
+        if (shelfLen !== 0) {
+          ctx.lineTo(lineStartX + shelfLen, lineStartY);
+          ctx.lineTo(targetX, targetY);
+        } else {
+          ctx.lineTo(targetX, targetY);
+        }
+      } else {
+        ctx.lineTo(targetX, targetY);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = '#475569';
+      ctx.beginPath();
+      ctx.arc(targetX, targetY, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    };
+
     const render = (now: number) => {
       const t = (now - startMs) / 1000;
       const dpr = window.devicePixelRatio || 1;
-      const cssW = 420;
-      const cssH = 225;
+      const cssW = 500;
+      const cssH = 250;
       if (canvas.width !== cssW * dpr || canvas.height !== cssH * dpr) {
         canvas.width = cssW * dpr;
         canvas.height = cssH * dpr;
@@ -413,177 +603,409 @@ const DistillationMacroCanvas: React.FC<DistillationCanvasProps> = ({
       ctx.fillRect(0, 0, cssW, cssH);
 
       // Lab bench
-      ctx.fillStyle = '#e2e8f0';
-      ctx.fillRect(12, 206, 396, 8);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(12, 222, 476, 8);
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(12, 230, 476, 2);
 
-      // Bunsen Burner (Left)
-      const bX = 95;
+      // ==========================================
+      // 1. RETORT STAND 1 (Left, holding flask)
+      // ==========================================
+      const rs1X = 42;
       ctx.fillStyle = '#64748b';
-      ctx.fillRect(bX - 16, 198, 32, 8);
-      ctx.fillRect(bX - 5, 174, 10, 24);
+      ctx.fillRect(rs1X - 22, 214, 44, 8);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(rs1X - 22, 214, 44, 8);
+      // Rod
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(rs1X - 2.5, 26, 5, 188);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(rs1X - 2.5, 26, 5, 188);
+      // Clamp gripping flask neck
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(rs1X - 1, 74, 58, 4);
+
+      // ==========================================
+      // 2. RETORT STAND 2 (Middle, holding Liebig)
+      // ==========================================
+      const rs2X = 236;
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(rs2X - 20, 214, 40, 8);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(rs2X - 20, 214, 40, 8);
+      // Rod
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(rs2X - 2.5, 42, 5, 172);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(rs2X - 2.5, 42, 5, 172);
+      // Clamp holding Liebig condenser
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(rs2X - 1, 102, 24, 4);
+
+      // ==========================================
+      // 3. BUNSEN BURNER & TRIPOD STAND (Left)
+      // ==========================================
+      const bX = 112;
+      // Bunsen Burner
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(bX - 16, 214, 32, 8);
+      ctx.fillRect(bX - 5, 190, 10, 24);
       if (heating) {
-        const flicker = Math.sin(t * 16) * 2.5;
+        const flicker = Math.sin(t * 16) * 2;
+        // Outer blue flame
         ctx.fillStyle = 'rgba(37, 99, 235, 0.85)';
         ctx.beginPath();
-        ctx.moveTo(bX - 7, 174);
-        ctx.quadraticCurveTo(bX, 152 + flicker, bX + 7, 174);
+        ctx.moveTo(bX - 7, 190);
+        ctx.quadraticCurveTo(bX, 168 + flicker, bX + 7, 190);
+        ctx.fill();
+        // Inner cone
+        ctx.fillStyle = 'rgba(250, 204, 21, 0.9)';
+        ctx.beginPath();
+        ctx.moveTo(bX - 4, 190);
+        ctx.quadraticCurveTo(bX, 178 + flicker * 0.5, bX + 4, 190);
         ctx.fill();
       }
 
-      // Tripod Stand & Wire Gauze (Tungku kaki tiga + kasa dawai)
+      // Tripod Stand & Wire Gauze
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(bX - 36, 206);
-      ctx.lineTo(bX - 28, 155);
-      ctx.lineTo(bX + 28, 155);
-      ctx.lineTo(bX + 36, 206);
+      ctx.moveTo(bX - 36, 222);
+      ctx.lineTo(bX - 28, 170);
+      ctx.lineTo(bX + 28, 170);
+      ctx.lineTo(bX + 36, 222);
       ctx.stroke();
       // Wire gauze
       ctx.strokeStyle = '#475569';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
-      ctx.moveTo(bX - 30, 153);
-      ctx.lineTo(bX + 30, 153);
+      ctx.moveTo(bX - 32, 168);
+      ctx.lineTo(bX + 32, 168);
       ctx.stroke();
 
-      // Distillation Flask (resting on wire gauze)
+      // ==========================================
+      // 4. DISTILLATION FLASK & THERMOMETER
+      // ==========================================
+      const fCy = 138;
+      const fR = 30;
+
+      // Solution inside flask
       ctx.save();
       ctx.beginPath();
-      ctx.arc(bX, 121, 31, 0, Math.PI * 2);
-      ctx.fillStyle = '#e0f2fe';
-      ctx.fill();
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 2;
+      ctx.arc(bX, fCy, fR - 1.5, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.fillStyle = '#fef08a'; // Fermented mixture
+      ctx.fillRect(bX - fR, fCy - 6, fR * 2, fR + 10);
+      ctx.strokeStyle = '#eab308';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(bX - fR, fCy - 6);
+      ctx.lineTo(bX + fR, fCy - 6);
       ctx.stroke();
 
-      // Flask neck
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(bX - 9, 44, 18, 49);
-      ctx.strokeRect(bX - 9, 44, 18, 49);
+      // Boiling bubbles if heating
+      if (heating && temp >= 65) {
+        for (let i = 0; i < 7; i++) {
+          const bx = bX - 14 + ((i * 7) % 28);
+          const by = fCy + 22 - ((t * 40 + i * 8) % 22);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(bx, by, 1.8, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
 
-      // Rubber stopper
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(bX - 10, 38, 20, 9);
-
-      // Porcelain chips
-      ctx.fillStyle = '#64748b';
-      ctx.fillRect(bX - 8, 141, 5, 4);
-      ctx.fillRect(bX + 3, 143, 6, 4);
-
-      // Thermometer
-      ctx.fillStyle = '#f1f5f9';
-      ctx.fillRect(bX - 3, 12, 6, 68);
+      // Porcelain chips (Serpihan porselin)
+      ctx.fillStyle = '#cbd5e1';
       ctx.strokeStyle = '#475569';
       ctx.lineWidth = 1;
-      ctx.strokeRect(bX - 3, 12, 6, 68);
-      // Red mercury column
-      const mercH = Math.min(54, Math.max(10, ((temp - 20) / 80) * 54));
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(bX - 1.5, 78 - mercH, 3, mercH);
+      [
+        [bX - 8, fCy + 22],
+        [bX, fCy + 24],
+        [bX + 7, fCy + 21],
+      ].forEach(([px, py]) => {
+        ctx.beginPath();
+        ctx.roundRect(px - 3, py - 2, 6, 4, 1);
+        ctx.fill();
+        ctx.stroke();
+      });
       ctx.restore();
 
-      // Liebig Condenser (slanted from bX+9, 64 to 318, 137)
+      // Distillation flask glass outline
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      // Round bulb with neck opening at top
+      ctx.arc(bX, fCy, fR, -Math.PI * 0.38, Math.PI * 1.38, false);
+      ctx.stroke();
+
+      // Flask neck & side arm
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(bX - 9, fCy - 28);
+      ctx.lineTo(bX - 9, 52);
+      ctx.lineTo(bX + 9, 52);
+      ctx.lineTo(bX + 9, 68);
+      // Side arm branching out to Liebig
+      ctx.lineTo(138, 76);
+      ctx.lineTo(136, 82);
+      ctx.lineTo(bX + 9, 74);
+      ctx.lineTo(bX + 9, fCy - 28);
+      ctx.stroke();
+
+      // Rubber stopper
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.moveTo(bX - 11, 46);
+      ctx.lineTo(bX + 11, 46);
+      ctx.lineTo(bX + 9, 56);
+      ctx.lineTo(bX - 9, 56);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Thermometer
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(bX - 2.5, 20, 5, 56);
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(bX - 2.5, 20, 5, 56);
+      // Red mercury thread & bulb (Bulb exactly level with side arm: y = 70)
+      const mercH = Math.min(46, Math.max(8, ((temp - 20) / 80) * 46));
+      ctx.fillStyle = '#dc2626';
+      ctx.fillRect(bX - 1.2, 70 - mercH, 2.4, mercH);
+      ctx.beginPath();
+      ctx.arc(bX, 70, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ==========================================
+      // 5. LIEBIG CONDENSER (Kondenser Liebig)
+      // ==========================================
       ctx.save();
-      // Outer water jacket
+      const lx1 = 138;
+      const ly1 = 76;
+      const lx2 = 338;
+      const ly2 = 144;
+
+      // Outer water jacket (glass cylinder around inner tube)
+      const jx1 = 158;
+      const jy1 = 83;
+      const jx2 = 318;
+      const jy2 = 137;
+
       ctx.strokeStyle = '#94a3b8';
-      ctx.lineWidth = 22;
+      ctx.lineWidth = 20;
       ctx.lineCap = 'butt';
       ctx.beginPath();
-      ctx.moveTo(132, 76);
-      ctx.lineTo(285, 126);
+      ctx.moveTo(jx1, jy1);
+      ctx.lineTo(jx2, jy2);
       ctx.stroke();
 
-      // Water inside jacket (full if correct, thin/half if wrong)
-      ctx.strokeStyle = flow === 'correct' ? 'rgba(56, 189, 248, 0.7)' : 'rgba(56, 189, 248, 0.25)';
-      ctx.lineWidth = flow === 'correct' ? 18 : 7;
+      // Water inside jacket
+      ctx.strokeStyle = flow === 'correct' ? 'rgba(56, 189, 248, 0.75)' : 'rgba(56, 189, 248, 0.25)';
+      ctx.lineWidth = flow === 'correct' ? 16 : 6;
       ctx.beginPath();
-      ctx.moveTo(132, 76);
-      ctx.lineTo(285, 126);
+      ctx.moveTo(jx1, jy1);
+      ctx.lineTo(jx2, jy2);
       ctx.stroke();
 
-      // Water inlet/outlet side tubes on jacket
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(142, 69);
-      ctx.lineTo(142, 56);
-      ctx.moveTo(275, 133);
-      ctx.lineTo(275, 146);
-      ctx.stroke();
-
-      // Inner vapor tube
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.moveTo(bX + 9, 64);
-      ctx.lineTo(318, 137);
-      ctx.stroke();
+      // Outer jacket glass contour
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(bX + 9, 64);
-      ctx.lineTo(318, 137);
+      ctx.moveTo(jx1, jy1 - 10);
+      ctx.lineTo(jx2, jy2 - 10);
+      ctx.lineTo(jx2, jy2 + 10);
+      ctx.lineTo(jx1, jy1 + 10);
+      ctx.closePath();
       ctx.stroke();
 
-      // Water inlet/outlet arrows
-      ctx.fillStyle = '#0284c7';
-      ctx.font = '700 8.5px ui-sans-serif, system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      if (flow === 'correct') {
-        ctx.fillText('Air Masuk (Bawah) ↑', 274, 152);
-        ctx.fillText('↑ Air Keluar (Atas)', 142, 56);
-      } else {
-        ctx.fillStyle = '#dc2626';
-        ctx.fillText('Air Masuk (Atas) ↓', 142, 56);
-        ctx.fillText('↓ Air Keluar (Bawah)', 274, 152);
-      }
+      // Water inlet tube (Lower end, pointing down)
+      ctx.fillStyle = '#64748b';
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.rect(304, 142, 6, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      // Water outlet tube (Upper end, pointing up)
+      ctx.beginPath();
+      ctx.rect(168, 64, 6, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      // Inner vapor tube through condenser
+      ctx.strokeStyle = '#f8fafc';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(lx1, ly1);
+      ctx.lineTo(lx2, ly2);
+      ctx.stroke();
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(lx1, ly1);
+      ctx.lineTo(lx2, ly2);
+      ctx.stroke();
+
+      // Delivery adapter bent into receiving flask
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(lx2, ly2);
+      ctx.lineTo(354, 154);
+      ctx.lineTo(354, 172);
+      ctx.stroke();
       ctx.restore();
 
-      // Receiving Conical Flask (Right)
-      const rCx = 342;
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(rCx - 12, 134);
-      ctx.lineTo(rCx - 12, 152);
-      ctx.lineTo(rCx - 38, 198);
-      ctx.lineTo(rCx + 38, 198);
-      ctx.lineTo(rCx + 12, 152);
-      ctx.lineTo(rCx + 12, 134);
-      ctx.closePath();
+      // ==========================================
+      // 6. COLD WATER / ICE BATH & RECEIVING FLASK
+      // ==========================================
+      const recCx = 354;
+      const bathX = 318;
+      const bathY = 168;
+      const bathW = 72;
+      const bathH = 54;
 
+      // Beaker glass
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1.8;
+      ctx.strokeRect(bathX, bathY, bathW, bathH);
+
+      // Cold water in beaker
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
+      ctx.fillRect(bathX + 1.5, bathY + 12, bathW - 3, bathH - 13.5);
+
+      // Ice cubes floating in bath
+      ctx.fillStyle = 'rgba(224, 242, 254, 0.85)';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1;
+      ctx.fillRect(bathX + 6, bathY + 8, 9, 7);
+      ctx.strokeRect(bathX + 6, bathY + 8, 9, 7);
+      ctx.fillRect(bathX + 54, bathY + 9, 10, 7);
+      ctx.strokeRect(bathX + 54, bathY + 9, 10, 7);
+
+      // Receiving Conical Flask (inside cold water bath)
+      ctx.save();
+      const drawRecFlask = () => {
+        ctx.beginPath();
+        ctx.moveTo(recCx - 9, 160);
+        ctx.lineTo(recCx - 9, 174);
+        ctx.lineTo(recCx - 24, 214);
+        ctx.lineTo(recCx + 24, 214);
+        ctx.lineTo(recCx + 9, 174);
+        ctx.lineTo(recCx + 9, 160);
+        ctx.closePath();
+      };
+
+      drawRecFlask();
       ctx.save();
       ctx.clip();
-      const fillH = (collected / 100) * 42;
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
-      ctx.fillRect(rCx - 40, 198 - fillH, 80, fillH);
+      const fillH = (collected / 100) * 36;
+      ctx.fillStyle = 'rgba(59, 130, 246, 0.4)';
+      ctx.fillRect(recCx - 26, 214 - fillH, 52, fillH);
       ctx.restore();
 
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 2;
+      drawRecFlask();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.8;
       ctx.stroke();
       ctx.restore();
 
-      // Condensing droplets
+      // Condensing liquid droplets dripping into receiver
       if (temp >= 78 && collected < 100) {
-        const dt = (t * 1.4) % 1;
+        const dt = (t * 1.6) % 1;
         ctx.fillStyle = '#2563eb';
         ctx.beginPath();
-        ctx.arc(325, 140 + dt * 36, 3, 0, Math.PI * 2);
+        ctx.arc(recCx, 172 + dt * 26, 2.5, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // Labels
-      ctx.fillStyle = '#0f172a';
-      ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('Etanol + Air', bX, 220);
-      ctx.fillText('Etanol Tulen (78 °C)', rCx, 220);
+      // ==========================================
+      // 7. CRISP TEXTBOOK LEADER LINES & LABELS
+      // ==========================================
+      // Left side labels (distillation flask train)
+      drawTextbookLabel(bX, 70, 'left', 14, 38, 'Termometer (78 °C)');
+      drawTextbookLabel(
+        bX - fR,
+        fCy,
+        'left',
+        14,
+        106,
+        'Kelalang penyulingan',
+        'Campuran penapaian'
+      );
+      drawTextbookLabel(
+        bX - 6,
+        fCy + 22,
+        'left',
+        14,
+        150,
+        'Serpihan porselin',
+        '(Elak pembuakan)'
+      );
+      drawTextbookLabel(
+        bX,
+        202,
+        'left',
+        14,
+        192,
+        'Penunu Bunsen',
+        '(Panaskan)'
+      );
 
-      // Digital Thermometer Readout
+      // Top & middle labels
+      drawTextbookLabel(rs1X, 74, 'top', 64, 18, 'Kaki retort & pengapit');
+      drawTextbookLabel(171, 64, 'top', 186, 18, 'Air keluar (ke sinki) ↑');
+      drawTextbookLabel(245, 106, 'top', 256, 48, 'Kondenser Liebig');
+
+      // Bottom inlet
+      drawTextbookLabel(307, 156, 'bottom', 302, 196, '↑ Air masuk (dari pili)');
+
+      // Right side labels (Receiver & ice bath)
+      drawTextbookLabel(
+        recCx,
+        192,
+        'right',
+        486,
+        138,
+        'Hasil sulingan',
+        '(Etanol tulen 78 °C)'
+      );
+      drawTextbookLabel(
+        bathX + bathW,
+        bathY + 28,
+        'right',
+        486,
+        178,
+        'Bikar air sejuk / ais',
+        '(Elak penyejatan etanol)'
+      );
+
+      // Digital thermometer badge pill
+      ctx.save();
+      ctx.fillStyle = '#f8fafc';
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(bX + 16, 22, 46, 18, 5);
+      ctx.fill();
+      ctx.stroke();
+
       ctx.fillStyle = temp >= 78 ? '#dc2626' : '#0f172a';
       ctx.font = '800 11px ui-monospace, monospace';
-      ctx.fillText(`${temp.toFixed(0)} °C`, bX + 32, 30);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${temp.toFixed(0)} °C`, bX + 39, 31);
+      ctx.restore();
 
       ctx.restore();
       rafId = requestAnimationFrame(render);
@@ -596,7 +1018,7 @@ const DistillationMacroCanvas: React.FC<DistillationCanvasProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="w-full max-w-[420px] aspect-[420/225] mx-auto block rounded-xl border border-slate-200 bg-white"
+      className="w-full max-w-[500px] aspect-[500/250] mx-auto block rounded-xl border border-slate-200 bg-white"
     />
   );
 };
@@ -834,7 +1256,7 @@ export const EthanolFermentationDistillationLab: React.FC = () => {
           FASA 1: PENAPAIAN GLUKOSA
           ========================================================= */}
       {phase === 1 && (
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_270px] gap-2.5 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-[230px_1fr_240px] gap-2.5 items-stretch">
           {/* Kiri: Kawalan Pemboleh Ubah */}
           <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between space-y-3">
             <div className="space-y-2.5">
@@ -972,7 +1394,7 @@ export const EthanolFermentationDistillationLab: React.FC = () => {
           FASA 2: PENYULINGAN BERPERINGKAT ETANOL
           ========================================================= */}
       {phase === 2 && (
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_270px] gap-2.5 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-[230px_1fr_240px] gap-2.5 items-stretch">
           {/* Kiri: Kawalan Eksperimen */}
           <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between space-y-3">
             <div className="space-y-2.5">
