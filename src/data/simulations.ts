@@ -185,6 +185,19 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['Na₂S₂O₃ + H₂SO₄', 'Tanda ✕ Sulfur', 'Graf 1/Masa vs M₂', 'M₁V₁ = M₂V₂']
   },
   {
+    id: 'kadar-tindak-balas-suhu',
+    title: 'Kadar Tindak Balas: Faktor Suhu',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 7: Kadar Tindak Balas',
+    category: 'Kadar Tindak Balas',
+    description: 'Kaji kesan suhu larutan natrium tiosulfat (30 °C hingga 55 °C) terhadap kadar tindak balas menggunakan pemanasan tungku kaki tiga & tanda \'✕\' (Eksperimen 7.3) lengkap dengan graf masa nyata.',
+    learningStandard: 'SP 7.2.1 - Mengkaji kesan suhu terhadap kadar tindak balas dan tenaga pengaktifan',
+    iconName: 'Timer',
+    colorTheme: 'amber',
+    isImplemented: true,
+    tags: ['Na₂S₂O₃ + H₂SO₄', 'Suhu 30–55 °C', 'Pemanasan & Tanda ✕', 'Graf 1/Masa vs Suhu']
+  },
+  {
     id: 'keadaan-zarah-jirim',
     title: 'Keadaan Zarah: Perubahan Keadaan Fizikal',
     form: 'Tingkatan 4',

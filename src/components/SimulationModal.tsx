@@ -20,6 +20,7 @@ import { IntermolecularForcesLab } from '../simulations/IntermolecularForcesLab'
 import { StandardSolutionLab } from '../simulations/StandardSolutionLab';
 import { RateOfReactionSizeLab } from '../simulations/RateOfReactionSizeLab';
 import { RateOfReactionConcentrationLab } from '../simulations/RateOfReactionConcentrationLab';
+import { RateOfReactionTemperatureLab } from '../simulations/RateOfReactionTemperatureLab';
 import { StatesOfMatterLab } from '../simulations/StatesOfMatterLab';
 import { IronExtractionLab } from '../simulations/IronExtractionLab';
 import { AluminumExtractionLab } from '../simulations/AluminumExtractionLab';
@@ -88,6 +89,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <RateOfReactionSizeLab />;
       case 'kadar-tindak-balas-kepekatan':
         return <RateOfReactionConcentrationLab />;
+      case 'kadar-tindak-balas-suhu':
+        return <RateOfReactionTemperatureLab />;
       case 'keadaan-zarah-jirim':
         return <StatesOfMatterLab />;
       case 'pengekstrakan-besi':
