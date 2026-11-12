@@ -336,12 +336,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 1: Keseimbangan Redoks',
     category: 'Elektrokimia',
-    description: 'Mengkaji tindak balas redoks melalui pemindahan elektron pada suatu jarak menggunakan Tiub-U dan asid sulfurik sebagai titian garam.',
+    description: 'Visualisasi Tiub-U & Kanta Elektrod untuk 3 pasangan redoks (FeSO₄+Br₂, FeSO₄+KMnO₄, KI+K₂Cr₂O₇), cabaran ramalan POE & ujian penitis NaOH/Kanji.',
     learningStandard: 'SP 1.1.1 - Menghuraikan tindak balas redoks melalui pemindahan elektron pada suatu jarak',
     iconName: 'Zap',
     colorTheme: 'blue',
-    isImplemented: false,
-    tags: ['Tiub-U', 'Pemindahan Elektron', 'Agen Pengoksidaan', 'Agen Penurunan']
+    isImplemented: true,
+    tags: ['Tiub-U & H₂SO₄', 'Galvanometer', 'Ujian NaOH & Kanji', 'Ramalan POE']
   },
   {
     id: 'penukaran-ion-ferum',
