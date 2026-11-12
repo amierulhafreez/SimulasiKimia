@@ -388,12 +388,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 1: Keseimbangan Redoks',
     category: 'Elektrokimia',
-    description: 'Mengkaji kesan sentuhan paku besi dengan logam lebih elektropositif (Mg, Zn) dan kurang elektropositif (Sn, Cu) ke atas kadar pengaratan.',
+    description: 'Simulasi 5 tabung uji agar-agar (Fe, Fe+Mg, Fe+Zn, Fe+Sn, Fe+Cu), Kanta Submikroskopik, peluncur masa 0–48j, Kuiz POE & aplikasi KBAT.',
     learningStandard: 'SP 1.6.1 - Mengeksperimen untuk mengkaji kesan logam lain yang bersentuhan dengan besi ke atas pengaratan',
     iconName: 'Magnet',
     colorTheme: 'rose',
-    isImplemented: false,
-    tags: ['Pengaratan Besi', 'Agar-Agar Fenolftalein', 'Kalium Heksasianoferat(III)', 'Perlindungan Korban']
+    isImplemented: true,
+    tags: ['Pengaratan Besi', 'Agar-Agar Fenolftalein', 'K₃[Fe(CN)₆]', 'Mod POE & KBAT']
   },
 
   // --- Bab 2: Sebatian Karbon ---
