@@ -22,6 +22,7 @@ import {
   DisplacementCalorimeterSVG,
   DisplacementMetal,
 } from '../components/DisplacementCalorimeterSVG';
+import { TextbookEnergyLevelSVG } from '../components/TextbookEnergyLevelSVG';
 
 const SIM_ID = 'haba-penyesaran';
 type LabTab = 'makmal' | 'perbandingan';
@@ -951,72 +952,39 @@ export const ThermochemistryLab: React.FC = () => {
 
           {/* Gambar Rajah Aras Tenaga (Set 1 & Set 2) + KSSM Explanation */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-            {/* Energy Level Diagrams */}
+            {/* Energy Level Diagrams (Textbook Rajah 3.1 KSSM Style) */}
             <div className="md:col-span-7 bg-white border border-slate-200 rounded-xl p-3 shadow-xs space-y-2">
-              <div className="text-xs font-extrabold text-slate-800">
-                Gambar Rajah Aras Tenaga (Eksotermik)
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs font-extrabold text-slate-800">
+                  Gambar Rajah Aras Tenaga (Eksotermik • Gaya Rajah 3.1 Buku Teks)
+                </div>
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
+                  Aras Hasil &lt; Bahan
+                </span>
               </div>
-              <svg viewBox="0 0 540 185" className="w-full h-auto select-none">
-                {/* Left Diagram: Mg + CuSO4 */}
-                <g transform="translate(12, 8)">
-                  <text x="120" y="10" fontSize="10.5" fontWeight="800" fill="#312e81" textAnchor="middle">
-                    Set 1: Mg + CuSO₄ (Haba lebih tinggi)
-                  </text>
-                  {/* Y axis */}
-                  <line x1="36" y1="20" x2="36" y2="165" stroke="#334155" strokeWidth="1.6" />
-                  <polygon points="36,16 32,25 40,25" fill="#334155" />
-                  <text x="14" y="96" fontSize="9.5" fontWeight="800" fill="#334155" transform="rotate(-90, 14, 96)" textAnchor="middle">
-                    Tenaga
-                  </text>
-                  {/* Reactant Level */}
-                  <line x1="56" y1="46" x2="152" y2="46" stroke="#1e293b" strokeWidth="2" />
-                  <text x="104" y="38" fontSize="10" fontWeight="800" fill="#1e293b" textAnchor="middle">
-                    Mg(p) + Cu²⁺(ak)
-                  </text>
-                  {/* Product Level (much lower because ΔH = -357) */}
-                  <line x1="126" y1="146" x2="228" y2="146" stroke="#1e293b" strokeWidth="2" />
-                  <text x="177" y="160" fontSize="10" fontWeight="800" fill="#1e293b" textAnchor="middle">
-                    Mg²⁺(ak) + Cu(p)
-                  </text>
-                  {/* Downward ΔH arrow */}
-                  <line x1="138" y1="48" x2="138" y2="140" stroke="#dc2626" strokeWidth="2" />
-                  <polygon points="138,145 134,136 142,136" fill="#dc2626" />
-                  <text x="146" y="100" fontSize="10.5" fontWeight="800" fill="#dc2626">
-                    ΔH = -357 kJ mol⁻¹
-                  </text>
-                </g>
-
-                {/* Divider */}
-                <line x1="270" y1="12" x2="270" y2="174" stroke="#e2e8f0" strokeDasharray="4 4" />
-
-                {/* Right Diagram: Zn + CuSO4 */}
-                <g transform="translate(278, 8)">
-                  <text x="120" y="10" fontSize="10.5" fontWeight="800" fill="#0369a1" textAnchor="middle">
-                    Set 2: Zn + CuSO₄
-                  </text>
-                  <line x1="36" y1="20" x2="36" y2="165" stroke="#334155" strokeWidth="1.6" />
-                  <polygon points="36,16 32,25 40,25" fill="#334155" />
-                  <text x="14" y="96" fontSize="9.5" fontWeight="800" fill="#334155" transform="rotate(-90, 14, 96)" textAnchor="middle">
-                    Tenaga
-                  </text>
-                  {/* Reactant Level */}
-                  <line x1="56" y1="54" x2="152" y2="54" stroke="#1e293b" strokeWidth="2" />
-                  <text x="104" y="46" fontSize="10" fontWeight="800" fill="#1e293b" textAnchor="middle">
-                    Zn(p) + Cu²⁺(ak)
-                  </text>
-                  {/* Product Level (moderately lower because ΔH = -210) */}
-                  <line x1="126" y1="118" x2="228" y2="118" stroke="#1e293b" strokeWidth="2" />
-                  <text x="177" y="132" fontSize="10" fontWeight="800" fill="#1e293b" textAnchor="middle">
-                    Zn²⁺(ak) + Cu(p)
-                  </text>
-                  {/* Downward ΔH arrow */}
-                  <line x1="138" y1="56" x2="138" y2="112" stroke="#dc2626" strokeWidth="2" />
-                  <polygon points="138,117 134,108 142,108" fill="#dc2626" />
-                  <text x="146" y="90" fontSize="10.5" fontWeight="800" fill="#dc2626">
-                    ΔH = -210 kJ mol⁻¹
-                  </text>
-                </g>
-              </svg>
+              <TextbookEnergyLevelSVG
+                columns={2}
+                items={[
+                  {
+                    title: 'Set 1: Magnesium + CuSO₄',
+                    subtitle: 'Haba lebih tinggi (lebih cergas)',
+                    reactants: 'Mg(p) + Cu²⁺(ak)',
+                    products: 'Mg²⁺(ak) + Cu(p)',
+                    deltaHText: 'ΔH = -357 kJ mol⁻¹',
+                    relativeDrop: 1.0,
+                    accentColor: '#4f46e5',
+                  },
+                  {
+                    title: 'Set 2: Zink + CuSO₄',
+                    subtitle: 'Haba lebih rendah',
+                    reactants: 'Zn(p) + Cu²⁺(ak)',
+                    products: 'Zn²⁺(ak) + Cu(p)',
+                    deltaHText: 'ΔH = -210 kJ mol⁻¹',
+                    relativeDrop: 0.59,
+                    accentColor: '#0284c7',
+                  },
+                ]}
+              />
             </div>
 
             {/* Perbincangan Aktiviti Makmal 3C (KSSM m.s. 126) */}

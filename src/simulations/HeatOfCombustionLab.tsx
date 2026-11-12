@@ -1,901 +1,1048 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
+  RotateCcw,
+  CheckCircle2,
+  AlertTriangle,
   Flame,
   Thermometer,
   Scale,
-  RotateCcw,
-  Wind,
-  Calculator,
-  LineChart,
-  CheckCircle2,
+  Beaker,
+  Eye,
+  ArrowRight,
+  BarChart3,
   BookOpen,
-  Play,
-  Square,
 } from 'lucide-react';
 import { analytics } from '../services/analytics';
+import {
+  CombustionCalorimeterSVG,
+  AlcoholId,
+} from '../components/CombustionCalorimeterSVG';
+import { TextbookEnergyLevelSVG } from '../components/TextbookEnergyLevelSVG';
 
-const SIM_ID = 'haba-pembakaran';
-
-type AlcoholKey = 'metanol' | 'etanol' | 'propanol' | 'butanol';
-
-interface AlcoholSpec {
-  id: AlcoholKey;
+interface AlcoholExperimentSpec {
+  id: AlcoholId;
   name: string;
   formula: string;
-  carbons: number;
+  carbonCount: number;
   molarMass: number;
-  theoryDeltaH: number; // kJ/mol (magnitude)
-  initialLampMass: number; // g
-  flameColorInner: string;
-  flameColorOuter: string;
-  sootLevel: 'Tiada / Sangat sedikit' | 'Sedikit jelaga' | 'Banyak jelaga hitam' | 'Sangat berjelaga hitam';
-  sootOpacity: number;
-  equation: string;
+  m1: number; // initial lamp + alcohol mass (g)
+  m2: number; // final lamp + alcohol mass (g)
+  massBurned: number; // m1 - m2 (g)
+  moles: number; // massBurned / molarMass
+  deltaH: number; // experimental kJ mol^-1 (negative)
+  theoreticalDeltaH: number; // textbook theoretical kJ mol^-1 (negative)
+  sootLevel: 0 | 1 | 2 | 3;
+  sootLabel: string;
+  sootObservation: string;
+  reactantsText: string;
+  productsText: string;
+  balancedEquation: string;
+  relativeDrop: number;
+  accentColor: string;
+  pillColor: string;
 }
 
-const ALCOHOLS: Record<AlcoholKey, AlcoholSpec> = {
+const WATER_MASS_G = 200;
+const SPECIFIC_HEAT = 4.2;
+const T_INITIAL = 29.0;
+const T_FINAL = 59.0;
+const DELTA_T = 30.0;
+const HEAT_KJ = 25.2; // 200 * 4.2 * 30 / 1000
+
+const ALCOHOL_SPECS: Record<AlcoholId, AlcoholExperimentSpec> = {
   metanol: {
     id: 'metanol',
     name: 'Metanol',
     formula: 'CH₃OH',
-    carbons: 1,
+    carbonCount: 1,
     molarMass: 32,
-    theoryDeltaH: 725,
-    initialLampMass: 148.0,
-    flameColorInner: '#93c5fd',
-    flameColorOuter: '#3b82f6',
-    sootLevel: 'Tiada / Sangat sedikit',
-    sootOpacity: 0.08,
-    equation: 'CH₃OH(ce) + ³/₂O₂(g) → CO₂(g) + 2H₂O(ce)',
+    m1: 148.0,
+    m2: 146.72,
+    massBurned: 1.28,
+    moles: 0.04,
+    deltaH: -630,
+    theoreticalDeltaH: -726,
+    sootLevel: 0,
+    sootLabel: 'Tiada / sangat sedikit',
+    sootObservation: 'Nyalaan biru pucat, tiada jelaga pada bekas kuprum.',
+    reactantsText: 'CH₃OH(ce) + ³/₂O₂(g)',
+    productsText: 'CO₂(g) + 2H₂O(ce)',
+    balancedEquation: 'CH₃OH(ce) + ³/₂O₂(g) → CO₂(g) + 2H₂O(ce)',
+    relativeDrop: 0.36,
+    accentColor: '#0284c7',
+    pillColor: 'sky',
   },
   etanol: {
     id: 'etanol',
     name: 'Etanol',
     formula: 'C₂H₅OH',
-    carbons: 2,
+    carbonCount: 2,
     molarMass: 46,
-    theoryDeltaH: 1376,
-    initialLampMass: 150.0,
-    flameColorInner: '#bfdbfe',
-    flameColorOuter: '#f59e0b',
-    sootLevel: 'Sedikit jelaga',
-    sootOpacity: 0.3,
-    equation: 'C₂H₅OH(ce) + 3O₂(g) → 2CO₂(g) + 3H₂O(ce)',
+    m1: 150.0,
+    m2: 149.08,
+    massBurned: 0.92,
+    moles: 0.02,
+    deltaH: -1260,
+    theoreticalDeltaH: -1367,
+    sootLevel: 1,
+    sootLabel: 'Sedikit jelaga',
+    sootObservation: 'Nyalaan kuning kebiruan, sedikit jelaga terbentuk.',
+    reactantsText: 'C₂H₅OH(ce) + 3O₂(g)',
+    productsText: '2CO₂(g) + 3H₂O(ce)',
+    balancedEquation: 'C₂H₅OH(ce) + 3O₂(g) → 2CO₂(g) + 3H₂O(ce)',
+    relativeDrop: 0.56,
+    accentColor: '#4f46e5',
+    pillColor: 'indigo',
   },
   propanol: {
     id: 'propanol',
     name: 'Propanol',
     formula: 'C₃H₇OH',
-    carbons: 3,
+    carbonCount: 3,
     molarMass: 60,
-    theoryDeltaH: 2020,
-    initialLampMass: 152.0,
-    flameColorInner: '#fde047',
-    flameColorOuter: '#ea580c',
-    sootLevel: 'Banyak jelaga hitam',
-    sootOpacity: 0.6,
-    equation: 'C₃H₇OH(ce) + ⁹/₂O₂(g) → 3CO₂(g) + 4H₂O(ce)',
+    m1: 152.0,
+    m2: 151.16,
+    massBurned: 0.84,
+    moles: 0.014,
+    deltaH: -1800,
+    theoreticalDeltaH: -2021,
+    sootLevel: 2,
+    sootLabel: 'Banyak jelaga hitam',
+    sootObservation: 'Nyalaan kuning terang dengan banyak jelaga hitam.',
+    reactantsText: 'C₃H₇OH(ce) + ⁹/₂O₂(g)',
+    productsText: '3CO₂(g) + 4H₂O(ce)',
+    balancedEquation: 'C₃H₇OH(ce) + ⁹/₂O₂(g) → 3CO₂(g) + 4H₂O(ce)',
+    relativeDrop: 0.78,
+    accentColor: '#d97706',
+    pillColor: 'amber',
   },
   butanol: {
     id: 'butanol',
     name: 'Butanol',
     formula: 'C₄H₉OH',
-    carbons: 4,
+    carbonCount: 4,
     molarMass: 74,
-    theoryDeltaH: 2675,
-    initialLampMass: 154.0,
-    flameColorInner: '#fef08a',
-    flameColorOuter: '#dc2626',
-    sootLevel: 'Sangat berjelaga hitam',
-    sootOpacity: 0.85,
-    equation: 'C₄H₉OH(ce) + 6O₂(g) → 4CO₂(g) + 5H₂O(ce)',
+    m1: 154.0,
+    m2: 153.26,
+    massBurned: 0.74,
+    moles: 0.01,
+    deltaH: -2520,
+    theoreticalDeltaH: -2676,
+    sootLevel: 3,
+    sootLabel: 'Jelaga sangat tebal',
+    sootObservation: 'Nyalaan sangat kuning & berjelaga hitam tebal.',
+    reactantsText: 'C₄H₉OH(ce) + 6O₂(g)',
+    productsText: '4CO₂(g) + 5H₂O(ce)',
+    balancedEquation: 'C₄H₉OH(ce) + 6O₂(g) → 4CO₂(g) + 5H₂O(ce)',
+    relativeDrop: 1.0,
+    accentColor: '#dc2626',
+    pillColor: 'rose',
   },
 };
 
-interface RecordedResult {
-  alcoholId: AlcoholKey;
-  name: string;
-  formula: string;
-  carbons: number;
-  m1: number;
-  m2: number;
-  massBurned: number;
-  moles: number;
-  deltaH: number;
-  withWindshield: boolean;
-}
-
-const INITIAL_WATER_TEMP = 29.0;
-const TARGET_TEMP_RISE = 30.0; // Textbook Eksperimen 3B step 8: kenaikan suhu 30 °C
-const TARGET_FINAL_TEMP = INITIAL_WATER_TEMP + TARGET_TEMP_RISE; // 59.0 °C
-const WATER_MASS = 200; // 200 cm³ air = 200 g
-const SPECIFIC_HEAT = 4.2; // J g⁻¹ °C⁻¹
-const Q_KJ = (WATER_MASS * SPECIFIC_HEAT * TARGET_TEMP_RISE) / 1000; // 25.2 kJ
+const ALCOHOL_ORDER: AlcoholId[] = ['metanol', 'etanol', 'propanol', 'butanol'];
 
 export const HeatOfCombustionLab: React.FC = () => {
-  const [selectedAlcohol, setSelectedAlcohol] = useState<AlcoholKey>('etanol');
-  const [withWindshield, setWithWindshield] = useState(true);
-  const [isBurning, setIsBurning] = useState(false);
-  const [progress, setProgress] = useState(0); // 0 to 100
-  const [isStirring, setIsStirring] = useState(true);
-  const [records, setRecords] = useState<Partial<Record<AlcoholKey, RecordedResult>>>({});
-  const [activeTab, setActiveTab] = useState<'eksperimen' | 'pengiraan' | 'graf' | 'perbincangan'>('eksperimen');
+  const [activeTab, setActiveTab] = useState<'lab' | 'compare'>('lab');
+  const [selectedAlcohol, setSelectedAlcohol] = useState<AlcoholId>('etanol');
 
-  const alcohol = ALCOHOLS[selectedAlcohol];
+  // Step per alcohol:
+  // 0: empty bench
+  // 1: copper can + 200 cm³ water + windshields + tripod
+  // 2: thermometer placed (T1 = 29.0 °C)
+  // 3: spirit lamp weighed (m1) & placed on wooden block
+  // 4: burning / heating 29.0 -> 59.0 °C (burnDone true once temp reaches 59.0)
+  // 5: extinguished & weighed final mass m2 (calculation unlocked)
+  const [stepByAlcohol, setStepByAlcohol] = useState<Record<AlcoholId, number>>({
+    metanol: 0,
+    etanol: 0,
+    propanol: 0,
+    butanol: 0,
+  });
+  const [tempByAlcohol, setTempByAlcohol] = useState<Record<AlcoholId, number>>({
+    metanol: T_INITIAL,
+    etanol: T_INITIAL,
+    propanol: T_INITIAL,
+    butanol: T_INITIAL,
+  });
+  const [burnProgressByAlcohol, setBurnProgressByAlcohol] = useState<Record<AlcoholId, number>>({
+    metanol: 0,
+    etanol: 0,
+    propanol: 0,
+    butanol: 0,
+  });
+  const [isHeating, setIsHeating] = useState(false);
+  const [warningMsg, setWarningMsg] = useState<string | null>(null);
+  const [calcRevealByAlcohol, setCalcRevealByAlcohol] = useState<Record<AlcoholId, number>>({
+    metanol: 1,
+    etanol: 1,
+    propanol: 1,
+    butanol: 1,
+  });
 
-  // With windshield -> matches textbook reference values closely (~96% efficiency / textbook standard);
-  // Without windshield -> significant heat lost to surroundings (~65% efficiency -> lower experimental ΔH)
-  const efficiencyFactor = withWindshield ? 1.0 : 0.65;
-  const effectiveDeltaH = Math.round(alcohol.theoryDeltaH * efficiencyFactor);
-  const totalExpectedMassBurned = (Q_KJ / effectiveDeltaH) * alcohol.molarMass;
+  // Tab 2 Energy Diagram mode & pair selection
+  const [diagramViewMode, setDiagramViewMode] = useState<'pair' | 'all'>('pair');
+  const [setA, setSetA] = useState<AlcoholId>('metanol');
+  const [setB, setSetB] = useState<AlcoholId>('butanol');
 
-  const currentTemp = Number(
-    (INITIAL_WATER_TEMP + (progress / 100) * TARGET_TEMP_RISE).toFixed(1)
-  );
-  const currentMassBurned = (progress / 100) * totalExpectedMassBurned;
-  const currentLampMass = Number((alcohol.initialLampMass - currentMassBurned).toFixed(2));
-  const isFinished = progress >= 100;
+  const timerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!isBurning) return;
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          setIsBurning(false);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 100);
-    return () => clearInterval(timer);
-  }, [isBurning]);
+    analytics.recordSimulationView('haba-pembakaran');
+    return () => {
+      if (timerRef.current !== null) window.clearInterval(timerRef.current);
+    };
+  }, []);
 
-  // Auto-record when heating hits +30 °C
-  useEffect(() => {
-    if (progress === 100) {
-      const m1 = alcohol.initialLampMass;
-      const m2 = Number((m1 - totalExpectedMassBurned).toFixed(2));
-      const massBurned = Number((m1 - m2).toFixed(2));
-      const moles = massBurned / alcohol.molarMass;
-      const deltaH = Math.round(Q_KJ / moles);
+  const spec = ALCOHOL_SPECS[selectedAlcohol];
+  const currentStep = stepByAlcohol[selectedAlcohol];
+  const currentTemp = tempByAlcohol[selectedAlcohol];
+  const currentBurnProgress = burnProgressByAlcohol[selectedAlcohol];
+  const calcStep = calcRevealByAlcohol[selectedAlcohol];
 
-      setRecords((prev) => {
-        const updated: Partial<Record<AlcoholKey, RecordedResult>> = {
-          ...prev,
-          [selectedAlcohol]: {
-            alcoholId: selectedAlcohol,
-            name: alcohol.name,
-            formula: alcohol.formula,
-            carbons: alcohol.carbons,
-            m1,
-            m2,
-            massBurned,
-            moles,
-            deltaH,
-            withWindshield,
-          },
-        };
-        if (Object.keys(updated).length >= 3) {
-          analytics.recordSimulationCompleted(SIM_ID);
-        }
-        return updated;
-      });
+  const clearTimer = () => {
+    if (timerRef.current !== null) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
     }
-  }, [progress, selectedAlcohol, alcohol, totalExpectedMassBurned, withWindshield]);
+  };
 
-  const handleSelectAlcohol = (id: AlcoholKey) => {
+  const handleSelectAlcohol = (id: AlcoholId) => {
+    if (isHeating) return;
     setSelectedAlcohol(id);
-    setIsBurning(false);
-    setProgress(0);
-    analytics.recordSimulationClick(SIM_ID);
+    setWarningMsg(null);
   };
 
-  const handleStartStop = () => {
-    if (isFinished) {
-      setProgress(0);
-      setIsBurning(true);
-    } else {
-      setIsBurning((prev) => !prev);
+  const handleReset = () => {
+    clearTimer();
+    setIsHeating(false);
+    setWarningMsg(null);
+    setStepByAlcohol((prev) => ({ ...prev, [selectedAlcohol]: 0 }));
+    setTempByAlcohol((prev) => ({ ...prev, [selectedAlcohol]: T_INITIAL }));
+    setBurnProgressByAlcohol((prev) => ({ ...prev, [selectedAlcohol]: 0 }));
+    setCalcRevealByAlcohol((prev) => ({ ...prev, [selectedAlcohol]: 1 }));
+  };
+
+  const handleActionStep = (targetStep: number) => {
+    if (isHeating) return;
+
+    if (targetStep <= currentStep) {
+      return;
     }
-    analytics.recordSimulationClick(SIM_ID);
+
+    if (targetStep !== currentStep + 1) {
+      const neededMessages: Record<number, string> = {
+        0: 'Sediakan bekas kuprum dengan 200 cm³ air dan pengadang angin dahulu (Langkah 1).',
+        1: 'Masukkan termometer ke dalam air untuk menyukat suhu awal T₁ dahulu (Langkah 2).',
+        2: `Timbang pelita ${spec.name} (m₁) dan letakkan di atas bongkah kayu dahulu (Langkah 3).`,
+        3: 'Nyalakan pelita dan kacau air perlahan-lahan sehingga suhu naik 30.0 °C (Langkah 4).',
+      };
+      setWarningMsg(neededMessages[currentStep] || 'Ikut urutan langkah eksperimen 1 hingga 5.');
+      return;
+    }
+
+    setWarningMsg(null);
+
+    if (targetStep === 1 || targetStep === 2 || targetStep === 3) {
+      setStepByAlcohol((prev) => ({ ...prev, [selectedAlcohol]: targetStep }));
+      return;
+    }
+
+    if (targetStep === 4) {
+      setStepByAlcohol((prev) => ({ ...prev, [selectedAlcohol]: 4 }));
+      setIsHeating(true);
+      const startTime = performance.now();
+      const durationMs = 1550;
+      const alc = selectedAlcohol;
+
+      clearTimer();
+      timerRef.current = window.setInterval(() => {
+        const elapsed = performance.now() - startTime;
+        const progress = Math.min(1, elapsed / durationMs);
+        const eased = 1 - Math.pow(1 - progress, 2);
+
+        setBurnProgressByAlcohol((prev) => ({ ...prev, [alc]: eased }));
+        setTempByAlcohol((prev) => ({
+          ...prev,
+          [alc]: Number((T_INITIAL + DELTA_T * eased).toFixed(1)),
+        }));
+
+        if (progress >= 1) {
+          clearTimer();
+          setIsHeating(false);
+        }
+      }, 45);
+      return;
+    }
+
+    if (targetStep === 5) {
+      if (currentBurnProgress < 1) {
+        setWarningMsg('Tunggu sehingga suhu air meningkat 30.0 °C (59.0 °C) sebelum memadamkan pelita.');
+        return;
+      }
+      setStepByAlcohol((prev) => ({ ...prev, [selectedAlcohol]: 5 }));
+      setCalcRevealByAlcohol((prev) => ({ ...prev, [selectedAlcohol]: 1 }));
+      analytics.recordSimulationCompleted('haba-pembakaran');
+    }
   };
 
-  const handleResetAll = () => {
-    setIsBurning(false);
-    setProgress(0);
-    setRecords({});
-    setWithWindshield(true);
-    setSelectedAlcohol('etanol');
+  const handleDragStart = (e: React.DragEvent, targetStep: number) => {
+    e.dataTransfer.setData('text/plain', String(targetStep));
   };
 
-  const recordedList = (['metanol', 'etanol', 'propanol', 'butanol'] as AlcoholKey[])
-    .map((k) => records[k])
-    .filter((r): r is RecordedResult => Boolean(r));
+  const handleDropOnBench = (e: React.DragEvent) => {
+    e.preventDefault();
+    const raw = e.dataTransfer.getData('text/plain');
+    const stepNum = Number(raw);
+    if (!Number.isNaN(stepNum) && stepNum >= 1 && stepNum <= 5) {
+      handleActionStep(stepNum);
+    }
+  };
+
+  const isCompleted = currentStep === 5;
+  const isBurnFinished = currentStep === 4 && currentBurnProgress >= 1;
+
+  const proceduralItems = [
+    {
+      step: 1,
+      title: '1. Bekas Kuprum + 200 cm³ Air',
+      subtitle: 'Letak di atas tungku, segi tiga & pengadang angin',
+      icon: Beaker,
+      done: currentStep >= 1,
+      active: currentStep === 0,
+    },
+    {
+      step: 2,
+      title: '2. Termometer (Suhu Awal T₁)',
+      subtitle: 'Rekod suhu awal air = 29.0 °C',
+      icon: Thermometer,
+      done: currentStep >= 2,
+      active: currentStep === 1,
+    },
+    {
+      step: 3,
+      title: `3. Pelita ${spec.name} (Timbang m₁)`,
+      subtitle: `m₁ = ${spec.m1.toFixed(2)} g • Letak atas bongkah kayu`,
+      icon: Scale,
+      done: currentStep >= 3,
+      active: currentStep === 2,
+    },
+    {
+      step: 4,
+      title: '4. Nyalakan Pelita & Kacau',
+      subtitle: 'Panaskan air hingga naik 30.0 °C (59.0 °C)',
+      icon: Flame,
+      done: currentStep > 4 || isBurnFinished,
+      active: currentStep === 3 || (currentStep === 4 && !isBurnFinished),
+    },
+    {
+      step: 5,
+      title: '5. Padam & Timbang Akhir (m₂)',
+      subtitle: `Rekod jisim akhir pelita = ${spec.m2.toFixed(2)} g`,
+      icon: Scale,
+      done: currentStep === 5,
+      active: isBurnFinished,
+    },
+  ];
+
+  const currentGuidance = (() => {
+    if (warningMsg) return { type: 'warn' as const, text: warningMsg };
+    if (currentStep === 0)
+      return {
+        type: 'info' as const,
+        text: `Pilih alkohol di atas, kemudian klik/seret Langkah 1 untuk memasang radas Rajah 3.13 bagi ${spec.name}.`,
+      };
+    if (currentStep === 1)
+      return {
+        type: 'info' as const,
+        text: 'Klik Langkah 2 untuk memasukkan termometer dan merekod suhu awal air (T₁ = 29.0 °C).',
+      };
+    if (currentStep === 2)
+      return {
+        type: 'info' as const,
+        text: `Klik Langkah 3 untuk menimbang pelita ${spec.name} (m₁ = ${spec.m1.toFixed(2)} g) dan meletakkannya di bawah bekas kuprum.`,
+      };
+    if (currentStep === 3)
+      return {
+        type: 'info' as const,
+        text: 'Klik Langkah 4 untuk menyalakan sumbu pelita sambil mengacau air sehingga suhu naik 30.0 °C.',
+      };
+    if (currentStep === 4 && !isBurnFinished)
+      return {
+        type: 'info' as const,
+        text: `Air sedang dipanaskan dan dikacau perlahan... Perhatikan suhu meningkat hingga 59.0 °C.`,
+      };
+    if (isBurnFinished)
+      return {
+        type: 'info' as const,
+        text: `Suhu air meningkat 30.0 °C! Klik Langkah 5 untuk memadamkan pelita dan menimbang jisim akhir (m₂).`,
+      };
+    return {
+      type: 'done' as const,
+      text: `Eksperimen ${spec.name} selesai! Jelaga: ${spec.sootLabel}. Teruskan langkah pengiraan ΔH di sebelah kanan.`,
+    };
+  })();
+
+  const completedCount = ALCOHOL_ORDER.filter((id) => stepByAlcohol[id] === 5).length;
+
+  const massDisplayMode: 'idle' | 'initial' | 'burning' | 'final' =
+    currentStep >= 5
+      ? 'final'
+      : currentStep === 4
+      ? 'burning'
+      : currentStep === 3
+      ? 'initial'
+      : 'idle';
 
   return (
-    <div className="space-y-6 text-slate-800">
-      {/* Banner */}
-      <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 border border-orange-200 rounded-2xl p-4 sm:p-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-orange-700 mb-1">
-              <span>KSSM Tingkatan 5 • Bab 3: Termokimia (Eksperimen 3B)</span>
-              <span className="px-2 py-0.5 bg-orange-100 rounded-full">Rajah 3.13 &amp; 3.14 (m.s. 133–135)</span>
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-              Menentukan Haba Pembakaran Pelbagai Alkohol (Metanol, Etanol, Propanol &amp; Butanol)
-            </h3>
-            <p className="text-sm text-slate-600 mt-1">
-              Membandingkan haba pembakaran apabila 1 mol alkohol terbakar lengkap dalam oksigen berlebihan
-              untuk memanaskan <strong className="text-slate-800">200 cm³ air</strong> sebanyak{' '}
-              <strong className="text-slate-800">30.0 °C</strong>.
-            </p>
-          </div>
+    <div className="space-y-3 text-slate-800">
+      {/* TOP BAR: Navigation Tabs & 4 Alcohol Selector Pills */}
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl p-2 shadow-xs">
+        <div className="flex items-center gap-1.5">
           <button
-            onClick={handleResetAll}
-            className="self-start md:self-center inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 shadow-sm transition cursor-pointer"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            Set Semula Semua
-          </button>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
-        {[
-          { id: 'eksperimen', label: '1. Radas & Eksperimen 3B (Rajah 3.13)' },
-          { id: 'pengiraan', label: '2. Langkah Pengiraan ΔH' },
-          { id: 'graf', label: `3. Jadual & Graf Rajah 3.14 (${recordedList.length}/4)` },
-          { id: 'perbincangan', label: '4. Perbincangan Buku Teks' },
-        ].map((t) => (
-          <button
-            key={t.id}
-            onClick={() => {
-              setActiveTab(t.id as typeof activeTab);
-              analytics.recordSimulationClick(SIM_ID);
-            }}
-            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${
-              activeTab === t.id
-                ? 'bg-orange-600 text-white shadow-sm'
+            onClick={() => setActiveTab('lab')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer ${
+              activeTab === 'lab'
+                ? 'bg-orange-600 text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            {t.label}
+            <Flame className="w-3.5 h-3.5" />
+            1. Makmal Maya &amp; Pengiraan
           </button>
-        ))}
+          <button
+            onClick={() => setActiveTab('compare')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer ${
+              activeTab === 'compare'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            2. Perbandingan, Rajah Aras Tenaga &amp; Graf ({completedCount}/4)
+          </button>
+        </div>
+
+        {activeTab === 'lab' && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {ALCOHOL_ORDER.map((id, idx) => {
+              const item = ALCOHOL_SPECS[id];
+              const isSelected = selectedAlcohol === id;
+              const isDone = stepByAlcohol[id] === 5;
+              return (
+                <button
+                  key={id}
+                  onClick={() => handleSelectAlcohol(id)}
+                  disabled={isHeating}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition flex items-center gap-1 whitespace-nowrap shrink-0 cursor-pointer ${
+                    isSelected
+                      ? 'bg-orange-50 border-orange-500 text-orange-800 ring-1 ring-orange-200'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>
+                    {idx + 1}. {item.name} ({item.formula})
+                  </span>
+                  {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* TAB 1: EXPERIMENT */}
-      {activeTab === 'eksperimen' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 7 cols: Rajah 3.13 Exact Textbook SVG */}
-          <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Susunan Radas Eksperimen 3B (Rajah 3.13)
-              </span>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
-                {alcohol.name} ({alcohol.formula})
+      {/* TAB 1: PROCEDURAL VIRTUAL LAB & SCAFFOLDED CALCULATION */}
+      {activeTab === 'lab' && (
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
+          {/* LEFT PANEL: Radas & Bahan + Arahan Semasa */}
+          <div className="md:col-span-4 bg-white border border-slate-200 rounded-xl p-3 shadow-xs space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-xs font-extrabold text-slate-800">
+                Radas &amp; Prosedur ({spec.name})
+              </h3>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 whitespace-nowrap shrink-0">
+                Langkah {currentStep}/5
               </span>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 overflow-hidden">
-              <svg viewBox="0 0 620 420" className="w-full h-auto select-none">
-                {/* Lab Bench */}
-                <rect x="20" y="388" width="580" height="14" rx="4" fill="#94a3b8" />
+            <div className="space-y-1.5">
+              {proceduralItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.step}
+                    type="button"
+                    draggable={item.active}
+                    onDragStart={(e) => handleDragStart(e, item.step)}
+                    onClick={() => handleActionStep(item.step)}
+                    disabled={isHeating || item.done}
+                    className={`w-full text-left px-2.5 py-2 rounded-lg border transition flex items-center justify-between gap-2 ${
+                      item.done
+                        ? 'bg-emerald-50/70 border-emerald-200 text-emerald-800 cursor-default'
+                        : item.active
+                        ? 'bg-orange-50 border-orange-400 text-slate-900 shadow-xs hover:bg-orange-100/70 cursor-pointer'
+                        : 'bg-slate-50/70 border-slate-200 text-slate-500 hover:border-slate-300 cursor-pointer'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div
+                        className={`p-1.5 rounded-md shrink-0 ${
+                          item.done
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : item.active
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-slate-200 text-slate-500'
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11.5px] font-bold truncate">{item.title}</div>
+                        <div className="text-[10px] text-slate-500 truncate">{item.subtitle}</div>
+                      </div>
+                    </div>
+                    {item.done ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    ) : item.active ? (
+                      <span className="text-[10px] font-extrabold text-orange-700 bg-white px-1.5 py-0.5 rounded border border-orange-300 whitespace-nowrap shrink-0">
+                        Klik
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
 
-                {/* Left & Right Windshields (Pengadang angin) */}
-                {withWindshield && (
-                  <g>
-                    <rect x="135" y="135" width="12" height="253" fill="#cbd5e1" stroke="#475569" strokeWidth="2" />
-                    <rect x="405" y="135" width="12" height="253" fill="#cbd5e1" stroke="#475569" strokeWidth="2" />
-                    <text x="80" y="218" textAnchor="end" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                      Pengadang
-                    </text>
-                    <text x="80" y="232" textAnchor="end" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                      angin
-                    </text>
-                    <line x1="86" y1="223" x2="135" y2="223" stroke="#334155" strokeWidth="1.2" />
-
-                    <text x="455" y="218" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                      Pengadang
-                    </text>
-                    <text x="455" y="232" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                      angin
-                    </text>
-                    <line x1="417" y1="223" x2="450" y2="223" stroke="#334155" strokeWidth="1.2" />
-                  </g>
+            {/* Arahan Semasa Box */}
+            <div
+              className={`rounded-lg border p-2.5 text-[11px] leading-snug ${
+                currentGuidance.type === 'warn'
+                  ? 'bg-rose-50 border-rose-300 text-rose-800'
+                  : currentGuidance.type === 'done'
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                  : 'bg-amber-50 border-amber-200 text-amber-900'
+              }`}
+            >
+              <div className="font-extrabold flex items-center gap-1 mb-0.5">
+                {currentGuidance.type === 'warn' ? (
+                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                ) : (
+                  <BookOpen className="w-3.5 h-3.5 shrink-0" />
                 )}
+                <span>Arahan Semasa:</span>
+              </div>
+              <p>{currentGuidance.text}</p>
+            </div>
+          </div>
 
-                {/* Tripod Stand (Tungku kaki tiga) */}
-                <rect x="190" y="220" width="172" height="8" rx="2" fill="#334155" />
-                <line x1="202" y1="228" x2="176" y2="388" stroke="#334155" strokeWidth="7" strokeLinecap="round" />
-                <line x1="350" y1="228" x2="376" y2="388" stroke="#334155" strokeWidth="7" strokeLinecap="round" />
-                <line x1="276" y1="228" x2="276" y2="388" stroke="#475569" strokeWidth="5" strokeLinecap="round" opacity="0.55" />
+          {/* RIGHT PANEL: Workbench (SVG) + Data & Calculation */}
+          <div className="md:col-span-8 space-y-3">
+            {/* Meja Kerja (Apparatus Zone) */}
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDropOnBench}
+              className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-xs"
+            >
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-xs font-extrabold text-slate-800 truncate">
+                    Meja Kerja: Susunan Radas Rajah 3.13 ({spec.name}, {spec.formula})
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="bg-slate-900 text-white px-2.5 py-1 rounded-md font-mono text-xs font-extrabold whitespace-nowrap">
+                    {currentStep >= 2 ? `${currentTemp.toFixed(1)} °C` : '--.- °C'}
+                  </div>
+                  <button
+                    onClick={handleReset}
+                    disabled={isHeating}
+                    className="px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1 whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Reset
+                  </button>
+                </div>
+              </div>
 
-                {/* Pipe-clay Triangle (Segi tiga tanah liat) resting on tripod */}
-                <rect x="198" y="213" width="156" height="7" rx="2" fill="#f1f5f9" stroke="#64748b" strokeWidth="1.5" />
-                <circle cx="215" cy="216.5" r="3" fill="#cbd5e1" />
-                <circle cx="337" cy="216.5" r="3" fill="#cbd5e1" />
-
-                {/* Copper Can (Bekas kuprum) */}
-                <path
-                  d="M 218 118 L 218 210 Q 218 214 224 214 L 328 214 Q 334 214 334 210 L 334 118"
-                  fill="#fb923c"
-                  fillOpacity="0.25"
-                  stroke="#b45309"
-                  strokeWidth="3.5"
+              <div className="bg-slate-50/80 border border-dashed border-slate-300 rounded-lg p-1.5">
+                <CombustionCalorimeterSVG
+                  hasCanAndWater={currentStep >= 1}
+                  hasThermometer={currentStep >= 2}
+                  hasLamp={currentStep >= 3}
+                  isBurning={currentStep === 4 && currentBurnProgress < 1}
+                  isFinished={currentStep === 5 || isBurnFinished}
+                  temperature={currentTemp}
+                  alcoholFormula={spec.formula}
+                  alcoholName={spec.name}
+                  sootLevel={spec.sootLevel}
+                  burnProgress={currentBurnProgress}
+                  massInitial={spec.m1}
+                  massFinal={spec.m2}
+                  massDisplayMode={massDisplayMode}
                 />
-                {/* Water 200 cm³ inside copper can */}
-                <rect x="220" y="145" width="112" height="67" fill="#38bdf8" fillOpacity="0.55" />
-                {/* Water surface ripples */}
-                <path
-                  d="M 220 145 Q 248 142 276 145 T 332 145"
-                  fill="none"
-                  stroke="#0284c7"
-                  strokeWidth="2"
-                />
+              </div>
+            </div>
 
-                {/* Heat Convection / Bubbling when burning */}
-                {isBurning && (
-                  <g>
-                    <circle cx="250" cy="198" r="3" fill="#ffffff" opacity="0.7">
-                      <animate attributeName="cy" values="204;152" dur="1.1s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="298" cy="195" r="2.5" fill="#ffffff" opacity="0.7">
-                      <animate attributeName="cy" values="204;150" dur="0.9s" repeatCount="indefinite" />
-                    </circle>
-                  </g>
+            {/* Pemerhatian & Pengiraan Panel */}
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+              <div className="bg-orange-600 text-white px-3 py-1.5 flex items-center justify-between gap-2">
+                <span className="text-xs font-extrabold">
+                  Pemerhatian &amp; Perancah Pengiraan ({spec.name})
+                </span>
+                {isCompleted && (
+                  <button
+                    onClick={() =>
+                      setCalcRevealByAlcohol((prev) => ({
+                        ...prev,
+                        [selectedAlcohol]: calcStep >= 4 ? 1 : 4,
+                      }))
+                    }
+                    className="px-2.5 py-0.5 rounded bg-white/20 hover:bg-white/30 text-[11px] font-bold flex items-center gap-1 whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <Eye className="w-3 h-3" />
+                    {calcStep >= 4 ? 'Ringkaskan' : 'Papar Semua Jalan Kira'}
+                  </button>
                 )}
+              </div>
 
-                {/* Soot Deposit on Bottom of Copper Can */}
-                {progress > 15 && (
-                  <ellipse
-                    cx="276"
-                    cy="214"
-                    rx="38"
-                    ry="4.5"
-                    fill="#0f172a"
-                    opacity={Math.min(alcohol.sootOpacity, (progress / 100) * alcohol.sootOpacity)}
-                  />
-                )}
-
-                {/* Thermometer (0 °C - 100 °C) */}
-                <g>
-                  {/* Thermometer glass tube */}
-                  <rect x="272" y="25" width="8" height="162" rx="4" fill="#f8fafc" stroke="#475569" strokeWidth="1.5" />
-                  {/* Scale ticks */}
-                  {[45, 65, 85, 105, 125].map((ty, idx) => (
-                    <line key={idx} x1="272" y1={ty} x2="276" y2={ty} stroke="#64748b" strokeWidth="1" />
-                  ))}
-                  {/* Red alcohol/mercury column scaling with temp */}
-                  <rect
-                    x="274"
-                    y={128 - ((currentTemp - 25) / 40) * 65}
-                    width="4"
-                    height={54 + ((currentTemp - 25) / 40) * 65}
-                    fill="#dc2626"
-                  />
-                  {/* Bulb */}
-                  <circle cx="276" cy="187" r="6.5" fill="#dc2626" stroke="#991b1b" strokeWidth="1" />
-                  {/* Stirring arrows when stirring is active */}
-                  {isStirring && isBurning && (
-                    <path
-                      d="M 255 135 Q 276 128 297 135"
-                      fill="none"
-                      stroke="#0369a1"
-                      strokeWidth="1.5"
-                      strokeDasharray="3 2"
-                    >
-                      <animateTransform
-                        attributeName="transform"
-                        type="translate"
-                        values="-4 0; 4 0; -4 0"
-                        dur="0.8s"
-                        repeatCount="indefinite"
-                      />
-                    </path>
+              <div className="p-3 grid grid-cols-1 md:grid-cols-12 gap-3">
+                {/* Left subpanel: Data Eksperimen */}
+                <div className="md:col-span-5 bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5">
+                  <div className="text-[11px] font-extrabold text-slate-700 border-b border-slate-200 pb-1">
+                    Data Eksperimen (200 cm³ Air)
+                  </div>
+                  <div className="space-y-1 text-[11px]">
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-600">Jisim pelita awal, m₁</span>
+                      <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                        {currentStep >= 3 ? `${spec.m1.toFixed(2)} g` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-600">Jisim pelita akhir, m₂</span>
+                      <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                        {isCompleted ? `${spec.m2.toFixed(2)} g` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-600">Jisim alkohol terbakar, m</span>
+                      <span className="font-mono font-extrabold text-orange-700 whitespace-nowrap">
+                        {isCompleted ? `${spec.massBurned.toFixed(2)} g` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-2 pt-1 border-t border-slate-200">
+                      <span className="text-slate-600">Suhu awal air, T₁</span>
+                      <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                        {currentStep >= 2 ? `${T_INITIAL.toFixed(1)} °C` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-600">Suhu tertinggi air, T₂</span>
+                      <span className="font-mono font-bold text-slate-900 whitespace-nowrap">
+                        {currentStep >= 4 && currentBurnProgress >= 1 ? `${T_FINAL.toFixed(1)} °C` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-slate-600">Kenaikan suhu, θ</span>
+                      <span className="font-mono font-extrabold text-blue-700 whitespace-nowrap">
+                        {currentStep >= 4 && currentBurnProgress >= 1 ? `${DELTA_T.toFixed(1)} °C` : '—'}
+                      </span>
+                    </div>
+                  </div>
+                  {isCompleted && (
+                    <div className="mt-1.5 pt-1.5 border-t border-slate-200 text-[10.5px] text-slate-700">
+                      <span className="font-bold">Jelaga: </span>
+                      {spec.sootObservation}
+                    </div>
                   )}
-                </g>
+                </div>
 
-                {/* Wooden Block (Bongkah kayu) */}
-                <rect x="220" y="348" width="112" height="40" rx="2" fill="#d97706" fillOpacity="0.45" stroke="#92400e" strokeWidth="2" />
-                <line x1="226" y1="360" x2="326" y2="360" stroke="#b45309" strokeWidth="1" opacity="0.5" />
-                <line x1="226" y1="374" x2="326" y2="374" stroke="#b45309" strokeWidth="1" opacity="0.5" />
+                {/* Right subpanel: Scaffolded Calculation */}
+                <div className="md:col-span-7 space-y-2">
+                  {!isCompleted ? (
+                    <div className="h-full min-h-[145px] bg-slate-50 border border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center p-3 text-center">
+                      <Scale className="w-6 h-6 text-slate-300 mb-1.5" />
+                      <div className="text-xs font-bold text-slate-600">
+                        Lengkapkan Langkah 1 hingga 5 untuk membuka perancah pengiraan
+                      </div>
+                      <div className="text-[10.5px] text-slate-400 mt-0.5">
+                        JMR {spec.name} ({spec.formula}) = {spec.molarMass} g mol⁻¹
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {/* Step 1: Q = mcθ */}
+                      <div className="bg-orange-50/70 border border-orange-200 rounded-lg px-2.5 py-1.5 text-[11px]">
+                        <div className="font-extrabold text-orange-900">
+                          1. Haba dibebaskan oleh pembakaran (Q = mcθ)
+                        </div>
+                        <div className="font-mono text-slate-800 mt-0.5">
+                          Q = {WATER_MASS_G} g × {SPECIFIC_HEAT} J g⁻¹ °C⁻¹ × {DELTA_T.toFixed(1)} °C = 25,200 J ={' '}
+                          <span className="font-extrabold text-orange-700">{HEAT_KJ.toFixed(2)} kJ</span>
+                        </div>
+                      </div>
 
-                {/* Spirit Lamp (Pelita) on Wooden Block */}
-                <path
-                  d="M 245 276 L 235 348 L 317 348 L 307 276 Z"
-                  fill="#e2e8f0"
-                  fillOpacity="0.65"
-                  stroke="#475569"
-                  strokeWidth="2"
-                />
-                {/* Alcohol Liquid inside Spirit Lamp (~3/4 full, lowers slightly as burned) */}
-                <path
-                  d={`M ${242 - (progress / 100) * 2} ${295 + (progress / 100) * 14} L 237 346 L 315 346 L ${
-                    310 + (progress / 100) * 2
-                  } ${295 + (progress / 100) * 14} Z`}
-                  fill="#fef08a"
-                  fillOpacity="0.7"
-                />
-                {/* Wick Holder & Wick */}
-                <rect x="268" y="264" width="16" height="12" rx="2" fill="#64748b" />
-                <line x1="276" y1="248" x2="276" y2="266" stroke="#334155" strokeWidth="3.5" />
+                      {/* Step 2: n = m / JMR */}
+                      {calcStep >= 2 && (
+                        <div className="bg-sky-50/70 border border-sky-200 rounded-lg px-2.5 py-1.5 text-[11px]">
+                          <div className="font-extrabold text-sky-900">
+                            2. Bilangan mol {spec.name.toLowerCase()} terbakar (n = m / JMR)
+                          </div>
+                          <div className="font-mono text-slate-800 mt-0.5">
+                            n = ({spec.m1.toFixed(2)} - {spec.m2.toFixed(2)}) g / {spec.molarMass} g mol⁻¹ ={' '}
+                            <span className="font-extrabold text-sky-700">{spec.moles} mol</span>
+                          </div>
+                        </div>
+                      )}
 
-                {/* Flame when Burning */}
-                {isBurning && (
-                  <g>
-                    <path
-                      d="M 276 216 Q 290 238 276 252 Q 262 238 276 216 Z"
-                      fill={alcohol.flameColorOuter}
-                      opacity="0.9"
+                      {/* Step 3: ΔH */}
+                      {calcStep >= 3 && (
+                        <div className="bg-emerald-50/80 border border-emerald-200 rounded-lg px-2.5 py-1.5 text-[11px]">
+                          <div className="font-extrabold text-emerald-900">
+                            3. Haba pembakaran (ΔH = -Q / n)
+                          </div>
+                          <div className="font-mono text-slate-800 mt-0.5">
+                            ΔH = -{HEAT_KJ.toFixed(2)} kJ / {spec.moles} mol ={' '}
+                            <span className="font-extrabold text-emerald-700">
+                              {spec.deltaH} kJ mol⁻¹
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Step 4: Thermochemical equation */}
+                      {calcStep >= 4 && (
+                        <div className="bg-indigo-50/80 border border-indigo-200 rounded-lg px-2.5 py-1.5 text-[11px]">
+                          <div className="font-extrabold text-indigo-900">4. Persamaan Termokimia</div>
+                          <div className="font-mono font-bold text-indigo-950 mt-0.5">
+                            {spec.balancedEquation} &nbsp; ΔH = {spec.deltaH} kJ mol⁻¹
+                          </div>
+                        </div>
+                      )}
+
+                      {calcStep < 4 && (
+                        <button
+                          onClick={() =>
+                            setCalcRevealByAlcohol((prev) => ({
+                              ...prev,
+                              [selectedAlcohol]: calcStep + 1,
+                            }))
+                          }
+                          className="w-full py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-extrabold flex items-center justify-center gap-1 cursor-pointer transition"
+                        >
+                          <span>Langkah Pengiraan Seterusnya ({calcStep + 1}/4)</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: COMPARISON, TEXTBOOK ENERGY LEVEL DIAGRAMS & GRAPH RAJAH 3.14 */}
+      {activeTab === 'compare' && (
+        <div className="space-y-3">
+          {/* Energy Level Diagrams Section */}
+          <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 className="text-xs font-extrabold text-slate-800">
+                  Perbandingan Gambar Rajah Aras Tenaga (Gaya Rajah 3.1 Buku Teks KSSM)
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  Semua tindak balas pembakaran adalah eksotermik (aras tenaga hasil tindak balas lebih rendah daripada bahan).
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {diagramViewMode === 'pair' && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="font-bold text-slate-600">Set A:</span>
+                    <select
+                      value={setA}
+                      onChange={(e) => setSetA(e.target.value as AlcoholId)}
+                      className="px-2 py-1 rounded-md border border-slate-300 bg-slate-50 text-xs font-bold text-slate-800"
                     >
-                      <animate
-                        attributeName="d"
-                        values="M 276 216 Q 290 238 276 252 Q 262 238 276 216 Z;M 276 213 Q 293 237 276 252 Q 259 237 276 213 Z;M 276 216 Q 290 238 276 252 Q 262 238 276 216 Z"
-                        dur="0.45s"
-                        repeatCount="indefinite"
-                      />
-                    </path>
-                    <path
-                      d="M 276 228 Q 283 242 276 251 Q 269 242 276 228 Z"
-                      fill={alcohol.flameColorInner}
-                    />
-                  </g>
+                      {ALCOHOL_ORDER.map((id) => (
+                        <option key={id} value={id}>
+                          {ALCOHOL_SPECS[id].name}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="font-bold text-slate-500">vs</span>
+                    <span className="font-bold text-slate-600">Set B:</span>
+                    <select
+                      value={setB}
+                      onChange={(e) => setSetB(e.target.value as AlcoholId)}
+                      className="px-2 py-1 rounded-md border border-slate-300 bg-slate-50 text-xs font-bold text-slate-800"
+                    >
+                      {ALCOHOL_ORDER.map((id) => (
+                        <option key={id} value={id}>
+                          {ALCOHOL_SPECS[id].name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 )}
 
-                {/* Textbook Labels (Rajah 3.13) */}
-                <text x="355" y="45" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                  Termometer (0–100 °C)
+                <div className="flex rounded-lg bg-slate-100 p-0.5">
+                  <button
+                    onClick={() => setDiagramViewMode('pair')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition whitespace-nowrap shrink-0 cursor-pointer ${
+                      diagramViewMode === 'pair'
+                        ? 'bg-white text-indigo-700 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Banding 2 Set
+                  </button>
+                  <button
+                    onClick={() => setDiagramViewMode('all')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition whitespace-nowrap shrink-0 cursor-pointer ${
+                      diagramViewMode === 'all'
+                        ? 'bg-white text-indigo-700 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Semua 4 Alkohol
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {diagramViewMode === 'pair' ? (
+              <TextbookEnergyLevelSVG
+                columns={2}
+                items={[setA, setB].map((id, idx) => {
+                  const a = ALCOHOL_SPECS[id];
+                  return {
+                    title: `Set ${idx === 0 ? 'A' : 'B'}: ${a.name} (${a.formula})`,
+                    subtitle: `${a.carbonCount} atom karbon per molekul`,
+                    reactants: a.reactantsText,
+                    products: a.productsText,
+                    deltaHText: `ΔH = ${a.deltaH} kJ mol⁻¹`,
+                    relativeDrop: a.relativeDrop,
+                    accentColor: a.accentColor,
+                  };
+                })}
+              />
+            ) : (
+              <TextbookEnergyLevelSVG
+                columns={4}
+                items={ALCOHOL_ORDER.map((id) => {
+                  const a = ALCOHOL_SPECS[id];
+                  return {
+                    title: `${a.name} (${a.formula})`,
+                    subtitle: `n(C) = ${a.carbonCount}`,
+                    reactants: a.reactantsText,
+                    products: a.productsText,
+                    deltaHText: `ΔH = ${a.deltaH} kJ mol⁻¹`,
+                    relativeDrop: a.relativeDrop,
+                    accentColor: a.accentColor,
+                  };
+                })}
+              />
+            )}
+          </div>
+
+          {/* Comparison Table + Rajah 3.14 Graph */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+            {/* Comparison Table */}
+            <div className="md:col-span-7 bg-white border border-slate-200 rounded-xl p-3 shadow-xs space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="text-xs font-extrabold text-slate-800">
+                  Jadual Perbandingan Eksperimen 3B (200 cm³ Air, Δθ = 30.0 °C)
+                </h4>
+                <span className="text-[10px] font-bold text-slate-500 whitespace-nowrap shrink-0">
+                  Q = 25.20 kJ
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-[11px] border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100 text-slate-700 border-b border-slate-200">
+                      <th className="text-left p-1.5 font-extrabold">Alkohol</th>
+                      <th className="text-center p-1.5 font-extrabold">C</th>
+                      <th className="text-right p-1.5 font-extrabold">m (g)</th>
+                      <th className="text-right p-1.5 font-extrabold">n (mol)</th>
+                      <th className="text-right p-1.5 font-extrabold">ΔH Eksp.</th>
+                      <th className="text-left p-1.5 font-extrabold">Jelaga</th>
+                      <th className="text-center p-1.5 font-extrabold">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ALCOHOL_ORDER.map((id) => {
+                      const a = ALCOHOL_SPECS[id];
+                      const done = stepByAlcohol[id] === 5;
+                      return (
+                        <tr key={id} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="p-1.5 font-bold text-slate-900">
+                            {a.name}{' '}
+                            <span className="text-slate-500 font-normal">({a.formula})</span>
+                          </td>
+                          <td className="p-1.5 text-center font-mono">{a.carbonCount}</td>
+                          <td className="p-1.5 text-right font-mono">{a.massBurned.toFixed(2)}</td>
+                          <td className="p-1.5 text-right font-mono">{a.moles}</td>
+                          <td className="p-1.5 text-right font-mono font-extrabold text-orange-700 whitespace-nowrap">
+                            {a.deltaH} kJ mol⁻¹
+                          </td>
+                          <td className="p-1.5 text-slate-600">{a.sootLabel}</td>
+                          <td className="p-1.5 text-center">
+                            {done ? (
+                              <span className="inline-block px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                                Selesai
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setSelectedAlcohol(id);
+                                  setActiveTab('lab');
+                                }}
+                                className="px-1.5 py-0.5 rounded bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 text-[10px] font-bold cursor-pointer"
+                              >
+                                Uji
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-2 text-[10.5px] text-amber-900 leading-relaxed">
+                <span className="font-extrabold">Perbincangan Buku Teks (m.s. 134): </span>
+                Apabila bilangan atom karbon per molekul alkohol bertambah, nilai haba pembakaran bertambah secara linear kerana lebih banyak ikatan C–C dan C–H dipecahkan dan lebih banyak molekul CO₂ serta H₂O terbentuk. Nilai eksperimen lebih rendah daripada nilai teori (Metanol -726, Etanol -1367, Propanol -2021, Butanol -2676 kJ mol⁻¹) disebabkan kehilangan haba ke persekitaran &amp; pembakaran tidak lengkap (pembentukan jelaga).
+              </div>
+            </div>
+
+            {/* Rajah 3.14 Graph: Haba Pembakaran melawan Bilangan Atom Karbon */}
+            <div className="md:col-span-5 bg-white border border-slate-200 rounded-xl p-3 shadow-xs space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="text-xs font-extrabold text-slate-800">
+                  Graf Rajah 3.14: |ΔH| vs Bilangan Atom Karbon
+                </h4>
+                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
+                  Berkadar Terus
+                </span>
+              </div>
+
+              <svg viewBox="0 0 360 215" className="w-full h-auto select-none">
+                {/* Grid lines (y = 0, 1000, 2000, 3000) */}
+                {[
+                  { val: 0, y: 175 },
+                  { val: 1000, y: 127 },
+                  { val: 2000, y: 79 },
+                  { val: 3000, y: 31 },
+                ].map((tick) => (
+                  <g key={tick.val}>
+                    <line x1="56" y1={tick.y} x2="332" y2={tick.y} stroke="#e2e8f0" strokeWidth="1" />
+                    <text x="50" y={tick.y + 3.5} textAnchor="end" fontSize="9.5" fontWeight="700" fill="#64748b">
+                      {tick.val}
+                    </text>
+                  </g>
+                ))}
+
+                {/* Y Axis */}
+                <line x1="56" y1="22" x2="56" y2="175" stroke="#1e293b" strokeWidth="1.6" />
+                <polygon points="56,17 52.5,25 59.5,25" fill="#1e293b" />
+                <text
+                  x="15"
+                  y="102"
+                  fontSize="9.5"
+                  fontWeight="800"
+                  fill="#1e293b"
+                  transform="rotate(-90, 15, 102)"
+                  textAnchor="middle"
+                >
+                  Haba Pembakaran (kJ mol⁻¹)
                 </text>
-                <line x1="280" y1="42" x2="350" y2="42" stroke="#334155" strokeWidth="1.2" />
 
-                <text x="355" y="138" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                  Bekas kuprum
+                {/* X Axis */}
+                <line x1="56" y1="175" x2="340" y2="175" stroke="#1e293b" strokeWidth="1.6" />
+                <polygon points="345,175 337,171.5 337,178.5" fill="#1e293b" />
+                <text x="198" y="206" textAnchor="middle" fontSize="9.5" fontWeight="800" fill="#1e293b">
+                  Bilangan atom karbon per molekul
                 </text>
-                <line x1="334" y1="135" x2="350" y2="135" stroke="#334155" strokeWidth="1.2" />
 
-                <text x="155" y="165" textAnchor="end" fill="#0369a1" fontSize="11.5" fontWeight="bold">
-                  Air (200 cm³)
-                </text>
-                <line x1="160" y1="162" x2="232" y2="168" stroke="#0369a1" strokeWidth="1.2" />
+                {/* X Ticks: C = 1, 2, 3, 4 */}
+                {ALCOHOL_ORDER.map((id) => {
+                  const a = ALCOHOL_SPECS[id];
+                  const cx = 56 + a.carbonCount * 66;
+                  return (
+                    <g key={id}>
+                      <line x1={cx} y1="175" x2={cx} y2="180" stroke="#1e293b" strokeWidth="1.4" />
+                      <text x={cx} y="191" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#334155">
+                        {a.carbonCount} ({a.name.slice(0, 3)})
+                      </text>
+                    </g>
+                  );
+                })}
 
-                <text x="360" y="200" fill="#0f172a" fontSize="11" fontWeight="bold">
-                  Segi tiga tanah liat
-                </text>
-                <line x1="348" y1="214" x2="360" y2="204" stroke="#334155" strokeWidth="1.2" />
+                {/* Polyline connecting experimental points */}
+                <polyline
+                  fill="none"
+                  stroke="#ea580c"
+                  strokeWidth="2.4"
+                  points={ALCOHOL_ORDER.map((id) => {
+                    const a = ALCOHOL_SPECS[id];
+                    const cx = 56 + a.carbonCount * 66;
+                    const cy = 175 - (Math.abs(a.deltaH) / 3000) * 144;
+                    return `${cx},${cy}`;
+                  }).join(' ')}
+                />
 
-                <text x="455" y="295" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                  Tungku kaki tiga
-                </text>
-                <line x1="364" y1="292" x2="450" y2="292" stroke="#334155" strokeWidth="1.2" />
+                {/* Dashed theoretical line for comparison */}
+                <polyline
+                  fill="none"
+                  stroke="#6366f1"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 3"
+                  points={ALCOHOL_ORDER.map((id) => {
+                    const a = ALCOHOL_SPECS[id];
+                    const cx = 56 + a.carbonCount * 66;
+                    const cy = 175 - (Math.abs(a.theoreticalDeltaH) / 3000) * 144;
+                    return `${cx},${cy}`;
+                  }).join(' ')}
+                />
 
-                <text x="148" y="322" textAnchor="end" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                  Pelita ({alcohol.name})
-                </text>
-                <line x1="154" y1="319" x2="245" y2="319" stroke="#334155" strokeWidth="1.2" />
+                {/* Data points */}
+                {ALCOHOL_ORDER.map((id) => {
+                  const a = ALCOHOL_SPECS[id];
+                  const cx = 56 + a.carbonCount * 66;
+                  const cyExp = 175 - (Math.abs(a.deltaH) / 3000) * 144;
+                  const cyTheo = 175 - (Math.abs(a.theoreticalDeltaH) / 3000) * 144;
+                  return (
+                    <g key={id}>
+                      <circle cx={cx} cy={cyTheo} r="3" fill="#6366f1" />
+                      <circle cx={cx} cy={cyExp} r="4.5" fill="#ea580c" stroke="#ffffff" strokeWidth="1.3" />
+                      <text x={cx + 5} y={cyExp + 11} fontSize="8.5" fontWeight="800" fill="#9a3412">
+                        {Math.abs(a.deltaH)}
+                      </text>
+                    </g>
+                  );
+                })}
 
-                <text x="455" y="368" fill="#0f172a" fontSize="11.5" fontWeight="bold">
-                  Bongkah kayu
-                </text>
-                <line x1="332" y1="365" x2="450" y2="365" stroke="#334155" strokeWidth="1.2" />
-
-                {/* Digital Readout Cards embedded cleanly in SVG top-left */}
-                <g transform="translate(22, 24)">
-                  <rect width="142" height="58" rx="8" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
-                  <text x="10" y="20" fill="#64748b" fontSize="10" fontWeight="bold">
-                    SUHU AIR (θ)
-                  </text>
-                  <text x="10" y="45" fill="#dc2626" fontSize="21" fontWeight="bold">
-                    {currentTemp.toFixed(1)} °C
-                  </text>
-                  <text x="95" y="44" fill="#64748b" fontSize="10">
-                    / {TARGET_FINAL_TEMP.toFixed(1)}°
-                  </text>
-                </g>
-
-                <g transform="translate(448, 66)">
-                  <rect width="152" height="58" rx="8" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
-                  <text x="10" y="20" fill="#64748b" fontSize="10" fontWeight="bold">
-                    JISIM PELITA + ALKOHOL
-                  </text>
-                  <text x="10" y="45" fill="#0f172a" fontSize="20" fontWeight="bold">
-                    {currentLampMass.toFixed(2)} g
-                  </text>
+                {/* Mini legend inside graph top-left */}
+                <g transform="translate(72, 22)">
+                  <line x1="0" y1="6" x2="16" y2="6" stroke="#6366f1" strokeWidth="1.6" strokeDasharray="4 3" />
+                  <text x="20" y="9" fontSize="8.5" fontWeight="700" fill="#4338ca">Nilai Teori</text>
+                  <line x1="0" y1="18" x2="16" y2="18" stroke="#ea580c" strokeWidth="2.2" />
+                  <text x="20" y="21" fontSize="8.5" fontWeight="700" fill="#c2410c">Nilai Eksperimen</text>
                 </g>
               </svg>
             </div>
           </div>
-
-          {/* Right 5 cols: Controls */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
-              <h4 className="font-bold text-slate-900">1. Pilih Alkohol</h4>
-              <div className="grid grid-cols-2 gap-2.5">
-                {(['metanol', 'etanol', 'propanol', 'butanol'] as AlcoholKey[]).map((key) => {
-                  const item = ALCOHOLS[key];
-                  const recorded = Boolean(records[key]);
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => handleSelectAlcohol(key)}
-                      className={`p-3 rounded-xl border text-left transition cursor-pointer relative ${
-                        selectedAlcohol === key
-                          ? 'bg-orange-50 border-orange-500 ring-2 ring-orange-200'
-                          : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm text-slate-900">{item.name}</span>
-                        {recorded && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-                      </div>
-                      <div className="text-xs text-slate-600 font-mono mt-0.5">
-                        {item.formula} (Mᵣ = {item.molarMass})
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Windshield & Stirring Toggles */}
-              <div className="space-y-2.5 pt-1">
-                <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Wind className="w-4 h-4 text-slate-600" />
-                    <div>
-                      <div className="text-xs font-bold text-slate-800">Pengadang Angin</div>
-                      <div className="text-[11px] text-slate-500">
-                        {withWindshield
-                          ? 'Dipasang (mengurangkan kehilangan haba)'
-                          : 'Tiada (banyak haba hilang ke persekitaran)'}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setWithWindshield((w) => !w);
-                      setProgress(0);
-                      setIsBurning(false);
-                      analytics.recordSimulationClick(SIM_ID);
-                    }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                      withWindshield ? 'bg-emerald-600 text-white' : 'bg-red-100 text-red-700'
-                    }`}
-                  >
-                    {withWindshield ? 'Aktif' : 'Dimatikan'}
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Thermometer className="w-4 h-4 text-slate-600" />
-                    <div>
-                      <div className="text-xs font-bold text-slate-800">Kacau Air dengan Termometer</div>
-                      <div className="text-[11px] text-slate-500">Memastikan taburan haba sekata</div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIsStirring((s) => !s)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                      isStirring ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {isStirring ? 'Mengacau' : 'Pegun'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Start Burn Button */}
-              <button
-                onClick={handleStartStop}
-                className={`w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition cursor-pointer ${
-                  isBurning
-                    ? 'bg-red-600 hover:bg-red-700 text-white'
-                    : 'bg-orange-600 hover:bg-orange-700 text-white'
-                }`}
-              >
-                {isBurning ? (
-                  <>
-                    <Square className="w-4 h-4" />
-                    Padamkan Nyalaan (Berhenti)
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4" />
-                    {isFinished ? 'Ulang Pembakaran (+30.0 °C)' : 'Nyalakan Pelita & Panaskan Air'}
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Live Readings & Observations */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
-              <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <Scale className="w-4 h-4 text-orange-600" />
-                Data Semasa ({alcohol.name})
-              </h4>
-              <div className="grid grid-cols-2 gap-2.5 text-xs">
-                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                  <div className="text-slate-500">Suhu Awal → Semasa</div>
-                  <div className="font-bold text-slate-900 text-sm mt-0.5">
-                    {INITIAL_WATER_TEMP.toFixed(1)} → {currentTemp.toFixed(1)} °C
-                  </div>
-                </div>
-                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                  <div className="text-slate-500">Jisim Alkohol Terbakar</div>
-                  <div className="font-bold text-slate-900 text-sm mt-0.5">
-                    {currentMassBurned.toFixed(2)} g
-                  </div>
-                </div>
-              </div>
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
-                <strong>Pemerhatian Jelaga (KSSM):</strong> {alcohol.sootLevel} di bahagian bawah bekas kuprum.
-                {alcohol.carbons >= 3 &&
-                  ' Alkohol rantai panjang mempunyai peratus karbon per molekul yang lebih tinggi, menyebabkan pembakaran tidak lengkap.'}
-              </div>
-
-              {isFinished && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-center justify-between gap-2">
-                  <span>
-                    Suhu naik <strong>30.0 °C</strong>! Data direkodkan (ΔH ={' '}
-                    <strong>-{records[selectedAlcohol]?.deltaH} kJ mol⁻¹</strong>).
-                  </span>
-                  <button
-                    onClick={() => setActiveTab('pengiraan')}
-                    className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold shrink-0 cursor-pointer"
-                  >
-                    Lihat Kiraan
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: STEP-BY-STEP CALCULATIONS */}
-      {activeTab === 'pengiraan' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h4 className="font-bold text-slate-900 flex items-center gap-2">
-              <Calculator className="w-5 h-5 text-orange-600" />
-              Pengiraan Haba Pembakaran ({alcohol.name}, {alcohol.formula})
-            </h4>
-            <div className="flex gap-1.5">
-              {(['metanol', 'etanol', 'propanol', 'butanol'] as AlcoholKey[]).map((key) => (
-                <button
-                  key={key}
-                  onClick={() => handleSelectAlcohol(key)}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold cursor-pointer ${
-                    selectedAlcohol === key
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {ALCOHOLS[key].name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {(() => {
-            const m1 = alcohol.initialLampMass;
-            const m2 = records[selectedAlcohol]?.m2 ?? Number((m1 - totalExpectedMassBurned).toFixed(2));
-            const massBurned = Number((m1 - m2).toFixed(2));
-            const moles = massBurned / alcohol.molarMass;
-            const calcDeltaH = Math.round(Q_KJ / moles);
-
-            return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-sm">
-                  <div className="font-bold text-slate-900">Langkah 1: Jisim &amp; Bilangan Mol Alkohol Terbakar</div>
-                  <p className="text-slate-700 font-mono text-xs bg-white p-2.5 rounded-lg border border-slate-200">
-                    Jisim alkohol, m = m₁ − m₂ = {m1.toFixed(2)} − {m2.toFixed(2)} ={' '}
-                    <strong>{massBurned.toFixed(2)} g</strong>
-                  </p>
-                  <p className="text-slate-700 font-mono text-xs bg-white p-2.5 rounded-lg border border-slate-200">
-                    Bil. mol, n = m / Jisim molar = {massBurned.toFixed(2)} / {alcohol.molarMass} ={' '}
-                    <strong>{moles.toFixed(4)} mol</strong>
-                  </p>
-                </div>
-
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-sm">
-                  <div className="font-bold text-slate-900">Langkah 2: Haba Diserap Air &amp; Haba Pembakaran (ΔH)</div>
-                  <p className="text-slate-700 font-mono text-xs bg-white p-2.5 rounded-lg border border-slate-200">
-                    Q = m_air × c × θ = 200 × 4.2 × 30.0 = <strong>25,200 J = 25.2 kJ</strong>
-                  </p>
-                  <p className="text-slate-700 font-mono text-xs bg-white p-2.5 rounded-lg border border-slate-200">
-                    ΔH = − Q / n = − 25.2 / {moles.toFixed(4)} ={' '}
-                    <strong className="text-orange-700">−{calcDeltaH} kJ mol⁻¹</strong>
-                  </p>
-                </div>
-
-                <div className="md:col-span-2 p-4 bg-orange-50 border border-orange-200 rounded-xl">
-                  <div className="text-xs font-bold uppercase text-orange-800 mb-1">Persamaan Termokimia Pembakaran Lengkap</div>
-                  <div className="font-mono font-bold text-slate-900 text-sm sm:text-base">
-                    {alcohol.equation} &nbsp;&nbsp; ΔH = −{calcDeltaH} kJ mol⁻¹
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-      )}
-
-      {/* TAB 3: TABLE & RAJAH 3.14 GRAPH */}
-      {activeTab === 'graf' && (
-        <div className="space-y-5">
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm overflow-x-auto">
-            <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-              <LineChart className="w-5 h-5 text-orange-600" />
-              Jadual Rekod Keputusan Eksperimen 3B
-            </h4>
-            {recordedList.length === 0 ? (
-              <p className="text-sm text-slate-500">
-                Belum ada alkohol yang diuji. Kembali ke tab <strong>1. Radas &amp; Eksperimen 3B</strong> dan jalankan pemanasan untuk setiap alkohol!
-              </p>
-            ) : (
-              <table className="w-full text-left text-xs sm:text-sm border-collapse">
-                <thead>
-                  <tr className="bg-slate-100 text-slate-700 border-b border-slate-200">
-                    <th className="p-2.5">Alkohol</th>
-                    <th className="p-2.5">Bil. Atom C</th>
-                    <th className="p-2.5">Jisim Terbakar (g)</th>
-                    <th className="p-2.5">Bil. Mol (mol)</th>
-                    <th className="p-2.5">Haba Pembakaran (kJ mol⁻¹)</th>
-                    <th className="p-2.5">Nilai Teori</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recordedList.map((r) => (
-                    <tr key={r.alcoholId} className="border-b border-slate-100">
-                      <td className="p-2.5 font-bold">
-                        {r.name} ({r.formula})
-                      </td>
-                      <td className="p-2.5">{r.carbons}</td>
-                      <td className="p-2.5 font-mono">{r.massBurned.toFixed(2)}</td>
-                      <td className="p-2.5 font-mono">{r.moles.toFixed(4)}</td>
-                      <td className="p-2.5 font-mono font-bold text-orange-700">
-                        −{r.deltaH} {!r.withWindshield && '(tanpa pengadang)'}
-                      </td>
-                      <td className="p-2.5 font-mono text-slate-500">−{ALCOHOLS[r.alcoholId].theoryDeltaH}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-
-          {/* Rajah 3.14 Straight Line Graph */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h4 className="font-bold text-slate-900 mb-1">
-              Graf Haba Pembakaran Melawan Bilangan Atom Karbon (Rajah 3.14, m.s. 135)
-            </h4>
-            <p className="text-xs text-slate-600 mb-3">
-              Semakin bertambah bilangan atom karbon per molekul alkohol (penambahan satu kumpulan <strong>−CH₂−</strong>), semakin bertambah nilai haba pembakaran secara linear.
-            </p>
-
-            <svg viewBox="0 0 560 300" className="w-full max-w-2xl h-auto bg-slate-50 border border-slate-200 rounded-xl p-2">
-              {/* Grid lines Y (0 to 3000) */}
-              {[0, 500, 1000, 1500, 2000, 2500, 3000].map((val) => {
-                const y = 250 - (val / 3000) * 210;
-                return (
-                  <g key={val}>
-                    <line x1="80" y1={y} x2="510" y2={y} stroke="#e2e8f0" strokeWidth="1" />
-                    <text x="72" y={y + 4} textAnchor="end" fontSize="10" fill="#475569">
-                      {val}
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* Axes */}
-              <line x1="80" y1="30" x2="80" y2="250" stroke="#1e293b" strokeWidth="2" />
-              <line x1="80" y1="250" x2="515" y2="250" stroke="#1e293b" strokeWidth="2" />
-
-              {/* X ticks (1 to 4 C atoms) */}
-              {[1, 2, 3, 4].map((c) => {
-                const x = 80 + c * 95;
-                return (
-                  <g key={c}>
-                    <line x1={x} y1="250" x2={x} y2="256" stroke="#1e293b" strokeWidth="1.5" />
-                    <text x={x} y="272" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#1e293b">
-                      {c}
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* Axis titles */}
-              <text x="295" y="292" textAnchor="middle" fontSize="11.5" fontWeight="bold" fill="#0f172a">
-                Bilangan atom karbon per molekul alkohol
-              </text>
-              <text
-                x="22"
-                y="145"
-                textAnchor="middle"
-                fontSize="11"
-                fontWeight="bold"
-                fill="#0f172a"
-                transform="rotate(-90 22 145)"
-              >
-                Haba pembakaran (kJ mol⁻¹)
-              </text>
-
-              {/* Dotted Reference Theory Line */}
-              <line
-                x1={80 + 1 * 95}
-                y1={250 - (725 / 3000) * 210}
-                x2={80 + 4 * 95}
-                y2={250 - (2675 / 3000) * 210}
-                stroke="#94a3b8"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              />
-
-              {/* Connected Student Recorded Points */}
-              {recordedList.length >= 2 && (
-                <polyline
-                  fill="none"
-                  stroke="#ea580c"
-                  strokeWidth="2.5"
-                  points={recordedList
-                    .map((r) => `${80 + r.carbons * 95},${250 - (r.deltaH / 3000) * 210}`)
-                    .join(' ')}
-                />
-              )}
-
-              {recordedList.map((r) => {
-                const x = 80 + r.carbons * 95;
-                const y = 250 - (r.deltaH / 3000) * 210;
-                return (
-                  <g key={r.alcoholId}>
-                    <circle cx={x} cy={y} r="5.5" fill="#ea580c" stroke="#ffffff" strokeWidth="1.5" />
-                    <text x={x} y={y - 10} textAnchor="middle" fontSize="10" fontWeight="bold" fill="#9a3412">
-                      {r.name} ({r.deltaH})
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: DISCUSSION Q&A (KSSM m.s. 135) */}
-      {activeTab === 'perbincangan' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
-          <h4 className="font-bold text-slate-900 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-orange-600" />
-            Soalan Perbincangan Eksperimen 3B (Buku Teks m.s. 135)
-          </h4>
-          {[
-            {
-              q: '1. Mengapakah bekas kuprum digunakan dan bukannya bikar kaca atau kasa dawai?',
-              a: 'Kuprum ialah konduktor haba yang baik supaya haba daripada nyalaan dipindahkan ke air dengan cekap. Segi tiga tanah liat digunakan menggantikan kasa dawai untuk mengelakkan kasa dawai menyerap sebahagian haba.',
-            },
-            {
-              q: '2. Mengapakah pengadang angin dan bongkah kayu digunakan dalam susunan radas (Rajah 3.13)?',
-              a: 'Pengadang angin mengurangkan kehilangan haba ke persekitaran akibat tiupan angin. Bongkah kayu meninggikan kedudukan pelita supaya nyalaan pelita berada tepat berhampiran bahagian bawah bekas kuprum.',
-            },
-            {
-              q: '3. Nyatakan hubungan antara bilangan atom karbon per molekul alkohol dengan haba pembakaran.',
-              a: 'Apabila bilangan atom karbon per molekul alkohol bertambah (dengan penambahan satu kumpulan −CH₂− dalam ahli berturutan), haba pembakaran bertambah secara sekata kerana pembakaran menghasilkan lebih banyak molekul gas CO₂ dan H₂O serta membebaskan lebih banyak tenaga haba.',
-            },
-            {
-              q: '4. Mengapakah nilai haba pembakaran yang diperoleh daripada eksperimen biasanya lebih rendah daripada nilai teori (contohnya etanol -1376 kJ mol⁻¹)?',
-              a: 'Sebahagian haba hilang ke persekitaran, haba turut diserap oleh bekas kuprum dan radas, serta berlakunya pembakaran tidak lengkap (terbukti dengan jelaga hitam karbon pada dasar bekas kuprum).',
-            },
-          ].map((item, idx) => (
-            <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-              <div className="font-bold text-sm text-slate-900">{item.q}</div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{item.a}</p>
-            </div>
-          ))}
         </div>
       )}
     </div>
   );
 };
+
+export default HeatOfCombustionLab;
