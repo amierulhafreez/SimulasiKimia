@@ -239,16 +239,16 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
   // --- Bab 1: Keseimbangan Redoks ---
   {
     id: 'elektrolisis',
-    title: 'Elektrolisis Leburan & Larutan Akueus',
+    title: 'Elektrolisis Sebatian Leburan & Larutan Akueus',
     form: 'Tingkatan 5',
     chapter: 'Bab 1: Keseimbangan Redoks',
     category: 'Elektrokimia',
-    description: 'Kaji pemilihan ion untuk dinyahcas pada anod dan katod berdasarkan nilai E⁰ (keupayaan elektrod piawai), kepekatan dan jenis elektrod.',
-    learningStandard: 'SP 1.4.2 - Membandingkan elektrolisis sebatian lebur dan larutan akueus',
+    description: 'Visualisasi Multi-Aras Johnstone: kaji elektrolisis CuSO₄, NaCl dan H₂SO₄ secara makroskopik, zum submikroskopik anod/katod, peluncur kepekatan, elektrod aktif/lengai dan mod kuiz ramalan (POE).',
+    learningStandard: 'SP 1.4.2 & 1.4.3 - Faktor pemilihan ion dinyahcas (nilai E⁰, kepekatan dan jenis elektrod)',
     iconName: 'BatteryCharging',
     colorTheme: 'blue',
     isImplemented: true,
-    tags: ['Anod', 'Katod', 'Siri Elektrokimia', 'E⁰ Piawai']
+    tags: ['Multi-Aras Johnstone', 'Zum Anod & Katod', 'Kuiz POE', 'Kepekatan & Elektrod']
   },
   {
     id: 'pengekstrakan-aluminium',
