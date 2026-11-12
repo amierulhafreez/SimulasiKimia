@@ -1,32 +1,20 @@
 import { SimulationItem } from '../types/simulation';
 
 export const SIMULATIONS_DATA: SimulationItem[] = [
-  // ================= TINGKATAN 4 =================
+  // ================= TINGKATAN 4 (DISUSUN MENGIKUT TOPIK BAB 2–7) =================
+  // --- Bab 2: Jirim dan Struktur Atom ---
   {
-    id: 'pentitratan-asid-alkali',
-    title: 'Pentitratan Asid Alkali',
+    id: 'keadaan-zarah-jirim',
+    title: 'Keadaan Zarah: Perubahan Keadaan Jirim',
     form: 'Tingkatan 4',
-    chapter: 'Bab 6: Asid, Bes dan Garam',
-    category: 'Asid, Bes & Garam',
-    description: 'Titrat asid nitrik HNO₃ 1.0 mol dm⁻³ ke dalam 25.0 cm³ larutan KOH 1.0 mol dm⁻³ (Rajah 6.32) dengan pilihan penunjuk fenolftalein atau metil jingga.',
-    learningStandard: 'SP 6.7.2 & 6.7.3 - Menentukan isi padu takat akhir pentitratan & kepekatan larutan melalui kaedah peneutralan',
-    iconName: 'FlaskConical',
-    colorTheme: 'purple',
-    isImplemented: true,
-    tags: ['Buret', 'Takat Akhir', 'Fenolftalein', 'Metil Jingga', 'Jubin Putih']
-  },
-  {
-    id: 'ujian-gas',
-    title: 'Ujian Pengesahan Gas Makmal',
-    form: 'Tingkatan 4',
-    chapter: 'Bab 6: Asid, Bes dan Garam',
-    category: 'Asid, Bes & Garam',
-    description: 'Uji dan kenal pasti kesemua 8 gas buku teks (O₂, H₂, CO₂, NH₃, Cl₂, HCl, SO₂, NO₂) menggunakan makmal maya seret dan lepas (drag & drop).',
-    learningStandard: 'SP 6.10.1 - Memerihalkan ujian untuk mengenal pasti gas (Aktiviti 6.26)',
-    iconName: 'Flame',
+    chapter: 'Bab 2: Jirim dan Struktur Atom',
+    category: 'Jirim & Struktur Atom',
+    description: 'Kawal suhu 8 bahan (Air, Naftalena, CO₂, O₂, He, Na, NaCl, CuSO₄) untuk melihat perubahan zarah semasa pemanasan & penyejukkan serta takat lebur, beku & didih.',
+    learningStandard: 'SP 2.1.1 - Menghuraikan perubahan keadaan fizikal jirim berdasarkan teori kinetik jirim',
+    iconName: 'Boxes',
     colorTheme: 'cyan',
     isImplemented: true,
-    tags: ['8 Gas KSSM', 'Drag & Drop', 'Air Kapur', 'Litmus', 'KMnO₄']
+    tags: ['Slider Suhu', '8 Bahan', 'Takat Lebur/Beku/Didih', 'Pemanasan & Penyejukkan']
   },
   {
     id: 'pemanasan-dan-penyejukkan-naftalena',
@@ -41,19 +29,8 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     isImplemented: true,
     tags: ['Kukus Air', 'Kelalang Kon', 'Takat Lebur 80°C', 'Zarah Kinetik']
   },
-  {
-    id: 'penyeimbangan-persamaan-kimia',
-    title: 'Seimbang Persamaan Kimia',
-    form: 'Tingkatan 4',
-    chapter: 'Bab 3: Konsep Mol, Formula dan Persamaan Kimia',
-    category: 'Jirim & Struktur Atom',
-    description: 'Seimbangkan 7 persamaan kimia buku teks mengikut aras kesukaran meningkat dengan menaip atau klik pekali, serta jana analisis kualitatif dan kuantitatif (SP 3.4.2).',
-    learningStandard: 'SP 3.4.1 & 3.4.2 - Mengimbangkan persamaan kimia dan mentafsirkannya secara kualitatif & kuantitatif',
-    iconName: 'Scale',
-    colorTheme: 'amber',
-    isImplemented: true,
-    tags: ['7 Persamaan KSSM', 'Stoikiometri', 'Analisis Kualitatif', 'Analisis Kuantitatif']
-  },
+
+  // --- Bab 3: Konsep Mol, Formula dan Persamaan Kimia ---
   {
     id: 'penghasilan-formula-kimia',
     title: 'Penghasilan Formula Kimia Sebatian Ion',
@@ -68,6 +45,21 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['Formula Kimia', 'Kation & Anion', 'Kaedah Silang', 'Aktiviti 3.15']
   },
   {
+    id: 'penyeimbangan-persamaan-kimia',
+    title: 'Seimbang Persamaan Kimia',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 3: Konsep Mol, Formula dan Persamaan Kimia',
+    category: 'Jirim & Struktur Atom',
+    description: 'Seimbangkan 7 persamaan kimia buku teks mengikut aras kesukaran meningkat dengan menaip atau klik pekali, serta jana analisis kualitatif dan kuantitatif (SP 3.4.2).',
+    learningStandard: 'SP 3.4.1 & 3.4.2 - Mengimbangkan persamaan kimia dan mentafsirkannya secara kualitatif & kuantitatif',
+    iconName: 'Scale',
+    colorTheme: 'amber',
+    isImplemented: true,
+    tags: ['7 Persamaan KSSM', 'Stoikiometri', 'Analisis Kualitatif', 'Analisis Kuantitatif']
+  },
+
+  // --- Bab 4: Jadual Berkala Unsur ---
+  {
     id: 'kereaktifan-k1-dan-k17',
     title: 'Kereaktifan Kumpulan 1 & Kumpulan 17',
     form: 'Tingkatan 4',
@@ -80,6 +72,8 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     isImplemented: true,
     tags: ['Kumpulan 1', 'Kumpulan 17', 'Sifat Fizik', 'Persamaan Kimia']
   },
+
+  // --- Bab 5: Ikatan Kimia ---
   {
     id: 'penghasilan-sebatian-kovalen',
     title: 'Penghasilan Sebatian Ion & Sebatian Kovalen',
@@ -94,6 +88,47 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['Pick & Drop', 'Ikatan Ion', 'Ikatan Kovalen', 'Sifat Fizik']
   },
   {
+    id: 'daya-tarikan-zarah',
+    title: 'Penerangan Daya Tarikan Antara Zarah (Tug of War)',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 4 & Bab 5: Jadual Berkala dan Ikatan Kimia',
+    category: 'Ikatan Kimia',
+    description: 'Mekanik Tug of War interaktif yang membandingkan Daya Tarikan Antara Zarah (Van der Waals), Tarikan Nukleus–Elektron Valens, Daya Tarikan Elektrostatik dan Ikatan Hidrogen berserta duel 1v1.',
+    learningStandard: 'SP 4.4.3, 4.5.3, 5.2.1, 5.4.1–5.4.2, 5.6.1 & 5.7.1 - Membandingkan daya tarikan dalam silibus KSSM',
+    iconName: 'Magnet',
+    colorTheme: 'sky',
+    isImplemented: true,
+    tags: ['Tug of War', 'Van der Waals', 'Nukleus & Elektron', 'Elektrostatik', 'Ikatan Hidrogen']
+  },
+
+  // --- Bab 6: Asid, Bes dan Garam ---
+  {
+    id: 'penyediaan-larutan-piawai',
+    title: 'Penyediaan & Pencairan Larutan Piawai',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 6: Asid, Bes dan Garam',
+    category: 'Asid, Bes & Garam',
+    description: 'Sediakan larutan piawai 1.0 M bagi NaCl, CuSO₄ dan FeCl₃ daripada bahan pepejal menggunakan seret dan lepas (Aktiviti 6.7) serta lakukan pencairan kepada 0.5 M lengkap dengan pengiraan isi padu air diperlukan (Aktiviti 6.8).',
+    learningStandard: 'SP 6.6.1–6.6.3 - Menyediakan larutan piawai daripada bahan pepejal dan kaedah pencairan (M₁V₁ = M₂V₂)',
+    iconName: 'Beaker',
+    colorTheme: 'blue',
+    isImplemented: true,
+    tags: ['NaCl, CuSO₄ & FeCl₃', 'Seret & Lepas', '1.0 M → 0.5 M', 'M₁V₁ = M₂V₂']
+  },
+  {
+    id: 'pentitratan-asid-alkali',
+    title: 'Pentitratan Asid Alkali',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 6: Asid, Bes dan Garam',
+    category: 'Asid, Bes & Garam',
+    description: 'Titrat asid nitrik HNO₃ 1.0 mol dm⁻³ ke dalam 25.0 cm³ larutan KOH 1.0 mol dm⁻³ (Rajah 6.32) dengan pilihan penunjuk fenolftalein atau metil jingga.',
+    learningStandard: 'SP 6.7.2 & 6.7.3 - Menentukan isi padu takat akhir pentitratan & kepekatan larutan melalui kaedah peneutralan',
+    iconName: 'FlaskConical',
+    colorTheme: 'purple',
+    isImplemented: true,
+    tags: ['Buret', 'Takat Akhir', 'Fenolftalein', 'Metil Jingga', 'Jubin Putih']
+  },
+  {
     id: 'keterlarutan-garam',
     title: 'Keterlarutan Garam Dalam Air',
     form: 'Tingkatan 4',
@@ -105,6 +140,19 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     colorTheme: 'teal',
     isImplemented: true,
     tags: ['Drag & Drop', 'NO ANaK / PBC / HPA', 'Warna Garam', 'Air Panas PbCl₂ & PbI₂']
+  },
+  {
+    id: 'ujian-gas',
+    title: 'Ujian Pengesahan Gas Makmal',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 6: Asid, Bes dan Garam',
+    category: 'Asid, Bes & Garam',
+    description: 'Uji dan kenal pasti kesemua 8 gas buku teks (O₂, H₂, CO₂, NH₃, Cl₂, HCl, SO₂, NO₂) menggunakan makmal maya seret dan lepas (drag & drop).',
+    learningStandard: 'SP 6.10.1 - Memerihalkan ujian untuk mengenal pasti gas (Aktiviti 6.26)',
+    iconName: 'Flame',
+    colorTheme: 'cyan',
+    isImplemented: true,
+    tags: ['8 Gas KSSM', 'Drag & Drop', 'Air Kapur', 'Litmus', 'KMnO₄']
   },
   {
     id: 'ujian-kation',
@@ -132,32 +180,8 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     isImplemented: true,
     tags: ['Gamifikasi', 'Pemanasan Garam', 'Cincin Perang', 'Ujian Anion KSSM']
   },
-  {
-    id: 'daya-tarikan-zarah',
-    title: 'Penerangan Daya Tarikan Antara Zarah (Tug of War)',
-    form: 'Tingkatan 4',
-    chapter: 'Bab 4 & Bab 5: Jadual Berkala dan Ikatan Kimia',
-    category: 'Ikatan Kimia',
-    description: 'Mekanik Tug of War interaktif yang membandingkan Daya Tarikan Antara Zarah (Van der Waals), Tarikan Nukleus–Elektron Valens, Daya Tarikan Elektrostatik dan Ikatan Hidrogen berserta duel 1v1.',
-    learningStandard: 'SP 4.4.3, 4.5.3, 5.2.1, 5.4.1–5.4.2, 5.6.1 & 5.7.1 - Membandingkan daya tarikan dalam silibus KSSM',
-    iconName: 'Magnet',
-    colorTheme: 'sky',
-    isImplemented: true,
-    tags: ['Tug of War', 'Van der Waals', 'Nukleus & Elektron', 'Elektrostatik', 'Ikatan Hidrogen']
-  },
-  {
-    id: 'penyediaan-larutan-piawai',
-    title: 'Penyediaan & Pencairan Larutan Piawai',
-    form: 'Tingkatan 4',
-    chapter: 'Bab 6: Asid, Bes dan Garam',
-    category: 'Asid, Bes & Garam',
-    description: 'Sediakan larutan piawai 1.0 M bagi NaCl, CuSO₄ dan FeCl₃ daripada bahan pepejal menggunakan seret dan lepas (Aktiviti 6.7) serta lakukan pencairan kepada 0.5 M lengkap dengan pengiraan isi padu air diperlukan (Aktiviti 6.8).',
-    learningStandard: 'SP 6.6.1–6.6.3 - Menyediakan larutan piawai daripada bahan pepejal dan kaedah pencairan (M₁V₁ = M₂V₂)',
-    iconName: 'Beaker',
-    colorTheme: 'blue',
-    isImplemented: true,
-    tags: ['NaCl, CuSO₄ & FeCl₃', 'Seret & Lepas', '1.0 M → 0.5 M', 'M₁V₁ = M₂V₂']
-  },
+
+  // --- Bab 7: Kadar Tindak Balas ---
   {
     id: 'kadar-tindak-balas-saiz',
     title: 'Kadar Tindak Balas: Faktor Saiz Bahan',
@@ -210,21 +234,9 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     isImplemented: true,
     tags: ['H₂O₂ + MnO₂', 'Ujian Kayu Uji', 'Graf O₂ vs Masa', 'Profil Tenaga Eₐ']
   },
-  {
-    id: 'keadaan-zarah-jirim',
-    title: 'Keadaan Zarah: Perubahan Keadaan Jirim',
-    form: 'Tingkatan 4',
-    chapter: 'Bab 2: Jirim dan Struktur Atom',
-    category: 'Jirim & Struktur Atom',
-    description: 'Kawal suhu 8 bahan (Air, Naftalena, CO₂, O₂, He, Na, NaCl, CuSO₄) untuk melihat perubahan zarah semasa pemanasan & penyejukkan serta takat lebur, beku & didih.',
-    learningStandard: 'SP 2.1.1 - Menghuraikan perubahan keadaan fizikal jirim berdasarkan teori kinetik jirim',
-    iconName: 'Boxes',
-    colorTheme: 'cyan',
-    isImplemented: true,
-    tags: ['Slider Suhu', '8 Bahan', 'Takat Lebur/Beku/Didih', 'Pemanasan & Penyejukkan']
-  },
 
-  // ================= TINGKATAN 5 =================
+  // ================= TINGKATAN 5 (DISUSUN MENGIKUT TOPIK BAB 1–5) =================
+  // --- Bab 1: Keseimbangan Redoks ---
   {
     id: 'elektrolisis',
     title: 'Elektrolisis Leburan & Larutan Akueus',
@@ -237,19 +249,6 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     colorTheme: 'blue',
     isImplemented: true,
     tags: ['Anod', 'Katod', 'Siri Elektrokimia', 'E⁰ Piawai']
-  },
-  {
-    id: 'pengekstrakan-besi',
-    title: 'Pengekstrakan Besi daripada Bijihnya',
-    form: 'Tingkatan 5',
-    chapter: 'Bab 1: Keseimbangan Redoks',
-    category: 'Elektrokimia',
-    description: 'Simulasi interaktif Relau Bagas (Rajah 1.38): pelajari 3 zon suhu, tindak balas penurunan hematit (Fe₂O₃) oleh karbon monoksida dan pembentukan sanga daripada batu kapur.',
-    learningStandard: 'SP 1.5.2 - Menerangkan pengekstrakan logam daripada bijihnya menggunakan karbon dalam relau bagas',
-    iconName: 'Factory',
-    colorTheme: 'orange',
-    isImplemented: true,
-    tags: ['Hematit (Fe₂O₃)', 'Relau Bagas', 'Arang Kok', 'Batu Kapur', 'Sanga']
   },
   {
     id: 'pengekstrakan-aluminium',
@@ -265,31 +264,20 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['Bauksit (Al₂O₃)', 'Kriolit (Na₃AlF₆)', 'Anod Karbon', 'Kitar Semula 95%']
   },
   {
-    id: 'penggumpalan-lateks',
-    title: 'Penggumpalan Lateks & Pencegahannya',
+    id: 'pengekstrakan-besi',
+    title: 'Pengekstrakan Besi daripada Bijihnya',
     form: 'Tingkatan 5',
-    chapter: 'Bab 4: Kimia Polimer',
-    category: 'Polimer & Bahan Industri',
-    description: 'Uji tindakan asid metanoik (peneutralan cas negatif membran protein lateks) lawan larutan ammonia (mengekalkan cas negatif).',
-    learningStandard: 'SP 4.1.3 - Menerangkan proses penggumpalan lateks dan pencegahannya',
-    iconName: 'Disc',
-    colorTheme: 'emerald',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Simulasi interaktif Relau Bagas (Rajah 1.38): pelajari 3 zon suhu, tindak balas penurunan hematit (Fe₂O₃) oleh karbon monoksida dan pembentukan sanga daripada batu kapur.',
+    learningStandard: 'SP 1.5.2 - Menerangkan pengekstrakan logam daripada bijihnya menggunakan karbon dalam relau bagas',
+    iconName: 'Factory',
+    colorTheme: 'orange',
     isImplemented: true,
-    tags: ['Membran Protein', 'Asid Metanoik', 'Ammonia', 'Pemvulkanan']
+    tags: ['Hematit (Fe₂O₃)', 'Relau Bagas', 'Arang Kok', 'Batu Kapur', 'Sanga']
   },
-  {
-    id: 'penentuan-isomer',
-    title: 'Penentuan & Melukis Isomer Alkana/Alkena',
-    form: 'Tingkatan 5',
-    chapter: 'Bab 2: Sebatian Karbon',
-    category: 'Kimia Karbon',
-    description: 'Terokai keisomeran rantai dan kedudukan bagi butana, butena dan alkohol. Uji nama IUPAC secara interaktif.',
-    learningStandard: 'SP 2.4.1 - Membina dan menamakan isomer mengikut IUPAC',
-    iconName: 'Network',
-    colorTheme: 'purple',
-    isImplemented: true,
-    tags: ['Isomer Rantai', 'Isomer Kedudukan', 'Penamaan IUPAC']
-  },
+
+  // --- Bab 2: Sebatian Karbon ---
   {
     id: 'formula-struktur-karbon',
     title: 'Melukis Formula Struktur Sebatian Karbon',
@@ -304,18 +292,20 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['Kumpulan Berfungsi', 'Ester', 'Alkohol', 'Formula Molekul']
   },
   {
-    id: 'penghasilan-sabun',
-    title: 'Penghasilan Sabun (Saponifikasi)',
+    id: 'penentuan-isomer',
+    title: 'Penentuan & Melukis Isomer Alkana/Alkena',
     form: 'Tingkatan 5',
-    chapter: 'Bab 5: Kimia Konsumer dan Industri',
-    category: 'Polimer & Bahan Industri',
-    description: 'Didihkan minyak sawit bersama natrium hidroksida pekat dan tambahkan natrium klorida untuk memendakkan sabun.',
-    learningStandard: 'SP 5.1.2 - Menghuraikan penyediaan sabun melalui saponifikasi',
-    iconName: 'Sparkles',
-    colorTheme: 'pink',
+    chapter: 'Bab 2: Sebatian Karbon',
+    category: 'Kimia Karbon',
+    description: 'Terokai keisomeran rantai dan kedudukan bagi butana, butena dan alkohol. Uji nama IUPAC secara interaktif.',
+    learningStandard: 'SP 2.4.1 - Membina dan menamakan isomer mengikut IUPAC',
+    iconName: 'Network',
+    colorTheme: 'purple',
     isImplemented: true,
-    tags: ['Saponifikasi', 'Tindakan Pencucian', 'Minyak Sawit', 'NaCl']
+    tags: ['Isomer Rantai', 'Isomer Kedudukan', 'Penamaan IUPAC']
   },
+
+  // --- Bab 3: Termokimia ---
   {
     id: 'haba-penyesaran',
     title: 'Termokimia: Haba Penyesaran Logam',
@@ -354,5 +344,35 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     colorTheme: 'emerald',
     isImplemented: true,
     tags: ['kJ g⁻¹', 'Etanol 30', 'Petrol 34', 'Hidrogen 143', 'Rajah 3.15']
+  },
+
+  // --- Bab 4: Kimia Polimer ---
+  {
+    id: 'penggumpalan-lateks',
+    title: 'Penggumpalan Lateks & Pencegahannya',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 4: Kimia Polimer',
+    category: 'Polimer & Bahan Industri',
+    description: 'Uji tindakan asid metanoik (peneutralan cas negatif membran protein lateks) lawan larutan ammonia (mengekalkan cas negatif).',
+    learningStandard: 'SP 4.1.3 - Menerangkan proses penggumpalan lateks dan pencegahannya',
+    iconName: 'Disc',
+    colorTheme: 'emerald',
+    isImplemented: true,
+    tags: ['Membran Protein', 'Asid Metanoik', 'Ammonia', 'Pemvulkanan']
+  },
+
+  // --- Bab 5: Kimia Konsumer dan Industri ---
+  {
+    id: 'penghasilan-sabun',
+    title: 'Penghasilan Sabun (Saponifikasi)',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 5: Kimia Konsumer dan Industri',
+    category: 'Polimer & Bahan Industri',
+    description: 'Didihkan minyak sawit bersama natrium hidroksida pekat dan tambahkan natrium klorida untuk memendakkan sabun.',
+    learningStandard: 'SP 5.1.2 - Menghuraikan penyediaan sabun melalui saponifikasi',
+    iconName: 'Sparkles',
+    colorTheme: 'pink',
+    isImplemented: true,
+    tags: ['Saponifikasi', 'Tindakan Pencucian', 'Minyak Sawit', 'NaCl']
   }
 ];
