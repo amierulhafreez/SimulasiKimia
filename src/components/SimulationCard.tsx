@@ -71,20 +71,27 @@ export const SimulationCard: React.FC<Props> = ({
   onSelect,
 }) => {
   const isT4 = simulation.form === 'Tingkatan 4';
+  const isReady = simulation.isImplemented;
 
   return (
     <div
       data-testid={`sim-card-${simulation.id}`}
       data-form={simulation.form}
       onClick={() => onSelect(simulation)}
-      className="group relative rounded-[24px] p-6 bg-white border border-black/[0.06] flex flex-col justify-between cursor-pointer apple-bento-shadow apple-bento-shadow-hover"
+      className={`group relative h-full rounded-[24px] p-6 border flex flex-col justify-between cursor-pointer apple-bento-shadow apple-bento-shadow-hover ${
+        isReady
+          ? 'bg-white border-black/[0.06]'
+          : 'bg-[#fbfbfd] border-dashed border-black/[0.14]'
+      }`}
     >
       <div className="space-y-4">
         {/* Card Header: Apple Minimal Icon Tile & Metadata */}
         <div className="flex items-start justify-between gap-3">
           <div
             className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-300 ${
-              isT4
+              !isReady
+                ? 'bg-[#f5f5f7] text-[#6e6e73] group-hover:bg-[#1d1d1f] group-hover:text-white'
+                : isT4
                 ? 'bg-[#eef4ff] text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white'
                 : 'bg-[#ecfdf5] text-[#059669] group-hover:bg-[#059669] group-hover:text-white'
             }`}
@@ -102,10 +109,16 @@ export const SimulationCard: React.FC<Props> = ({
             >
               {simulation.form}
             </span>
-            <div className="flex items-center gap-1 text-[11px] text-[#86868b] font-medium">
-              <Eye className="w-3 h-3" />
-              <span className="tabular-nums">{views}</span>
-            </div>
+            {isReady ? (
+              <div className="flex items-center gap-1 text-[11px] text-[#86868b] font-medium">
+                <Eye className="w-3 h-3" />
+                <span className="tabular-nums">{views}</span>
+              </div>
+            ) : (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100/90 text-amber-800">
+                Akan Datang
+              </span>
+            )}
           </div>
         </div>
 
@@ -127,22 +140,30 @@ export const SimulationCard: React.FC<Props> = ({
 
       {/* Minimalist Card Footer */}
       <div className="pt-5 mt-5 border-t border-black/[0.06] flex items-center justify-between gap-2">
-        <span className="text-[12px] text-[#6e6e73] flex items-center gap-1.5 font-medium">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-          <span className="tabular-nums font-semibold text-[#1d1d1f]">{completed}</span>
-          <span>selesai</span>
-        </span>
+        {isReady ? (
+          <span className="text-[12px] text-[#6e6e73] flex items-center gap-1.5 font-medium">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span className="tabular-nums font-semibold text-[#1d1d1f]">{completed}</span>
+            <span>selesai</span>
+          </span>
+        ) : (
+          <span className="text-[11.5px] text-[#86868b] font-medium">
+            Modul bakal tiba
+          </span>
+        )}
 
         <button
           type="button"
           className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold inline-flex items-center gap-1 transition-all duration-200 ${
-            isT4
+            !isReady
+              ? 'bg-black/[0.06] text-[#424245] group-hover:bg-[#1d1d1f] group-hover:text-white'
+              : isT4
               ? 'bg-[#0071e3]/10 text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white'
               : 'bg-[#059669]/10 text-[#059669] group-hover:bg-[#059669] group-hover:text-white'
           }`}
         >
-          <Play className="w-3 h-3 fill-current" />
-          <span>Buka</span>
+          {isReady && <Play className="w-3 h-3 fill-current" />}
+          <span>{isReady ? 'Buka' : 'Info'}</span>
           <ChevronRight className="w-3.5 h-3.5 -ml-0.5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>

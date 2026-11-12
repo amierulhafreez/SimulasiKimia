@@ -110,9 +110,9 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return (
           <div className="space-y-6">
             <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl space-y-4">
-              <div className="flex items-center gap-2 text-purple-700 font-bold text-sm">
-                <Sparkles className="w-4 h-4" />
-                Modul Eksperimen Interaktif KSSM SPM
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 font-bold text-xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <span>Simulasi Interaktif Bakal Tiba (Dalam Pembangunan)</span>
               </div>
               <p className="text-slate-700 text-sm leading-relaxed">
                 {simulation.description}
@@ -121,7 +121,7 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-sm">
                   <h4 className="text-xs uppercase font-bold text-slate-500">Standard Pembelajaran DSKP:</h4>
-                  <p className="text-xs text-purple-900 font-medium">{simulation.learningStandard}</p>
+                  <p className="text-xs text-slate-800 font-medium">{simulation.learningStandard}</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-sm">
@@ -136,24 +136,11 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-purple-50 border border-purple-200 space-y-3">
-                <h4 className="text-xs font-bold text-purple-900 flex items-center gap-1.5">
-                  <BookOpen className="w-4 h-4 text-purple-600" /> Prosedur Standard Makmal Maya:
-                </h4>
-                <div className="space-y-2 text-xs text-slate-700">
-                  <div className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] shrink-0 font-bold">1</span>
-                    <span>Sediakan radas dan bahan kimia mengikut sukatan stoikiometri yang tepat.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] shrink-0 font-bold">2</span>
-                    <span>Jalankan pemanasan / tindak balas kimia dan perhatikan perubahan warna atau pembentukan gas.</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] shrink-0 font-bold">3</span>
-                    <span>Catat data pemerhatian ke dalam jadual laporan amali Sains SPM.</span>
-                  </div>
-                </div>
+              <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200 flex items-start gap-2.5 text-xs text-blue-950">
+                <BookOpen className="w-4 h-4 text-[#0071e3] shrink-0 mt-0.5" />
+                <span>
+                  Tajuk eksperimen ini telah didaftarkan mengikut susunan topik buku teks KSSM. Simulasi maya interaktif penuh bersama rajah radas dan pengiraan akan ditambah tidak lama lagi.
+                </span>
               </div>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { analytics } from './services/analytics';
 import { Header } from './components/Header';
 import { AppleHeroShowcase } from './components/AppleHeroShowcase';
 import { SimulationCard } from './components/SimulationCard';
+import { TopicCarouselRow } from './components/TopicCarouselRow';
 import { SimulationModal } from './components/SimulationModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
 import { Footer } from './components/Footer';
@@ -64,6 +65,12 @@ const T4_TOPICS: Array<{ key: string; babCode: string; title: string; match: (s:
     babCode: 'Bab 7',
     title: 'Kadar Tindak Balas',
     match: (s) => s.chapter.startsWith('Bab 7:'),
+  },
+  {
+    key: 't4-bab8',
+    babCode: 'Bab 8',
+    title: 'Bahan Buatan dalam Industri',
+    match: (s) => s.chapter.startsWith('Bab 8:'),
   },
 ];
 
@@ -278,7 +285,7 @@ export const App: React.FC = () => {
               Tingkatan 4.
             </h2>
             <span className="text-base sm:text-lg font-medium text-[#6e6e73]">
-              Bab 2 hingga Bab 7 · {t4Count} Simulasi
+              Bab 2 hingga Bab 8 · {t4Count} Simulasi
             </span>
           </div>
         </div>
@@ -329,40 +336,19 @@ export const App: React.FC = () => {
         })}
       </div>
 
-      {/* Topic Subsections */}
-      <div className="space-y-10">
+      {/* Topic Horizontal Slideable Carousels */}
+      <div className="space-y-8">
         {visibleT4Groups.map((group) => (
-          <div
+          <TopicCarouselRow
             key={group.key}
-            data-testid={`topic-group-${group.key}`}
-            className="space-y-4"
-          >
-            <div className="flex items-baseline justify-between gap-2">
-              <div className="flex items-baseline gap-2.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#0071e3]">
-                  {group.babCode}
-                </span>
-                <h3 className="font-display font-semibold text-lg sm:text-xl text-[#1d1d1f]">
-                  {group.title}
-                </h3>
-              </div>
-              <span className="text-xs font-medium text-[#86868b] whitespace-nowrap">
-                {group.items.length} simulasi
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {group.items.map((sim) => (
-                <SimulationCard
-                  key={sim.id}
-                  simulation={sim}
-                  views={analyticsData.simulations[sim.id]?.views || 0}
-                  completed={analyticsData.simulations[sim.id]?.completed || 0}
-                  onSelect={setSelectedSimulation}
-                />
-              ))}
-            </div>
-          </div>
+            groupKey={group.key}
+            babCode={group.babCode}
+            title={group.title}
+            items={group.items}
+            accentTheme="blue"
+            analyticsData={analyticsData}
+            onSelectSimulation={setSelectedSimulation}
+          />
         ))}
       </div>
     </section>
@@ -438,40 +424,19 @@ export const App: React.FC = () => {
         })}
       </div>
 
-      {/* Topic Subsections */}
-      <div className="space-y-10">
+      {/* Topic Horizontal Slideable Carousels */}
+      <div className="space-y-8">
         {visibleT5Groups.map((group) => (
-          <div
+          <TopicCarouselRow
             key={group.key}
-            data-testid={`topic-group-${group.key}`}
-            className="space-y-4"
-          >
-            <div className="flex items-baseline justify-between gap-2">
-              <div className="flex items-baseline gap-2.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#059669]">
-                  {group.babCode}
-                </span>
-                <h3 className="font-display font-semibold text-lg sm:text-xl text-[#1d1d1f]">
-                  {group.title}
-                </h3>
-              </div>
-              <span className="text-xs font-medium text-[#86868b] whitespace-nowrap">
-                {group.items.length} simulasi
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {group.items.map((sim) => (
-                <SimulationCard
-                  key={sim.id}
-                  simulation={sim}
-                  views={analyticsData.simulations[sim.id]?.views || 0}
-                  completed={analyticsData.simulations[sim.id]?.completed || 0}
-                  onSelect={setSelectedSimulation}
-                />
-              ))}
-            </div>
-          </div>
+            groupKey={group.key}
+            babCode={group.babCode}
+            title={group.title}
+            items={group.items}
+            accentTheme="emerald"
+            analyticsData={analyticsData}
+            onSelectSimulation={setSelectedSimulation}
+          />
         ))}
       </div>
     </section>

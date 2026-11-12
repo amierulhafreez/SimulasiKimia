@@ -57,6 +57,32 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     isImplemented: true,
     tags: ['7 Persamaan KSSM', 'Stoikiometri', 'Analisis Kualitatif', 'Analisis Kuantitatif']
   },
+  {
+    id: 'formula-empirik-mgo',
+    title: 'Formula Empirik Magnesium Oksida (MgO)',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 3: Konsep Mol, Formula dan Persamaan Kimia',
+    category: 'Jirim & Struktur Atom',
+    description: 'Menentukan formula empirik magnesium oksida (MgO) melalui pembakaran reben magnesium dalam mangkuk pijar.',
+    learningStandard: 'SP 3.3.2 - Menentukan formula empirik magnesium oksida melalui aktiviti',
+    iconName: 'Flame',
+    colorTheme: 'amber',
+    isImplemented: false,
+    tags: ['Formula Empirik', 'MgO', 'Mangkuk Pijar', 'Pembakaran Mg']
+  },
+  {
+    id: 'formula-empirik-cuo',
+    title: 'Formula Empirik Kuprum(II) Oksida (CuO)',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 3: Konsep Mol, Formula dan Persamaan Kimia',
+    category: 'Jirim & Struktur Atom',
+    description: 'Menentukan formula empirik kuprum(II) oksida (CuO) menggunakan aliran gas hidrogen kering.',
+    learningStandard: 'SP 3.3.3 - Menentukan formula empirik kuprum(II) oksida melalui aktiviti',
+    iconName: 'FlameKindling',
+    colorTheme: 'orange',
+    isImplemented: false,
+    tags: ['Formula Empirik', 'CuO', 'Gas Hidrogen Kering', 'Penurunan']
+  },
 
   // --- Bab 4: Jadual Berkala Unsur ---
   {
@@ -71,6 +97,19 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     colorTheme: 'orange',
     isImplemented: true,
     tags: ['Kumpulan 1', 'Kumpulan 17', 'Sifat Fizik', 'Persamaan Kimia']
+  },
+  {
+    id: 'sifat-oksida-kala-3',
+    title: 'Sifat Oksida Unsur Kala 3',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 4: Jadual Berkala Unsur',
+    category: 'Jadual Berkala',
+    description: 'Mengkaji sifat oksida unsur merentasi Kala 3 (sifat bes, amfoterik atau asid) apabila bertindak balas dengan asid dan alkali.',
+    learningStandard: 'SP 4.6.2 - Memerihal perubahan sifat oksida unsur apabila merentasi Kala 3',
+    iconName: 'TestTube',
+    colorTheme: 'cyan',
+    isImplemented: false,
+    tags: ['Kala 3', 'Oksida Bes', 'Amfoterik', 'Oksida Asid']
   },
 
   // --- Bab 5: Ikatan Kimia ---
@@ -235,6 +274,21 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['H₂O₂ + MnO₂', 'Ujian Kayu Uji', 'Graf O₂ vs Masa', 'Profil Tenaga Eₐ']
   },
 
+  // --- Bab 8: Bahan Buatan dalam Industri ---
+  {
+    id: 'kekerasan-aloi-logam-tulen',
+    title: 'Kekerasan Aloi vs Logam Tulen',
+    form: 'Tingkatan 4',
+    chapter: 'Bab 8: Bahan Buatan dalam Industri',
+    category: 'Polimer & Bahan Industri',
+    description: 'Membandingkan kekerasan aloi (gangsa) dengan logam tulen (kuprum tulen) melalui eksperimen menjatuhkan pemberat ke atas bebola keluli.',
+    learningStandard: 'SP 8.1.2 - Mengeksperimen untuk membandingkan sifat aloi dengan logam tulennya',
+    iconName: 'Layers',
+    colorTheme: 'amber',
+    isImplemented: false,
+    tags: ['Gangsa vs Kuprum', 'Bebola Keluli', 'Diameter Lekuk', 'Susunan Atom']
+  },
+
   // ================= TINGKATAN 5 (DISUSUN MENGIKUT TOPIK BAB 1–5) =================
   // --- Bab 1: Keseimbangan Redoks ---
   {
@@ -276,6 +330,71 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     isImplemented: true,
     tags: ['Fe₂O₃ + Karbon', 'Mangkuk Pijar', 'Relau Bagas', 'Sanga (CaSiO₃)', 'Ujian Magnet']
   },
+  {
+    id: 'pemindahan-elektron-tiub-u',
+    title: 'Pemindahan Elektron pada Suatu Jarak (Tiub-U)',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Mengkaji tindak balas redoks melalui pemindahan elektron pada suatu jarak menggunakan Tiub-U dan asid sulfurik sebagai titian garam.',
+    learningStandard: 'SP 1.1.1 - Menghuraikan tindak balas redoks melalui pemindahan elektron pada suatu jarak',
+    iconName: 'Zap',
+    colorTheme: 'blue',
+    isImplemented: false,
+    tags: ['Tiub-U', 'Pemindahan Elektron', 'Agen Pengoksidaan', 'Agen Penurunan']
+  },
+  {
+    id: 'penukaran-ion-ferum',
+    title: 'Penukaran Ion Fe²⁺ ↔ Fe³⁺',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Mengkaji pengoksidaan ion ferum(II), Fe²⁺ kepada ion ferum(III), Fe³⁺ dan penurunannya semula serta ujian pengesahan dengan larutan NaOH.',
+    learningStandard: 'SP 1.1.2 - Menjalankan aktiviti penukaran ion Fe²⁺ kepada Fe³⁺ dan sebaliknya',
+    iconName: 'TestTube',
+    colorTheme: 'emerald',
+    isImplemented: false,
+    tags: ['Ion Fe²⁺ & Fe³⁺', 'Air Bromin', 'Serbuk Zink', 'Ujian NaOH']
+  },
+  {
+    id: 'penyesaran-halogen-halida',
+    title: 'Penyesaran Halogen daripada Larutan Halida',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Mengkaji penyesaran halogen (klorin, bromin, iodin) daripada larutan halida dengan ujian lapisan 1,1,1-trikloroetana.',
+    learningStandard: 'SP 1.1.3 - Menjalankan eksperimen penyesaran halogen daripada larutan halidanya',
+    iconName: 'Droplets',
+    colorTheme: 'amber',
+    isImplemented: false,
+    tags: ['Cl₂, Br₂, I₂', 'Penyesaran Halogen', 'Larutan Halida', 'Lapisan Organik']
+  },
+  {
+    id: 'sel-kimia-voltan',
+    title: 'Sel Kimia: Voltan Pasangan Logam',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Menentukan nilai voltan dan kekutuban elektrod pelbagai pasangan logam berdasarkan nilai keupayaan elektrod piawai E⁰.',
+    learningStandard: 'SP 1.3.1 - Mengeksperimen untuk menentukan voltan pelbagai pasangan logam dalam sel kimia',
+    iconName: 'BatteryCharging',
+    colorTheme: 'indigo',
+    isImplemented: false,
+    tags: ['Sel Voltan', 'Nilai E⁰', 'Pasangan Logam', 'Terminal Anod & Katod']
+  },
+  {
+    id: 'pengaratan-besi-sentuhan-logam',
+    title: 'Pengaratan Besi & Sentuhan Logam Lain',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 1: Keseimbangan Redoks',
+    category: 'Elektrokimia',
+    description: 'Mengkaji kesan sentuhan paku besi dengan logam lebih elektropositif (Mg, Zn) dan kurang elektropositif (Sn, Cu) ke atas kadar pengaratan.',
+    learningStandard: 'SP 1.6.1 - Mengeksperimen untuk mengkaji kesan logam lain yang bersentuhan dengan besi ke atas pengaratan',
+    iconName: 'Magnet',
+    colorTheme: 'rose',
+    isImplemented: false,
+    tags: ['Pengaratan Besi', 'Agar-Agar Fenolftalein', 'Kalium Heksasianoferat(III)', 'Perlindungan Korban']
+  },
 
   // --- Bab 2: Sebatian Karbon ---
   {
@@ -303,6 +422,71 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     colorTheme: 'purple',
     isImplemented: true,
     tags: ['Alkana, Alkena & Alkohol', '4–7 Karbon', 'Penamaan IUPAC', 'Gamifikasi Isomer']
+  },
+  {
+    id: 'ujian-kimia-alkana-alkena',
+    title: 'Ujian Kimia Alkana vs Alkena',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 2: Sebatian Karbon',
+    category: 'Kimia Karbon',
+    description: 'Membezakan hidrokarbon tepu (alkana) dan tak tepu (alkena) melalui tindak balas dengan air bromin dan larutan KMnO₄ berasid.',
+    learningStandard: 'SP 2.3.1 - Membandingkan sifat kimia alkana dan alkena melalui ujian makmal',
+    iconName: 'TestTube',
+    colorTheme: 'amber',
+    isImplemented: false,
+    tags: ['Alkana vs Alkena', 'Air Bromin', 'KMnO₄ Berasid', 'Hidrokarbon Tak Tepu']
+  },
+  {
+    id: 'penapaian-penyulingan-etanol',
+    title: 'Penapaian Glukosa & Penyulingan Etanol',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 2: Sebatian Karbon',
+    category: 'Kimia Karbon',
+    description: 'Penyediaan etanol melalui penapaian glukosa dengan yis (enzim zimase) diikuti penyulingan berperingkat untuk memperoleh etanol tulen.',
+    learningStandard: 'SP 2.3.2 - Menghuraikan penyediaan etanol di makmal melalui penapaian dan penyulingan',
+    iconName: 'FlaskConical',
+    colorTheme: 'emerald',
+    isImplemented: false,
+    tags: ['Penapaian Glukosa', 'Yis & Zimase', 'Air Kapur', 'Penyulingan Berperingkat']
+  },
+  {
+    id: 'tindak-balas-kimia-alkena',
+    title: 'Tindak Balas Kimia Alkena',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 2: Sebatian Karbon',
+    category: 'Kimia Karbon',
+    description: 'Mengkaji tindak balas penambahan alkena (penghidrogenan, penghalogenan, penghidratan, pengoksidaan dan pempolimeran penambahan).',
+    learningStandard: 'SP 2.3.1 - Menghuraikan sifat kimia alkena dan menulis persamaan kimia berkaitan',
+    iconName: 'Atom',
+    colorTheme: 'indigo',
+    isImplemented: false,
+    tags: ['Tindak Balas Penambahan', 'Alkena', 'Mangkin Ni/H₃PO₄', 'Pempolimeran']
+  },
+  {
+    id: 'pengoksidaan-etanol',
+    title: 'Pengoksidaan Etanol kepada Asid Etanoik',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 2: Sebatian Karbon',
+    category: 'Kimia Karbon',
+    description: 'Pengoksidaan etanol menggunakan larutan kalium dikromat(VI) berasid atau KMnO₄ berasid di bawah refluks untuk menghasilkan asid etanoik.',
+    learningStandard: 'SP 2.3.3 - Menghuraikan sifat kimia alkohol termasuk pengoksidaan etanol',
+    iconName: 'Beaker',
+    colorTheme: 'orange',
+    isImplemented: false,
+    tags: ['Pengoksidaan Alkohol', 'K₂Cr₂O₇ Berasid', 'Asid Etanoik', 'Refluks']
+  },
+  {
+    id: 'pengesteran-alkohol-asid-karboksilik',
+    title: 'Pengesteran (Alkohol & Asid Karboksilik)',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 2: Sebatian Karbon',
+    category: 'Kimia Karbon',
+    description: 'Tindak balas pengesteran antara alkohol dan asid karboksilik dengan mangkin H₂SO₄ pekat menghasilkan ester berbau wangi buah-buahan.',
+    learningStandard: 'SP 2.3.4 - Menjalankan aktiviti makmal menyediakan ester daripada alkohol dan asid karboksilik',
+    iconName: 'Sparkles',
+    colorTheme: 'pink',
+    isImplemented: false,
+    tags: ['Pengesteran', 'Ester Wangi', 'H₂SO₄ Pekat', 'Asid Karboksilik']
   },
 
   // --- Bab 3: Termokimia ---
@@ -333,6 +517,32 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     tags: ['Metanol', 'Etanol', 'Propanol', 'Bekas Kuprum', 'Graf Rajah 3.14']
   },
   {
+    id: 'haba-peneutralan',
+    title: 'Termokimia: Haba Peneutralan',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 3: Termokimia',
+    category: 'Termokimia',
+    description: 'Menentukan dan membandingkan haba peneutralan antara asid kuat/lemah dengan alkali kuat/lemah menggunakan cawan polistirena.',
+    learningStandard: 'SP 3.2.3 - Mengeksperimen untuk menentukan haba peneutralan asid dan alkali',
+    iconName: 'Thermometer',
+    colorTheme: 'rose',
+    isImplemented: false,
+    tags: ['Haba Peneutralan', 'Asid Kuat & Lemah', '-57.3 kJ mol⁻¹', 'Q = mcθ']
+  },
+  {
+    id: 'haba-pemendakan',
+    title: 'Termokimia: Haba Pemendakan',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 3: Termokimia',
+    category: 'Termokimia',
+    description: 'Menentukan haba pemendakan argentum klorida (AgCl) atau barium sulfat (BaSO₄) dan mengira perubahan haba tindak balas.',
+    learningStandard: 'SP 3.2.1 - Menentukan haba pemendakan melalui aktiviti eksperimen',
+    iconName: 'Droplets',
+    colorTheme: 'sky',
+    isImplemented: false,
+    tags: ['Haba Pemendakan', 'AgCl / BaSO₄', 'Tindak Balas Penguraian Ganda Dua', 'ΔH']
+  },
+  {
     id: 'nilai-bahan-api',
     title: 'Nilai Bahan Api: Etanol, Petrol & Hidrogen',
     form: 'Tingkatan 5',
@@ -360,6 +570,19 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     isImplemented: true,
     tags: ['Membran Protein', 'Asid Metanoik', 'Ammonia', 'Pemvulkanan']
   },
+  {
+    id: 'kekenyalan-getah-asli-tervulkan',
+    title: 'Kekenyalan Getah Asli vs Getah Tervulkan',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 4: Kimia Polimer',
+    category: 'Polimer & Bahan Industri',
+    description: 'Mengkaji sifat kekenyalan kepingan getah asli berbanding getah tervulkan dari segi regangan dan pemulihan panjang asal selepas pemberat dialihkan.',
+    learningStandard: 'SP 4.2.2 - Mengeksperimen untuk membandingkan kekenyalan getah tervulkan dan getah tak tervulkan',
+    iconName: 'Scale',
+    colorTheme: 'indigo',
+    isImplemented: false,
+    tags: ['Getah Asli vs Tervulkan', 'Rangkai Silang Sulfur', 'Regangan & Kekenyalan', 'Pemberat']
+  },
 
   // --- Bab 5: Kimia Konsumer dan Industri ---
   {
@@ -374,5 +597,18 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     colorTheme: 'pink',
     isImplemented: true,
     tags: ['Saponifikasi', 'Tindakan Pencucian', 'Minyak Sawit', 'NaCl']
+  },
+  {
+    id: 'pencucian-sabun-detergen-air-liat',
+    title: 'Tindakan Pencucian Sabun & Detergen dalam Air Liat',
+    form: 'Tingkatan 5',
+    chapter: 'Bab 5: Kimia Konsumer dan Industri',
+    category: 'Polimer & Bahan Industri',
+    description: 'Mengkaji keberkesanan tindakan pencucian sabun dan detergen dalam air liat (mengandungi ion Ca²⁺ / Mg²⁺) berbanding air lembut.',
+    learningStandard: 'SP 5.2.3 - Membandingkan tindakan pencucian sabun dan detergen dalam air liat dan air lembut',
+    iconName: 'Droplets',
+    colorTheme: 'blue',
+    isImplemented: false,
+    tags: ['Sabun vs Detergen', 'Air Liat (Ca²⁺/Mg²⁺)', 'Kekat (Scum)', 'Air Lembut']
   }
 ];
