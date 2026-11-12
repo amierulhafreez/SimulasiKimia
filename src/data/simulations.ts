@@ -281,12 +281,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 8: Bahan Buatan dalam Industri',
     category: 'Polimer & Bahan Industri',
-    description: 'Membandingkan kekerasan aloi (gangsa) dengan logam tulen (kuprum tulen) melalui eksperimen menjatuhkan pemberat ke atas bebola keluli.',
+    description: 'Dwi-paparan Rajah 8.3 & susunan atom (0–20% Sn): lepas pemberat 1 kg, ulang tayang 0.25× dengan vektor daya & rekod diameter lekuk.',
     learningStandard: 'SP 8.1.2 - Mengeksperimen untuk membandingkan sifat aloi dengan logam tulennya',
     iconName: 'Layers',
     colorTheme: 'amber',
-    isImplemented: false,
-    tags: ['Gangsa vs Kuprum', 'Bebola Keluli', 'Diameter Lekuk', 'Susunan Atom']
+    isImplemented: true,
+    tags: ['Rajah 8.3', 'Gangsa vs Kuprum', 'Gerak Perlahan 0.25×', 'Vektor Daya']
   },
 
   // ================= TINGKATAN 5 (DISUSUN MENGIKUT TOPIK BAB 1–5) =================
