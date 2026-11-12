@@ -293,16 +293,16 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
   },
   {
     id: 'penentuan-isomer',
-    title: 'Penentuan & Melukis Isomer Alkana/Alkena',
+    title: 'Penentuan & Melukis Isomer Alkana, Alkena dan Alkohol',
     form: 'Tingkatan 5',
     chapter: 'Bab 2: Sebatian Karbon',
     category: 'Kimia Karbon',
-    description: 'Terokai keisomeran rantai dan kedudukan bagi butana, butena dan alkohol. Uji nama IUPAC secara interaktif.',
-    learningStandard: 'SP 2.4.1 - Membina dan menamakan isomer mengikut IUPAC',
+    description: 'Pembangun struktur molekul berpandu kekangan (4 hingga 7 karbon): ubah lokasi cabang alkil, ikatan ganda dua dan kumpulan —OH untuk meneroka serta mengumpul semua isomer IUPAC.',
+    learningStandard: 'SP 2.4.1 & SP 2.4.2 - Memerihal keisomeran struktur serta membina dan menamakan isomer mengikut IUPAC',
     iconName: 'Network',
     colorTheme: 'purple',
     isImplemented: true,
-    tags: ['Isomer Rantai', 'Isomer Kedudukan', 'Penamaan IUPAC']
+    tags: ['Alkana, Alkena & Alkohol', '4–7 Karbon', 'Penamaan IUPAC', 'Gamifikasi Isomer']
   },
 
   // --- Bab 3: Termokimia ---
