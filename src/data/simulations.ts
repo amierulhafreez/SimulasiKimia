@@ -433,7 +433,7 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     learningStandard: 'SP 2.3.1 - Membandingkan sifat kimia alkana dan alkena melalui ujian makmal',
     iconName: 'TestTube',
     colorTheme: 'amber',
-    isImplemented: false,
+    isImplemented: true,
     tags: ['Alkana vs Alkena', 'Air Bromin', 'KMnO₄ Berasid', 'Hidrokarbon Tak Tepu']
   },
   {
