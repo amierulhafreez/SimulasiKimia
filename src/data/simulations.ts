@@ -485,8 +485,8 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     learningStandard: 'SP 2.3.4 - Menjalankan aktiviti makmal menyediakan ester daripada alkohol dan asid karboksilik',
     iconName: 'Sparkles',
     colorTheme: 'pink',
-    isImplemented: false,
-    tags: ['Pengesteran', 'Ester Wangi', 'H₂SO₄ Pekat', 'Asid Karboksilik']
+    isImplemented: true,
+    tags: ['Pengesteran', 'Ester Wangi', 'H₂SO₄ Pekat', 'Asid Karboksilik', 'IUPAC Ester']
   },
 
   // --- Bab 3: Termokimia ---
