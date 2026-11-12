@@ -134,16 +134,16 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
   },
   {
     id: 'daya-tarikan-zarah',
-    title: 'Penerangan Daya Tarikan Antara Zarah',
+    title: 'Penerangan Daya Tarikan Antara Zarah (Tug of War)',
     form: 'Tingkatan 4',
-    chapter: 'Bab 5: Ikatan Kimia',
+    chapter: 'Bab 4 & Bab 5: Jadual Berkala dan Ikatan Kimia',
     category: 'Ikatan Kimia',
-    description: 'Visualisasi 3D daya tarikan Van der Waals yang lemah berbanding ikatan hidrogen dan ikatan elektrostatik yang kuat.',
-    learningStandard: 'SP 5.4.1 - Menerangkan ikatan hidrogen dan daya Van der Waals',
+    description: 'Mekanik Tug of War interaktif yang membandingkan Daya Tarikan Antara Zarah (Van der Waals), Tarikan Nukleus–Elektron Valens, Daya Tarikan Elektrostatik dan Ikatan Hidrogen berserta duel 1v1.',
+    learningStandard: 'SP 4.4.3, 4.5.3, 5.2.1, 5.4.1–5.4.2, 5.6.1 & 5.7.1 - Membandingkan daya tarikan dalam silibus KSSM',
     iconName: 'Magnet',
     colorTheme: 'sky',
     isImplemented: true,
-    tags: ['Ikatan Hidrogen', 'Van der Waals', 'Takat Didih']
+    tags: ['Tug of War', 'Van der Waals', 'Nukleus & Elektron', 'Elektrostatik', 'Ikatan Hidrogen']
   },
   {
     id: 'penyediaan-larutan-piawai',
