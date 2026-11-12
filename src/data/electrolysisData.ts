@@ -1,4 +1,4 @@
-export type ElectrolyteId = 'cuso4' | 'nacl' | 'h2so4';
+export type ElectrolyteId = 'cuso4' | 'nacl' | 'h2so4' | 'pbbr2';
 export type ElectrodeType = 'karbon' | 'kuprum';
 
 export interface ElectrolyteSpec {
@@ -6,6 +6,7 @@ export interface ElectrolyteSpec {
   name: string;
   formula: string;
   shortLabel: string;
+  stateKind: 'aqueous' | 'molten';
   baseColorHex: string;
   defaultConcentration: number;
   note: string;
@@ -17,6 +18,7 @@ export const ELECTROLYTE_SPECS: ElectrolyteSpec[] = [
     name: 'Larutan Kuprum(II) sulfat',
     formula: 'CuSO₄(ak)',
     shortLabel: 'CuSO₄',
+    stateKind: 'aqueous',
     baseColorHex: '#0284c7',
     defaultConcentration: 0.5,
     note: 'Mengandungi ion Cu²⁺, H⁺, SO₄²⁻ dan OH⁻.',
@@ -26,8 +28,9 @@ export const ELECTROLYTE_SPECS: ElectrolyteSpec[] = [
     name: 'Larutan Natrium klorida',
     formula: 'NaCl(ak)',
     shortLabel: 'NaCl',
+    stateKind: 'aqueous',
     baseColorHex: '#0ea5e9',
-    defaultConcentration: 1.0,
+    defaultConcentration: 0.1,
     note: 'Mengandungi ion halida Cl⁻ bersama Na⁺, H⁺ dan OH⁻.',
   },
   {
@@ -35,21 +38,38 @@ export const ELECTROLYTE_SPECS: ElectrolyteSpec[] = [
     name: 'Asid Sulfurik cair',
     formula: 'H₂SO₄(ak)',
     shortLabel: 'H₂SO₄',
+    stateKind: 'aqueous',
     baseColorHex: '#38bdf8',
     defaultConcentration: 0.1,
     note: 'Mengandungi ion H⁺, SO₄²⁻ dan OH⁻ (ion SO₄²⁻ tidak dinyahcas).',
   },
+  {
+    id: 'pbbr2',
+    name: 'Leburan Plumbum(II) bromida',
+    formula: 'PbBr₂(ce)',
+    shortLabel: 'PbBr₂',
+    stateKind: 'molten',
+    baseColorHex: '#94a3b8',
+    defaultConcentration: 1.0,
+    note: 'Sebatian ion lebur — hanya mengandungi ion Pb²⁺ dan ion Br⁻ (tiada air).',
+  },
 ];
 
-/** Discrete smooth steps across cair (0.001) to pekat (2.0) for crisp control around 0.5 threshold. */
+/**
+ * Extended concentration steps from ultra-dilute 0.0001 mol dm⁻³ (matching KSSM Eksperimen 1B)
+ * through the 0.001 threshold up to 2.0 mol dm⁻³.
+ */
 export const CONCENTRATION_STEPS = [
-  0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0,
+  0.0001, 0.0002, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 1.5, 2.0,
 ] as const;
 
+export const HALIDE_CONCENTRATION_THRESHOLD = 0.001;
+
 export function formatConcentration(conc: number): string {
+  if (conc < 0.001) return conc.toFixed(4);
   if (conc < 0.01) return conc.toFixed(3);
-  if (conc < 0.1) return conc.toFixed(2);
-  return conc.toFixed(1).replace(/\.0$/, '.0');
+  if (Math.abs(conc * 10 - Math.round(conc * 10)) > 1e-6) return conc.toFixed(2);
+  return conc.toFixed(1);
 }
 
 export interface IonVisualCount {
@@ -75,56 +95,234 @@ export interface ElectrolysisOutcome {
   electrolyte: ElectrolyteSpec;
   concentration: number;
   electrodeType: ElectrodeType;
+  isMolten: boolean;
+  isMoltenHeated: boolean;
+  canConduct: boolean;
   isConcentratedHalide: boolean;
   presentCations: string[];
   presentAnions: string[];
   anode: {
     selectedSpecies: string;
-    factorTag: 'Nilai E⁰' | 'Faktor Kepekatan' | 'Jenis Elektrod Aktif';
+    factorTag:
+      | 'Nilai E⁰ (Faktor 1)'
+      | 'Kepekatan (Faktor 2)'
+      | 'Elektrod Aktif (Faktor 3)'
+      | 'Sebatian Lebur'
+      | 'Tiada Arus (Pepejal)';
     reason: string;
     halfEquation: string;
     productName: string;
-    productVisual: 'gas_o2' | 'gas_cl2' | 'copper_dissolve';
+    productVisual: 'gas_o2' | 'gas_cl2' | 'gas_br2' | 'copper_dissolve' | 'none';
     observationIdle: string;
     observationActive: string;
   };
   cathode: {
     selectedSpecies: string;
-    factorTag: 'Nilai E⁰';
+    factorTag: 'Nilai E⁰' | 'Sebatian Lebur' | 'Tiada Arus (Pepejal)';
     reason: string;
     halfEquation: string;
     productName: string;
-    productVisual: 'deposit_cu' | 'gas_h2';
+    productVisual: 'deposit_cu' | 'deposit_pb' | 'gas_h2' | 'none';
     observationIdle: string;
     observationActive: string;
   };
   overallEquation: string;
   solutionBehaviorText: string;
-  solutionMode: 'fades_blue' | 'constant_blue' | 'clear_unchanged' | 'tints_blue';
+  solutionMode: 'fades_blue' | 'constant_blue' | 'clear_unchanged' | 'tints_blue' | 'molten_liquid' | 'solid_salt';
   anodeZoomIons: IonVisualCount[];
   cathodeZoomIons: IonVisualCount[];
-  halideRatioLabel: string;
+  ionCompositionLabel: string;
   quizQuestions: PredictionQuestion[];
 }
 
 export function resolveElectrolysisOutcome(
   electrolyteId: ElectrolyteId,
   concentration: number,
-  electrodeType: ElectrodeType
+  electrodeType: ElectrodeType,
+  isMoltenHeated = true
 ): ElectrolysisOutcome {
   const electrolyte =
     ELECTROLYTE_SPECS.find((e) => e.id === electrolyteId) ?? ELECTROLYTE_SPECS[0];
 
-  const isActiveCu = electrodeType === 'kuprum';
-  const isConcentratedHalide = electrolyteId === 'nacl' && concentration >= 0.5;
+  // Molten compound: PbBr2 (Aktiviti Makmal 1E, KSSM Tingkatan 5 m.s. 34-36)
+  if (electrolyteId === 'pbbr2') {
+    const presentCations = ['Pb²⁺'];
+    const presentAnions = ['Br⁻'];
 
-  // Compute visual concentration-scaled ion counts in the zoom lenses
-  const concFactor = Math.max(
-    0,
-    Math.min(1, (Math.log10(concentration) - Math.log10(0.001)) / (Math.log10(2.0) - Math.log10(0.001)))
-  );
-  const soluteIonCount = Math.round(2 + concFactor * 9); // 2 (dilute) -> 11 (pekat)
-  const waterIonCount = Math.max(3, Math.round(8 - concFactor * 5)); // 8 (dilute) -> 3 (pekat)
+    const anodeZoomIons: IonVisualCount[] = [
+      {
+        symbol: 'Br⁻',
+        charge: '−',
+        kind: 'anion',
+        color: '#b45309',
+        textColor: '#fef3c7',
+        count: 7,
+        isDischarged: isMoltenHeated,
+      },
+    ];
+
+    const cathodeZoomIons: IonVisualCount[] = [
+      {
+        symbol: 'Pb²⁺',
+        charge: '2+',
+        kind: 'cation',
+        color: '#94a3b8',
+        textColor: '#0f172a',
+        count: 5,
+        isDischarged: isMoltenHeated,
+      },
+    ];
+
+    if (!isMoltenHeated) {
+      return {
+        electrolyte,
+        concentration: 1.0,
+        electrodeType: 'karbon',
+        isMolten: true,
+        isMoltenHeated: false,
+        canConduct: false,
+        isConcentratedHalide: false,
+        presentCations,
+        presentAnions,
+        anode: {
+          selectedSpecies: 'Tiada nyahcas',
+          factorTag: 'Tiada Arus (Pepejal)',
+          reason:
+            'Dalam keadaan pepejal, ion Pb²⁺ dan ion Br⁻ terikat dalam kekisi ion tetap dan tidak bebas bergerak untuk mengalirkan arus.',
+          halfEquation: 'Tiada tindak balas',
+          productName: 'Tiada hasil',
+          productVisual: 'none',
+          observationIdle: 'Serbuk putih PbBr₂ dalam mangkuk pijar — penunu Bunsen belum dinyalakan.',
+          observationActive: 'Tiada perubahan — jarum ammeter tidak terpesong (litar tidak lengkap dalam pepejal).',
+        },
+        cathode: {
+          selectedSpecies: 'Tiada nyahcas',
+          factorTag: 'Tiada Arus (Pepejal)',
+          reason: 'Ion Pb²⁺ tidak bebas bergerak ke katod selagi pepejal PbBr₂ belum dileburkan.',
+          halfEquation: 'Tiada tindak balas',
+          productName: 'Tiada hasil',
+          productVisual: 'none',
+          observationIdle: 'Elektrod karbon bersih; pepejal PbBr₂ belum melebur.',
+          observationActive: 'Tiada enapan terbentuk kerana ion terperangkap dalam kekisi pepejal.',
+        },
+        overallEquation: 'Tiada tindak balas (panaskan PbBr₂ > 373 °C untuk melebur)',
+        solutionBehaviorText:
+          'Pepejal PbBr₂ TIDAK mengkonduksikan elektrik kerana ion Pb²⁺ dan Br⁻ berada dalam kekisi tetap.',
+        solutionMode: 'solid_salt',
+        anodeZoomIons,
+        cathodeZoomIons,
+        ionCompositionLabel: 'Kekisi Pepejal PbBr₂: Ion Pb²⁺ & Br⁻ Tidak Bebas Bergerak',
+        quizQuestions: [
+          {
+            target: 'Anod (+)',
+            prompt: 'Jika serbuk PbBr₂ TIDAK dipanaskan (kekal pepejal), adakah arus elektrik mengalir apabila suis dihidupkan?',
+            options: [
+              { id: 'yes_gas', label: 'Ya, gas perang bromin terus terbebas pada anod' },
+              { id: 'no_lattice', label: 'Tidak, kerana ion Pb²⁺ dan Br⁻ tidak bebas bergerak dalam kekisi pepejal' },
+            ],
+            correctOptionId: 'no_lattice',
+            explanationOnWrong:
+              'Salah! Sebatian ion dalam keadaan pepejal tidak mengkonduksikan elektrik kerana ion-ionnya terikat dalam struktur kekisi tetap.',
+            explanationOnRight:
+              'Tepat! Pepejal PbBr₂ perlu dipanaskan sehingga lebur supaya ion Pb²⁺ dan Br⁻ bebas bergerak.',
+          },
+        ],
+      };
+    }
+
+    return {
+      electrolyte,
+      concentration: 1.0,
+      electrodeType: 'karbon',
+      isMolten: true,
+      isMoltenHeated: true,
+      canConduct: true,
+      isConcentratedHalide: false,
+      presentCations,
+      presentAnions,
+      anode: {
+        selectedSpecies: 'Ion Br⁻',
+        factorTag: 'Sebatian Lebur',
+        reason:
+          'Tiada air hadir dalam leburan PbBr₂. Hanya ion bromida (Br⁻) hadir sebagai anion dan dioksidakan membebaskan elektron.',
+        halfEquation: '2Br⁻(ce) → Br₂(g) + 2e⁻',
+        productName: 'Gas bromin, Br₂',
+        productVisual: 'gas_br2',
+        observationIdle: 'PbBr₂ telah dileburkan — sedia untuk elektrolisis dengan elektrod karbon.',
+        observationActive: 'Gas perang berbau sengit (wap bromin, Br₂) terbebas pada anod.',
+      },
+      cathode: {
+        selectedSpecies: 'Ion Pb²⁺',
+        factorTag: 'Sebatian Lebur',
+        reason:
+          'Hanya ion plumbum(II), Pb²⁺ hadir sebagai kation dalam leburan; ia menerima 2e⁻ untuk membentuk logam plumbum.',
+        halfEquation: 'Pb²⁺(ce) + 2e⁻ → Pb(ce)',
+        productName: 'Logam plumbum, Pb',
+        productVisual: 'deposit_pb',
+        observationIdle: 'Suis dimatikan — tiada logam terbentuk pada katod.',
+        observationActive: 'Enapan/butiran pepejal kelabu berkilat (logam plumbum, Pb) terbentuk pada katod.',
+      },
+      overallEquation: 'Pb²⁺(ce) + 2Br⁻(ce) → Pb(ce) + Br₂(g)',
+      solutionBehaviorText:
+        'Leburan PbBr₂(ce) mengandungi ion Pb²⁺ & Br⁻ yang bebas bergerak (tiada ion H⁺ atau OH⁻).',
+      solutionMode: 'molten_liquid',
+      anodeZoomIons,
+      cathodeZoomIons,
+      ionCompositionLabel: 'Komposisi Leburan: Ion Pb²⁺ (2+) & Br⁻ (−) Sahaja (Tiada Air)',
+      quizQuestions: [
+        {
+          target: 'Anod (+)',
+          prompt: 'Leburan plumbum(II) bromida, PbBr₂ dielektrolisis menggunakan elektrod karbon. Apakah yang terbentuk di Anod (+)?',
+          options: [
+            { id: 'br2', label: 'Ion Br⁻ dioksidakan menghasilkan gas perang bromin, Br₂' },
+            { id: 'o2', label: 'Ion OH⁻ dinyahcas menghasilkan gas oksigen, O₂' },
+          ],
+          correctOptionId: 'br2',
+          explanationOnWrong:
+            'Kurang tepat! Dalam sebatian leburan PbBr₂ tiada air (tiada OH⁻). Hanya ion Br⁻ wujud sebagai anion, lalu membentuk gas perang Br₂.',
+          explanationOnRight:
+            'Tepat! Dua ion bromida melepaskan dua elektron membentuk molekul bromin (2Br⁻ → Br₂ + 2e⁻).',
+        },
+        {
+          target: 'Katod (−)',
+          prompt: 'Apakah hasil yang terbentuk di Katod (−) bagi leburan PbBr₂(ce)?',
+          options: [
+            { id: 'pb', label: 'Logam plumbum, Pb (enapan kelabu berkilat)' },
+            { id: 'h2', label: 'Gas hidrogen, H₂ (gelembung tidak berwarna)' },
+          ],
+          correctOptionId: 'pb',
+          explanationOnWrong:
+            'Salah! Tiada ion H⁺ dalam leburan. Hanya ion Pb²⁺ bergerak ke katod dan diturunkan menjadi logam plumbum.',
+          explanationOnRight:
+            'Tepat! Ion Pb²⁺ menerima 2 elektron membentuk logam plumbum kelabu berkilat (Pb²⁺ + 2e⁻ → Pb).',
+        },
+      ],
+    };
+  }
+
+  const isActiveCu = electrodeType === 'kuprum';
+  // Rule per user + KSSM: concentration factor (2nd factor) selects halide ONLY above 0.001 M
+  const isConcentratedHalide =
+    electrolyteId === 'nacl' && concentration > HALIDE_CONCENTRATION_THRESHOLD;
+
+  // Visual ion counts: ensure OH⁻ outnumbers solute at <= 0.001 M, and solute clearly leads above 0.001 M
+  let soluteIonCount: number;
+  let waterIonCount: number;
+  if (concentration <= HALIDE_CONCENTRATION_THRESHOLD) {
+    const tDilute = Math.max(
+      0,
+      Math.min(1, (Math.log10(concentration) - Math.log10(0.0001)) / (Math.log10(0.001) - Math.log10(0.0001)))
+    );
+    soluteIonCount = Math.round(1 + tDilute * 2); // 1 (0.0001M) -> 3 (0.001M)
+    waterIonCount = Math.round(9 - tDilute * 2);  // 9 (0.0001M) -> 7 (0.001M)
+  } else {
+    const tConc = Math.max(
+      0,
+      Math.min(1, (Math.log10(concentration) - Math.log10(0.005)) / (Math.log10(2.0) - Math.log10(0.005)))
+    );
+    soluteIonCount = Math.round(6 + tConc * 6); // 6 (0.005M) -> 12 (2.0M)
+    waterIonCount = Math.round(4 - tConc * 2);  // 4 (0.005M) -> 2 (2.0M)
+  }
 
   if (electrolyteId === 'cuso4') {
     const presentCations = ['Cu²⁺', 'H⁺'];
@@ -133,7 +331,8 @@ export function resolveElectrolysisOutcome(
     const cathode = {
       selectedSpecies: 'Ion Cu²⁺',
       factorTag: 'Nilai E⁰' as const,
-      reason: 'Nilai E⁰ bagi Cu²⁺ (+0.34 V) lebih positif berbanding ion H⁺ (0.00 V), maka Cu²⁺ lebih mudah diturunkan.',
+      reason:
+        'Nilai E⁰ bagi Cu²⁺ (+0.34 V) lebih positif berbanding ion H⁺ (0.00 V), maka Cu²⁺ lebih mudah diturunkan.',
       halfEquation: 'Cu²⁺(ak) + 2e⁻ → Cu(p)',
       productName: 'Logam kuprum, Cu',
       productVisual: 'deposit_cu' as const,
@@ -144,23 +343,27 @@ export function resolveElectrolysisOutcome(
     const anode = isActiveCu
       ? {
           selectedSpecies: 'Atom Cu (Elektrod aktif)',
-          factorTag: 'Jenis Elektrod Aktif' as const,
-          reason: 'Elektrod kuprum ialah elektrod aktif. Tiada anion dinyahcas; atom Cu pada anod mengion melepaskan elektron membentuk Cu²⁺.',
+          factorTag: 'Elektrod Aktif (Faktor 3)' as const,
+          reason:
+            'Elektrod kuprum ialah elektrod aktif. Tiada anion dinyahcas; atom Cu pada anod mengion melepaskan elektron membentuk Cu²⁺.',
           halfEquation: 'Cu(p) → Cu²⁺(ak) + 2e⁻',
           productName: 'Ion kuprum(II), Cu²⁺',
           productVisual: 'copper_dissolve' as const,
           observationIdle: 'Suis dimatikan — kepingan kuprum anod masih utuh.',
-          observationActive: 'Elektrod kuprum anod menipis/terkakis; warna biru larutan CuSO₄ kekal sama.',
+          observationActive:
+            'Elektrod kuprum anod menipis/terkakis; warna biru larutan CuSO₄ kekal sama.',
         }
       : {
           selectedSpecies: 'Ion OH⁻',
-          factorTag: 'Nilai E⁰' as const,
-          reason: 'Nilai E⁰ bagi OH⁻ (+0.40 V) kurang positif berbanding ion SO₄²⁻ (+2.01 V), maka ion OH⁻ lebih mudah dioksidakan.',
+          factorTag: 'Nilai E⁰ (Faktor 1)' as const,
+          reason:
+            'Nilai E⁰ bagi OH⁻ (+0.40 V) kurang positif berbanding ion SO₄²⁻ (+2.01 V), maka ion OH⁻ lebih mudah dioksidakan.',
           halfEquation: '4OH⁻(ak) → O₂(g) + 2H₂O(ce) + 4e⁻',
           productName: 'Gas oksigen, O₂',
           productVisual: 'gas_o2' as const,
           observationIdle: 'Suis dimatikan — tiada gelembung gas pada anod.',
-          observationActive: 'Gelembung gas tidak berwarna (O₂) terbebas; warna biru larutan CuSO₄ beransur pudar.',
+          observationActive:
+            'Gelembung gas tidak berwarna (O₂) terbebas; warna biru larutan CuSO₄ beransur pudar.',
         };
 
     const anodeZoomIons: IonVisualCount[] = [
@@ -209,6 +412,9 @@ export function resolveElectrolysisOutcome(
       electrolyte,
       concentration,
       electrodeType,
+      isMolten: false,
+      isMoltenHeated: false,
+      canConduct: true,
       isConcentratedHalide: false,
       presentCations,
       presentAnions,
@@ -223,7 +429,7 @@ export function resolveElectrolysisOutcome(
       solutionMode: isActiveCu ? 'constant_blue' : 'fades_blue',
       anodeZoomIons,
       cathodeZoomIons,
-      halideRatioLabel: `SO₄²⁻ (${soluteIonCount}) : OH⁻ (${waterIonCount})`,
+      ionCompositionLabel: `Nisbah Anion: SO₄²⁻ (${soluteIonCount}) : OH⁻ (${waterIonCount})`,
       quizQuestions: [
         {
           target: 'Anod (+)',
@@ -267,7 +473,8 @@ export function resolveElectrolysisOutcome(
     const cathode = {
       selectedSpecies: 'Ion H⁺',
       factorTag: 'Nilai E⁰' as const,
-      reason: 'Nilai E⁰ bagi H⁺ (0.00 V) jauh lebih positif berbanding ion Na⁺ (−2.71 V), maka H⁺ lebih mudah diturunkan.',
+      reason:
+        'Nilai E⁰ bagi H⁺ (0.00 V) jauh lebih positif berbanding ion Na⁺ (−2.71 V), maka H⁺ lebih mudah diturunkan.',
       halfEquation: '2H⁺(ak) + 2e⁻ → H₂(g)',
       productName: 'Gas hidrogen, H₂',
       productVisual: 'gas_h2' as const,
@@ -278,29 +485,32 @@ export function resolveElectrolysisOutcome(
     const anode = isActiveCu
       ? {
           selectedSpecies: 'Atom Cu (Elektrod aktif)',
-          factorTag: 'Jenis Elektrod Aktif' as const,
-          reason: 'Elektrod kuprum aktif lebih mudah dioksidakan berbanding nyahcas ion OH⁻ dan Cl⁻.',
+          factorTag: 'Elektrod Aktif (Faktor 3)' as const,
+          reason:
+            'Elektrod kuprum aktif lebih mudah dioksidakan berbanding nyahcas ion OH⁻ mahupun Cl⁻.',
           halfEquation: 'Cu(p) → Cu²⁺(ak) + 2e⁻',
           productName: 'Ion kuprum(II), Cu²⁺',
           productVisual: 'copper_dissolve' as const,
           observationIdle: 'Suis dimatikan — elektrod kuprum anod masih utuh.',
-          observationActive: 'Anod kuprum menipis dan larutan di sekitar anod bertukar biru pucat (ion Cu²⁺ terhasil).',
+          observationActive:
+            'Anod kuprum menipis dan larutan di sekitar anod bertukar biru pucat (ion Cu²⁺ terhasil).',
         }
       : isConcentratedHalide
       ? {
-          selectedSpecies: 'Ion Cl⁻ (Pekat)',
-          factorTag: 'Faktor Kepekatan' as const,
-          reason: `Pada kepekatan tinggi (${formatConcentration(concentration)} mol dm⁻³ ≥ 0.5), bilangan ion Cl⁻ jauh melebihi OH⁻ maka Cl⁻ dipilih untuk dinyahcas walaupun nilai E⁰ (+1.36 V) lebih positif.`,
+          selectedSpecies: `Ion Cl⁻ (> 0.001 M)`,
+          factorTag: 'Kepekatan (Faktor 2)' as const,
+          reason: `Kepekatan ${formatConcentration(concentration)} mol dm⁻³ melebihi 0.001 mol dm⁻³. Mengikut faktor kepekatan (faktor ke-2), ion halida Cl⁻ melebihi OH⁻ maka Cl⁻ dipilih walaupun E⁰ (+1.36 V) lebih positif.`,
           halfEquation: '2Cl⁻(ak) → Cl₂(g) + 2e⁻',
           productName: 'Gas klorin, Cl₂',
           productVisual: 'gas_cl2' as const,
           observationIdle: 'Suis dimatikan — tiada gas kuning kehijauan terbebas.',
-          observationActive: 'Gelembung gas kuning kehijauan berbau sengit (Cl₂) terbebas pada anod.',
+          observationActive:
+            'Gelembung gas kuning kehijauan berbau sengit (Cl₂) terbebas pada anod.',
         }
       : {
-          selectedSpecies: 'Ion OH⁻ (Larutan cair)',
-          factorTag: 'Nilai E⁰' as const,
-          reason: `Pada kepekatan cair (${formatConcentration(concentration)} mol dm⁻³ < 0.5), bilangan ion Cl⁻ rendah; nilai E⁰ ion OH⁻ (+0.40 V) lebih rendah berbanding Cl⁻ (+1.36 V) menentukan pemilihan.`,
+          selectedSpecies: 'Ion OH⁻ (≤ 0.001 M)',
+          factorTag: 'Nilai E⁰ (Faktor 1)' as const,
+          reason: `Pada larutan cair (${formatConcentration(concentration)} mol dm⁻³ ≤ 0.001), bilangan ion Cl⁻ amat rendah; faktor nilai E⁰ menentukan pemilihan di mana ion OH⁻ (+0.40 V) lebih rendah berbanding Cl⁻ (+1.36 V).`,
           halfEquation: '4OH⁻(ak) → O₂(g) + 2H₂O(ce) + 4e⁻',
           productName: 'Gas oksigen, O₂',
           productVisual: 'gas_o2' as const,
@@ -354,6 +564,9 @@ export function resolveElectrolysisOutcome(
       electrolyte,
       concentration,
       electrodeType,
+      isMolten: false,
+      isMoltenHeated: false,
+      canConduct: true,
       isConcentratedHalide,
       presentCations,
       presentAnions,
@@ -370,7 +583,7 @@ export function resolveElectrolysisOutcome(
       solutionMode: isActiveCu ? 'tints_blue' : 'clear_unchanged',
       anodeZoomIons,
       cathodeZoomIons,
-      halideRatioLabel: `Cl⁻ (${soluteIonCount}) : OH⁻ (${waterIonCount})`,
+      ionCompositionLabel: `Nisbah Anion: Cl⁻ (${soluteIonCount}) : OH⁻ (${waterIonCount})`,
       quizQuestions: [
         {
           target: 'Anod (+)',
@@ -386,13 +599,13 @@ export function resolveElectrolysisOutcome(
           explanationOnWrong: isActiveCu
             ? 'Kurang tepat! Elektrod aktif kuprum mengion terlebih dahulu (Cu → Cu²⁺ + 2e⁻) mengatasi nyahcas ion Cl⁻ mahupun OH⁻.'
             : isConcentratedHalide
-            ? `Kurang tepat! Kepekatan ion Cl⁻ yang tinggi (${formatConcentration(concentration)} mol dm⁻³ ≥ 0.5) menyebabkan faktor kepekatan mengatasi nilai E⁰, lalu Cl⁻ dinyahcas menjadi Cl₂.`
-            : `Kurang tepat! Pada larutan cair (${formatConcentration(concentration)} mol dm⁻³ < 0.5), bilangan Cl⁻ adalah rendah maka faktor nilai E⁰ mengambil alih: ion OH⁻ (+0.40 V) dipilih berbanding Cl⁻ (+1.36 V).`,
+            ? `Kurang tepat! Kepekatan ${formatConcentration(concentration)} mol dm⁻³ (> 0.001 M) mengaktifkan faktor kepekatan (faktor ke-2), lalu ion halida Cl⁻ dinyahcas menjadi Cl₂.`
+            : `Kurang tepat! Pada larutan cair (${formatConcentration(concentration)} mol dm⁻³ ≤ 0.001 M), ion halida Cl⁻ terlalu sedikit maka nilai E⁰ ion OH⁻ (+0.40 V) dipilih berbanding Cl⁻ (+1.36 V).`,
           explanationOnRight: isActiveCu
             ? 'Tepat! Jenis elektrod aktif (kuprum) menyebabkan atom Cu mengion membebaskan 2e⁻.'
             : isConcentratedHalide
-            ? 'Tepat! Kepekatan ion halida Cl⁻ yang tinggi menang mengatasi perbezaan nilai E⁰.'
-            : 'Tepat! Dalam larutan cair, nilai E⁰ ion OH⁻ yang kurang positif (+0.40 V) menang.',
+            ? 'Tepat! Pada kepekatan > 0.001 mol dm⁻³, faktor kepekatan memilih ion halida Cl⁻ menghasilkan gas Cl₂.'
+            : 'Tepat! Pada kepekatan ≤ 0.001 mol dm⁻³, nilai E⁰ ion OH⁻ yang kurang positif (+0.40 V) menang menghasilkan O₂.',
         },
         {
           target: 'Katod (−)',
@@ -418,7 +631,8 @@ export function resolveElectrolysisOutcome(
   const cathode = {
     selectedSpecies: 'Ion H⁺',
     factorTag: 'Nilai E⁰' as const,
-    reason: 'Hanya ion H⁺ wujud sebagai kation; ia diturunkan menerima elektron membentuk gas hidrogen, H₂.',
+    reason:
+      'Hanya ion H⁺ wujud sebagai kation; ia diturunkan menerima elektron membentuk gas hidrogen, H₂.',
     halfEquation: '2H⁺(ak) + 2e⁻ → H₂(g)',
     productName: 'Gas hidrogen, H₂',
     productVisual: 'gas_h2' as const,
@@ -429,23 +643,27 @@ export function resolveElectrolysisOutcome(
   const anode = isActiveCu
     ? {
         selectedSpecies: 'Atom Cu (Elektrod aktif)',
-        factorTag: 'Jenis Elektrod Aktif' as const,
-        reason: 'Elektrod kuprum ialah elektrod aktif; atom kuprum mengion menjadi Cu²⁺ berbanding menyahcaskan ion OH⁻.',
+        factorTag: 'Elektrod Aktif (Faktor 3)' as const,
+        reason:
+          'Elektrod kuprum ialah elektrod aktif; atom kuprum mengion menjadi Cu²⁺ berbanding menyahcaskan ion OH⁻.',
         halfEquation: 'Cu(p) → Cu²⁺(ak) + 2e⁻',
         productName: 'Ion kuprum(II), Cu²⁺',
         productVisual: 'copper_dissolve' as const,
         observationIdle: 'Suis dimatikan — elektrod kuprum anod masih utuh.',
-        observationActive: 'Anod kuprum menipis dan larutan asid beransur kebiruan kerana ion Cu²⁺ terlarut.',
+        observationActive:
+          'Anod kuprum menipis dan larutan asid beransur kebiruan kerana ion Cu²⁺ terlarut.',
       }
     : {
         selectedSpecies: 'Ion OH⁻',
-        factorTag: 'Nilai E⁰' as const,
-        reason: 'Nilai E⁰ ion OH⁻ (+0.40 V) jauh lebih rendah daripada ion SO₄²⁻ (+2.01 V). Ion sulfat tidak dinyahcas pada sebarang kepekatan.',
+        factorTag: 'Nilai E⁰ (Faktor 1)' as const,
+        reason:
+          'Nilai E⁰ ion OH⁻ (+0.40 V) jauh lebih rendah daripada ion SO₄²⁻ (+2.01 V). Ion sulfat bukan halida dan tidak dinyahcas pada sebarang kepekatan.',
         halfEquation: '4OH⁻(ak) → O₂(g) + 2H₂O(ce) + 4e⁻',
         productName: 'Gas oksigen, O₂',
         productVisual: 'gas_o2' as const,
         observationIdle: 'Suis dimatikan — tiada gelembung gas pada anod.',
-        observationActive: 'Gelembung gas tidak berwarna (O₂) terbebas pada anod (isi padu separuh daripada H₂).',
+        observationActive:
+          'Gelembung gas tidak berwarna (O₂) terbebas pada anod (isi padu separuh daripada H₂).',
       };
 
   const anodeZoomIons: IonVisualCount[] = [
@@ -476,7 +694,7 @@ export function resolveElectrolysisOutcome(
       kind: 'cation',
       color: '#facc15',
       textColor: '#422006',
-      count: soluteIonCount + 3,
+      count: Math.max(4, soluteIonCount + 2),
       isDischarged: true,
     },
   ];
@@ -485,6 +703,9 @@ export function resolveElectrolysisOutcome(
     electrolyte,
     concentration,
     electrodeType,
+    isMolten: false,
+    isMoltenHeated: false,
+    canConduct: true,
     isConcentratedHalide: false,
     presentCations,
     presentAnions,
@@ -499,7 +720,7 @@ export function resolveElectrolysisOutcome(
     solutionMode: isActiveCu ? 'tints_blue' : 'clear_unchanged',
     anodeZoomIons,
     cathodeZoomIons,
-    halideRatioLabel: `SO₄²⁻ (${soluteIonCount}) : OH⁻ (${waterIonCount})`,
+    ionCompositionLabel: `Nisbah Anion: SO₄²⁻ (${soluteIonCount}) : OH⁻ (${waterIonCount})`,
     quizQuestions: [
       {
         target: 'Anod (+)',

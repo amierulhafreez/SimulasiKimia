@@ -27,7 +27,7 @@ interface NeutralProduct {
   y: number;
   vx: number;
   vy: number;
-  kind: 'gas_o2' | 'gas_cl2' | 'gas_h2' | 'cu_atom' | 'cu2_released';
+  kind: 'gas_o2' | 'gas_cl2' | 'gas_br2' | 'gas_h2' | 'cu_atom' | 'pb_atom' | 'cu2_released';
   life: number;
 }
 
@@ -94,15 +94,42 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
   const anodeElectronsRef = useRef<WireElectron[]>([]);
   const cathodeElectronsRef = useRef<WireElectron[]>([]);
 
-  // Rebuild ion population cleanly whenever electrolyte, concentration, or electrode changes
+  // Rebuild ion population cleanly whenever electrolyte, concentration, electrode, or molten heat changes
   useEffect(() => {
-    anodeOrbsRef.current = buildIonOrbs(outcome.anodeZoomIons, 62, LENS_SIZE - 26, 26, LENS_SIZE - 26);
-    cathodeOrbsRef.current = buildIonOrbs(outcome.cathodeZoomIons, 26, LENS_SIZE - 62, 26, LENS_SIZE - 26);
+    if (outcome.isMolten && !outcome.isMoltenHeated) {
+      // Arrange ions in a fixed rigid crystal lattice inside each lens
+      const makeLattice = (specs: IonVisualCount[], x0: number): IonOrb[] => {
+        const res: IonOrb[] = [];
+        const baseSpec = specs[0];
+        if (!baseSpec) return res;
+        for (let r = 0; r < 3; r++) {
+          for (let c = 0; c < 3; c++) {
+            res.push({
+              x: x0 + c * 28,
+              y: 54 + r * 36,
+              vx: 0,
+              vy: 0,
+              symbol: baseSpec.symbol,
+              color: baseSpec.color,
+              textColor: baseSpec.textColor,
+              isDischarged: false,
+              cooldown: 0,
+            });
+          }
+        }
+        return res;
+      };
+      anodeOrbsRef.current = makeLattice(outcome.anodeZoomIons, 76);
+      cathodeOrbsRef.current = makeLattice(outcome.cathodeZoomIons, 42);
+    } else {
+      anodeOrbsRef.current = buildIonOrbs(outcome.anodeZoomIons, 62, LENS_SIZE - 26, 26, LENS_SIZE - 26);
+      cathodeOrbsRef.current = buildIonOrbs(outcome.cathodeZoomIons, 26, LENS_SIZE - 62, 26, LENS_SIZE - 26);
+    }
     anodeProductsRef.current = [];
     cathodeProductsRef.current = [];
     anodeElectronsRef.current = [];
     cathodeElectronsRef.current = [];
-  }, [outcome.electrolyte.id, outcome.concentration, outcome.electrodeType]);
+  }, [outcome.electrolyte.id, outcome.concentration, outcome.electrodeType, outcome.isMolten, outcome.isMoltenHeated]);
 
   // Clear products cleanly on Reset (progress === 0 && !isRunning)
   useEffect(() => {
@@ -181,15 +208,34 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
     const drawNeutralProduct = (ctx: CanvasRenderingContext2D, prod: NeutralProduct) => {
       ctx.save();
       ctx.globalAlpha = Math.max(0.15, Math.min(1, prod.life / 35));
-      if (prod.kind === 'gas_o2' || prod.kind === 'gas_cl2' || prod.kind === 'gas_h2') {
+      if (
+        prod.kind === 'gas_o2' ||
+        prod.kind === 'gas_cl2' ||
+        prod.kind === 'gas_br2' ||
+        prod.kind === 'gas_h2'
+      ) {
         const fill =
           prod.kind === 'gas_cl2'
             ? '#a3e635'
+            : prod.kind === 'gas_br2'
+            ? '#d97706'
             : prod.kind === 'gas_o2'
             ? '#f8fafc'
             : '#e0f2fe';
-        const stroke = prod.kind === 'gas_cl2' ? '#4d7c0f' : '#64748b';
-        const label = prod.kind === 'gas_cl2' ? 'Cl₂' : prod.kind === 'gas_o2' ? 'O₂' : 'H₂';
+        const stroke =
+          prod.kind === 'gas_cl2'
+            ? '#4d7c0f'
+            : prod.kind === 'gas_br2'
+            ? '#78350f'
+            : '#64748b';
+        const label =
+          prod.kind === 'gas_cl2'
+            ? 'Cl₂'
+            : prod.kind === 'gas_br2'
+            ? 'Br₂'
+            : prod.kind === 'gas_o2'
+            ? 'O₂'
+            : 'H₂';
 
         // Diatomic molecule spheres
         for (const dx of [-4.5, 4.5]) {
@@ -201,16 +247,16 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
           ctx.lineWidth = 1;
           ctx.stroke();
         }
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = prod.kind === 'gas_br2' ? '#fde68a' : '#ffffff';
         ctx.font = 'bold 7.5px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(label, prod.x, prod.y - 9);
-      } else if (prod.kind === 'cu_atom') {
+      } else if (prod.kind === 'cu_atom' || prod.kind === 'pb_atom') {
         ctx.beginPath();
         ctx.arc(prod.x, prod.y, 6.2, 0, Math.PI * 2);
-        ctx.fillStyle = '#ea580c';
+        ctx.fillStyle = prod.kind === 'pb_atom' ? '#cbd5e1' : '#ea580c';
         ctx.fill();
-        ctx.strokeStyle = '#fed7aa';
+        ctx.strokeStyle = prod.kind === 'pb_atom' ? '#f8fafc' : '#fed7aa';
         ctx.lineWidth = 1;
         ctx.stroke();
       } else if (prod.kind === 'cu2_released') {
@@ -240,7 +286,8 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
         showElectrons: shE,
         showIons: shI,
       } = stateRef.current;
-      const active = running && !paused;
+      const active = running && !paused && out.canConduct;
+      const latticeFrozen = !out.canConduct;
 
       // ================= RENDER ANODE (+) ZOOM LENS =================
       actx.clearRect(0, 0, LENS_SIZE, LENS_SIZE);
@@ -357,14 +404,19 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
                   life: 65,
                 });
               }
-              anodeProductsRef.current.push({
-                x: anodeW + 14,
-                y: orb.y,
-                vx: 0.35 + Math.random() * 0.3,
-                vy: -1.1 - Math.random() * 0.5,
-                kind: out.anode.productVisual === 'gas_cl2' ? 'gas_cl2' : 'gas_o2',
-                life: 95,
-              });
+                anodeProductsRef.current.push({
+                  x: anodeW + 14,
+                  y: orb.y,
+                  vx: 0.35 + Math.random() * 0.3,
+                  vy: -1.1 - Math.random() * 0.5,
+                  kind:
+                    out.anode.productVisual === 'gas_cl2'
+                      ? 'gas_cl2'
+                      : out.anode.productVisual === 'gas_br2'
+                      ? 'gas_br2'
+                      : 'gas_o2',
+                  life: 95,
+                });
               // Respawn another ion on right side of lens
               orb.x = LENS_SIZE - 30 - Math.random() * 24;
               orb.y = 42 + Math.random() * (LENS_SIZE - 84);
@@ -410,10 +462,15 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
       actx.font = 'bold 9px sans-serif';
       actx.textAlign = 'center';
       actx.fillText('ANOD (+)', 24, 15);
-      if (shE && running) {
+      if (shE && running && out.canConduct) {
         actx.fillStyle = '#facc15';
         actx.font = 'bold 8.5px sans-serif';
         actx.fillText('e⁻ ↑', 22, 28);
+      }
+      if (latticeFrozen) {
+        actx.fillStyle = '#94a3b8';
+        actx.font = 'bold 8px sans-serif';
+        actx.fillText('Kekisi Pepejal', LENS_SIZE / 2 + 20, LENS_SIZE - 12);
       }
       actx.restore();
 
@@ -432,9 +489,9 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
       const cathX = LENS_SIZE - cathodeW;
       cctx.fillStyle = out.electrodeType === 'kuprum' ? '#c2410c' : '#334155';
       cctx.fillRect(cathX, 0, cathodeW, LENS_SIZE);
-      if (out.cathode.productVisual === 'deposit_cu' && prog > 0.05) {
+      if ((out.cathode.productVisual === 'deposit_cu' || out.cathode.productVisual === 'deposit_pb') && prog > 0.05) {
         const coatW = Math.min(12, prog * 12);
-        cctx.fillStyle = '#ea580c';
+        cctx.fillStyle = out.cathode.productVisual === 'deposit_pb' ? '#cbd5e1' : '#ea580c';
         cctx.fillRect(cathX - coatW, 0, coatW, LENS_SIZE);
       }
       cctx.strokeStyle = '#38bdf8';
@@ -508,13 +565,13 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
                   life: 16,
                 });
               }
-              if (out.cathode.productVisual === 'deposit_cu') {
+              if (out.cathode.productVisual === 'deposit_cu' || out.cathode.productVisual === 'deposit_pb') {
                 cathodeProductsRef.current.push({
                   x: cathX - 5,
                   y: orb.y,
                   vx: 0,
                   vy: 0,
-                  kind: 'cu_atom',
+                  kind: out.cathode.productVisual === 'deposit_pb' ? 'pb_atom' : 'cu_atom',
                   life: 140,
                 });
               } else {
@@ -567,10 +624,15 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
       cctx.font = 'bold 9px sans-serif';
       cctx.textAlign = 'center';
       cctx.fillText('KATOD (−)', cathX + cathodeW / 2, 15);
-      if (shE && running) {
+      if (shE && running && out.canConduct) {
         cctx.fillStyle = '#facc15';
         cctx.font = 'bold 8.5px sans-serif';
         cctx.fillText('↓ e⁻', cathX + 20, 28);
+      }
+      if (latticeFrozen) {
+        cctx.fillStyle = '#94a3b8';
+        cctx.font = 'bold 8px sans-serif';
+        cctx.fillText('Kekisi Pepejal', LENS_SIZE / 2 - 20, LENS_SIZE - 12);
       }
       cctx.restore();
 
@@ -591,7 +653,7 @@ export const ElectrolysisMicroZoomCanvas: React.FC<Props> = ({
           ARAS SUBMIKROSKOPIK • KANTA PEMBESAR ANOD & KATOD
         </span>
         <span className="text-[10px] font-semibold text-amber-300 bg-amber-950/50 border border-amber-500/30 px-2 py-0.5 rounded-full">
-          Nisbah Anion: {outcome.halideRatioLabel}
+          {outcome.ionCompositionLabel}
         </span>
       </div>
 

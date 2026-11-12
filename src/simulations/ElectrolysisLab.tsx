@@ -3,6 +3,7 @@ import {
   BatteryCharging,
   CheckCircle2,
   Eye,
+  Flame,
   HelpCircle,
   Pause,
   Play,
@@ -21,6 +22,7 @@ import {
   ELECTROLYTE_SPECS,
   ElectrolyteId,
   formatConcentration,
+  HALIDE_CONCENTRATION_THRESHOLD,
   resolveElectrolysisOutcome,
 } from '../data/electrolysisData';
 import { ElectrolysisMacroscopicSVG } from '../components/ElectrolysisMacroscopicSVG';
@@ -30,8 +32,9 @@ const SIM_ID = 'elektrolisis';
 
 export const ElectrolysisLab: React.FC = () => {
   const [electrolyteId, setElectrolyteId] = useState<ElectrolyteId>('cuso4');
-  const [concIndex, setConcIndex] = useState<number>(8); // 1.0 mol/dm3 initial
+  const [concIndex, setConcIndex] = useState<number>(9); // 0.5 mol/dm3 initial for CuSO4
   const [electrodeType, setElectrodeType] = useState<ElectrodeType>('karbon');
+  const [isMoltenHeated, setIsMoltenHeated] = useState<boolean>(true);
   const [showElectrons, setShowElectrons] = useState<boolean>(true);
   const [showIons, setShowIons] = useState<boolean>(true);
   const [quizMode, setQuizMode] = useState<boolean>(false);
@@ -50,21 +53,26 @@ export const ElectrolysisLab: React.FC = () => {
   const hasLoggedRef = useRef(false);
   const completedRef = useRef(false);
 
-  const concentration = CONCENTRATION_STEPS[concIndex] ?? 1.0;
+  const concentration = CONCENTRATION_STEPS[concIndex] ?? 0.5;
 
   const outcome = useMemo(
-    () => resolveElectrolysisOutcome(electrolyteId, concentration, electrodeType),
-    [electrolyteId, concentration, electrodeType]
+    () => resolveElectrolysisOutcome(electrolyteId, concentration, electrodeType, isMoltenHeated),
+    [electrolyteId, concentration, electrodeType, isMoltenHeated]
   );
 
-  // Sync appropriate default concentration when picking an electrolyte initially
+  // Sync appropriate default concentration / electrode when picking an electrolyte
   const handleSelectElectrolyte = (nextId: ElectrolyteId) => {
     const spec = ELECTROLYTE_SPECS.find((e) => e.id === nextId);
     const defaultIdx = spec
       ? CONCENTRATION_STEPS.findIndex((c) => c === spec.defaultConcentration)
-      : 6;
+      : 7;
     setElectrolyteId(nextId);
-    if (defaultIdx >= 0) setConcIndex(defaultIdx);
+    if (nextId === 'pbbr2') {
+      setElectrodeType('karbon');
+      setIsMoltenHeated(true);
+    } else if (defaultIdx >= 0) {
+      setConcIndex(defaultIdx);
+    }
     setIsRunning(false);
     setIsPaused(false);
     setProgress(0);
@@ -132,7 +140,7 @@ export const ElectrolysisLab: React.FC = () => {
 
   // Reaction progress ticker (~22 seconds for full 0 -> 100% macroscopic transformation)
   useEffect(() => {
-    if (!isRunning || isPaused) return;
+    if (!isRunning || isPaused || !outcome.canConduct) return;
     const id = window.setInterval(() => {
       setProgress((prev) => {
         if (prev >= 1) return 1;
@@ -140,7 +148,7 @@ export const ElectrolysisLab: React.FC = () => {
       });
     }, 250);
     return () => window.clearInterval(id);
-  }, [isRunning, isPaused]);
+  }, [isRunning, isPaused, outcome.canConduct]);
 
   const currentQuestion = outcome.quizQuestions[quizIdx] ?? outcome.quizQuestions[0];
   const isSelectedCorrect = selectedOption === currentQuestion?.correctOptionId;
@@ -165,7 +173,7 @@ export const ElectrolysisLab: React.FC = () => {
     }
   };
 
-  const isConcentrated = concentration >= 0.5;
+  const isAboveHalideThreshold = concentration > HALIDE_CONCENTRATION_THRESHOLD;
 
   return (
     <div
@@ -197,39 +205,59 @@ export const ElectrolysisLab: React.FC = () => {
               </span>
             </div>
 
-            {/* Pilihan Elektrolit */}
+            {/* Pilihan Elektrolit: Larutan Akueus + Sebatian Lebur */}
             <div className="space-y-1">
               <label className="block text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
-                1. Pilihan Elektrolit (Larutan Akueus)
+                1. Pilihan Elektrolit (Akueus &amp; Leburan)
               </label>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-2 gap-1.5">
                 {ELECTROLYTE_SPECS.map((el) => {
                   const active = el.id === electrolyteId;
+                  const isMoltenEl = el.stateKind === 'molten';
                   return (
                     <button
                       key={el.id}
                       type="button"
                       data-testid={`select-electrolyte-${el.id}`}
                       onClick={() => handleSelectElectrolyte(el.id)}
-                      className={`px-2 py-1.5 rounded-lg border text-center transition-all cursor-pointer ${
+                      className={`px-2 py-1 rounded-lg border text-left transition-all cursor-pointer ${
                         active
-                          ? 'bg-sky-950/80 border-sky-400 text-white shadow-sm shadow-sky-500/20'
+                          ? isMoltenEl
+                            ? 'bg-amber-950/75 border-amber-400 text-white shadow-sm shadow-amber-500/20'
+                            : 'bg-sky-950/80 border-sky-400 text-white shadow-sm shadow-sky-500/20'
                           : 'bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-600'
                       }`}
                     >
-                      <div
-                        className={`text-xs font-extrabold font-mono ${
-                          active ? 'text-sky-300' : 'text-white'
-                        }`}
-                      >
-                        {el.shortLabel}
+                      <div className="flex items-center justify-between gap-1">
+                        <span
+                          className={`text-[11px] font-extrabold font-mono ${
+                            active
+                              ? isMoltenEl
+                                ? 'text-amber-300'
+                                : 'text-sky-300'
+                              : 'text-white'
+                          }`}
+                        >
+                          {el.shortLabel}
+                        </span>
+                        <span
+                          className={`text-[8px] font-bold px-1 py-0.2 rounded ${
+                            isMoltenEl
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                              : 'bg-slate-800 text-slate-400'
+                          }`}
+                        >
+                          {isMoltenEl ? 'Lebur' : 'Akueus'}
+                        </span>
                       </div>
-                      <div className="text-[9px] text-slate-300 leading-tight truncate mt-0.5">
+                      <div className="text-[8.5px] text-slate-300 leading-tight truncate mt-0.5">
                         {el.id === 'cuso4'
                           ? 'Kuprum(II) sulfat'
                           : el.id === 'nacl'
                           ? 'Natrium klorida'
-                          : 'Asid Sulfurik cair'}
+                          : el.id === 'h2so4'
+                          ? 'Asid Sulfurik cair'
+                          : 'Plumbum(II) bromida'}
                       </div>
                     </button>
                   );
@@ -237,79 +265,148 @@ export const ElectrolysisLab: React.FC = () => {
               </div>
             </div>
 
-            {/* Peluncur Kepekatan */}
-            <div className="bg-slate-900/75 border border-slate-800 rounded-lg p-2 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
-                  2. Kepekatan Larutan
-                </span>
-                <div className="flex items-center gap-1.5">
-                  <span
-                    data-testid="concentration-display"
-                    className="text-[11px] font-extrabold text-yellow-300 font-mono"
-                  >
-                    {formatConcentration(concentration)} mol dm⁻³
+            {/* Section 2: Kepekatan Larutan (Akueus) OR Pemanasan Sebatian Lebur */}
+            {outcome.isMolten ? (
+              <div className="bg-slate-900/75 border border-amber-500/30 rounded-lg p-2 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1">
+                    <Flame className="w-3 h-3 text-orange-400" /> 2. Keadaan &amp; Pemanasan
                   </span>
                   <span
-                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
-                      isConcentrated
-                        ? 'bg-rose-950/80 text-rose-300 border-rose-500/40'
-                        : 'bg-sky-950/80 text-sky-300 border-sky-500/40'
+                    className={`text-[8.5px] font-bold px-1.5 py-0.5 rounded border ${
+                      isMoltenHeated
+                        ? 'bg-orange-950/80 text-orange-300 border-orange-500/40'
+                        : 'bg-slate-800 text-slate-300 border-slate-600'
                     }`}
                   >
-                    {isConcentrated ? 'Pekat' : 'Cair'}
+                    {isMoltenHeated ? 'Lebur (>373 °C)' : 'Pepejal'}
                   </span>
                 </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    data-testid="molten-heated-btn"
+                    onClick={() => {
+                      setIsMoltenHeated(true);
+                      setQuizPassedThisSetup(false);
+                      setProgress(0);
+                    }}
+                    className={`px-2 py-1 rounded-md border text-[10px] font-bold transition cursor-pointer ${
+                      isMoltenHeated
+                        ? 'bg-orange-950/80 border-orange-400 text-orange-100'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    Panaskan (Lebur)
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="molten-solid-btn"
+                    onClick={() => {
+                      setIsMoltenHeated(false);
+                      setQuizPassedThisSetup(false);
+                      setProgress(0);
+                    }}
+                    className={`px-2 py-1 rounded-md border text-[10px] font-bold transition cursor-pointer ${
+                      !isMoltenHeated
+                        ? 'bg-slate-800 border-slate-300 text-white'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    Tanpa Haba (Pepejal)
+                  </button>
+                </div>
               </div>
-              <input
-                type="range"
-                data-testid="concentration-slider"
-                min={0}
-                max={CONCENTRATION_STEPS.length - 1}
-                step={1}
-                value={concIndex}
-                onChange={(e) => handleConcentrationChange(Number(e.target.value))}
-                aria-label="Peluncur kepekatan elektrolit"
-                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-gradient-to-r from-sky-500 via-yellow-400 to-rose-500 accent-white"
-              />
-              <div className="flex items-center justify-between text-[9px] text-slate-400 font-mono">
-                <span>0.001 (Cair)</span>
-                <span className="text-yellow-300/90 font-semibold">0.5 Batas</span>
-                <span>2.0 (Pekat)</span>
+            ) : (
+              <div className="bg-slate-900/75 border border-slate-800 rounded-lg p-2 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
+                    2. Kepekatan Larutan
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      data-testid="concentration-display"
+                      className="text-[11px] font-extrabold text-yellow-300 font-mono"
+                    >
+                      {formatConcentration(concentration)} mol dm⁻³
+                    </span>
+                    <span
+                      className={`text-[8.5px] font-bold px-1.5 py-0.5 rounded border ${
+                        isAboveHalideThreshold
+                          ? 'bg-rose-950/80 text-rose-300 border-rose-500/40'
+                          : 'bg-sky-950/80 text-sky-300 border-sky-500/40'
+                      }`}
+                    >
+                      {concentration <= HALIDE_CONCENTRATION_THRESHOLD
+                        ? 'Cair (≤0.001)'
+                        : concentration < 0.25
+                        ? 'Halida >0.001'
+                        : 'Pekat'}
+                    </span>
+                  </div>
+                </div>
+                <div className="relative flex items-center">
+                  <input
+                    type="range"
+                    data-testid="concentration-slider"
+                    min={0}
+                    max={CONCENTRATION_STEPS.length - 1}
+                    step={1}
+                    value={concIndex}
+                    onChange={(e) => handleConcentrationChange(Number(e.target.value))}
+                    aria-label="Peluncur kepekatan elektrolit"
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer bg-gradient-to-r from-sky-500 via-yellow-400 to-rose-500 accent-white"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[8.5px] text-slate-400 font-mono">
+                  <span>0.0001 (Sangat Cair)</span>
+                  <span className="text-yellow-300/95 font-semibold">0.001 Batas Halida</span>
+                  <span>2.0 (Pekat)</span>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Pilihan Jenis Elektrod */}
             <div className="space-y-1">
-              <label className="block text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
-                3. Jenis Elektrod
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
+                  3. Jenis Elektrod
+                </label>
+                {outcome.isMolten && (
+                  <span className="text-[8.5px] text-amber-300/90 font-semibold">
+                    Leburan guna Karbon (Lengai)
+                  </span>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-1.5">
                 <button
                   type="button"
                   data-testid="electrode-karbon"
                   onClick={() => handleElectrodeChange('karbon')}
-                  className={`px-2 py-1.5 rounded-lg border text-center transition cursor-pointer ${
+                  className={`px-2 py-1 rounded-lg border text-center transition cursor-pointer ${
                     electrodeType === 'karbon'
                       ? 'bg-slate-800 border-white text-white shadow-xs'
                       : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'
                   }`}
                 >
                   <div className="text-[11px] font-bold">Karbon (C)</div>
-                  <div className="text-[9px] text-slate-400">Elektrod Lengai</div>
+                  <div className="text-[8.5px] text-slate-400">Elektrod Lengai</div>
                 </button>
                 <button
                   type="button"
                   data-testid="electrode-kuprum"
+                  disabled={outcome.isMolten}
                   onClick={() => handleElectrodeChange('kuprum')}
-                  className={`px-2 py-1.5 rounded-lg border text-center transition cursor-pointer ${
-                    electrodeType === 'kuprum'
-                      ? 'bg-orange-950/80 border-orange-400 text-orange-100 shadow-xs'
-                      : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                  className={`px-2 py-1 rounded-lg border text-center transition ${
+                    outcome.isMolten
+                      ? 'bg-slate-950/60 border-slate-800/60 text-slate-600 opacity-50 cursor-not-allowed'
+                      : electrodeType === 'kuprum'
+                      ? 'bg-orange-950/80 border-orange-400 text-orange-100 shadow-xs cursor-pointer'
+                      : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 cursor-pointer'
                   }`}
                 >
                   <div className="text-[11px] font-bold">Kuprum (Cu)</div>
-                  <div className="text-[9px] text-orange-300/80">Elektrod Aktif</div>
+                  <div className="text-[8.5px] text-orange-300/80">Elektrod Aktif</div>
                 </button>
               </div>
             </div>
@@ -456,7 +553,8 @@ export const ElectrolysisLab: React.FC = () => {
             </span>
           </div>
           <div className="text-[10.5px] text-sky-300 font-semibold">
-            Larutan: <span className="text-white">{outcome.solutionBehaviorText}</span>
+            {outcome.isMolten ? 'Elektrolit:' : 'Larutan:'}{' '}
+            <span className="text-white">{outcome.solutionBehaviorText}</span>
           </div>
         </div>
 
@@ -580,8 +678,13 @@ export const ElectrolysisLab: React.FC = () => {
                     Cabaran Ramalan Sebelum Eksperimen ({quizIdx + 1}/{outcome.quizQuestions.length})
                   </h4>
                   <p className="text-[11px] text-sky-300">
-                    {outcome.electrolyte.name} ({formatConcentration(concentration)} mol dm⁻³) • Elektrod{' '}
-                    {electrodeType === 'karbon' ? 'Karbon' : 'Kuprum'}
+                    {outcome.electrolyte.name}{' '}
+                    {outcome.isMolten
+                      ? outcome.isMoltenHeated
+                        ? '(Lebur >373 °C)'
+                        : '(Pepejal — Tanpa Haba)'
+                      : `(${formatConcentration(concentration)} mol dm⁻³)`}{' '}
+                    • Elektrod {electrodeType === 'karbon' ? 'Karbon' : 'Kuprum'}
                   </p>
                 </div>
               </div>
