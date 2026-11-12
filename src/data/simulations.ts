@@ -125,12 +125,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 4',
     chapter: 'Bab 6: Asid, Bes dan Garam',
     category: 'Asid, Bes & Garam',
-    description: 'Kenal pasti anion (CO₃²⁻, Cl⁻, SO₄²⁻, NO₃⁻) menggunakan ujian asid nitrik, argentum nitrat, barium klorida dan cincin perang.',
-    learningStandard: 'SP 6.11.2 - Menjalankan ujian untuk mengenal pasti anion',
+    description: 'Kenal pasti pepejal garam misteri (CO₃²⁻, Cl⁻, SO₄²⁻, NO₃⁻) melalui pemanasan pepejal (Rajah 6.46–6.47) dan ujian reagen anion (Eksperimen 6.9) lengkap dengan ciri cuci tabung uji.',
+    learningStandard: 'SP 6.10.2 & 6.11.1 - Mengkaji tindakan haba ke atas garam dan mengenal pasti anion',
     iconName: 'Layers',
     colorTheme: 'fuchsia',
     isImplemented: true,
-    tags: ['Cincin Perang', 'Argentum Klorida', 'Barium Sulfat']
+    tags: ['Gamifikasi', 'Pemanasan Garam', 'Cincin Perang', 'Ujian Anion KSSM']
   },
   {
     id: 'daya-tarikan-zarah',

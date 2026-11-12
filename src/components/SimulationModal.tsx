@@ -6,7 +6,7 @@ import { GasTestLab } from '../simulations/GasTestLab';
 import { LatexCoagulation } from '../simulations/LatexCoagulation';
 import { NaphthaleneCooling } from '../simulations/NaphthaleneCooling';
 import { ChemicalEquationBalancer } from '../simulations/ChemicalEquationBalancer';
-import { CationAnionLab } from '../simulations/CationAnionLab';
+import { AnionTestLab } from '../simulations/AnionTestLab';
 import { CationTestLab } from '../simulations/CationTestLab';
 import { ElectrolysisLab } from '../simulations/ElectrolysisLab';
 import { ThermochemistryLab } from '../simulations/ThermochemistryLab';
@@ -61,7 +61,7 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
       case 'ujian-kation':
         return <CationTestLab />;
       case 'ujian-anion':
-        return <CationAnionLab />;
+        return <AnionTestLab />;
       case 'elektrolisis':
         return <ElectrolysisLab />;
       case 'keterlarutan-garam':
