@@ -712,32 +712,36 @@ const AlkeneCanvas: React.FC<AlkeneCanvasProps> = ({
         ctx.fillText(`Monomer #${i + 1}`, mx, cy + 58);
       }
 
-      // If fully connected: Draw large polymer brackets [ ... ]n
+      // If fully connected: Draw polymer brackets [ ... ]n around one repeating unit (textbook style)
       if (unfoldProgress >= 0.85) {
+        const unitMx = startX + stepX; // Monomer #2 center
+        const bLeft = unitMx - 48;
+        const bRight = unitMx + 48;
+
         ctx.save();
         ctx.strokeStyle = '#4338ca';
         ctx.lineWidth = 2.5;
 
         // Left bracket [
         ctx.beginPath();
-        ctx.moveTo(35, cy - 50);
-        ctx.lineTo(25, cy - 50);
-        ctx.lineTo(25, cy + 50);
-        ctx.lineTo(35, cy + 50);
+        ctx.moveTo(bLeft + 9, cy - 48);
+        ctx.lineTo(bLeft, cy - 48);
+        ctx.lineTo(bLeft, cy + 48);
+        ctx.lineTo(bLeft + 9, cy + 48);
         ctx.stroke();
 
         // Right bracket ]
         ctx.beginPath();
-        ctx.moveTo(505, cy - 50);
-        ctx.lineTo(515, cy - 50);
-        ctx.lineTo(515, cy + 50);
-        ctx.lineTo(505, cy + 50);
+        ctx.moveTo(bRight - 9, cy - 48);
+        ctx.lineTo(bRight, cy - 48);
+        ctx.lineTo(bRight, cy + 48);
+        ctx.lineTo(bRight - 9, cy + 48);
         ctx.stroke();
 
         // Subscript 'n'
         ctx.fillStyle = '#4338ca';
-        ctx.font = '800 18px ui-sans-serif, system-ui, sans-serif';
-        ctx.fillText('n', 526, cy + 54);
+        ctx.font = '800 16px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillText('n', bRight + 9, cy + 50);
 
         ctx.restore();
 
@@ -904,24 +908,24 @@ const AlkeneCanvas: React.FC<AlkeneCanvasProps> = ({
       }
 
       // Reagent Molecule Kinematics:
-      // Start pos: y = 40, together at cx
-      // Split pos: move to c1x, c2x at y = 40
+      // Start pos: y = 66 (cleanly below the 2-line phase statement), together at cx
+      // Split pos: move to c1x, c2x at y = 66
       // Dock pos: move down to cy - 44
-      let r1x = cx - 14;
-      let r2x = cx + 14;
-      let r1y = 38;
-      let r2y = 38;
+      let r1x = cx - 16;
+      let r2x = cx + 16;
+      let r1y = 66;
+      let r2y = 66;
 
       if (phase2Progress > 0) {
         // Molecule splitting and moving above C1 and C2
-        r1x = (cx - 14) + (c1x - (cx - 14)) * phase2Progress;
-        r2x = (cx + 14) + (c2x - (cx + 14)) * phase2Progress;
+        r1x = (cx - 16) + (c1x - (cx - 16)) * phase2Progress;
+        r2x = (cx + 16) + (c2x - (cx + 16)) * phase2Progress;
       }
 
       if (phase3Progress > 0) {
         // Falling down into empty arm sockets
-        r1y = 38 + (cy - 44 - 38) * phase3Progress;
-        r2y = 38 + (cy - 44 - 38) * phase3Progress;
+        r1y = 66 + (cy - 44 - 66) * phase3Progress;
+        r2y = 66 + (cy - 44 - 66) * phase3Progress;
       }
 
       // Reagent Bond Line (before breaking)
