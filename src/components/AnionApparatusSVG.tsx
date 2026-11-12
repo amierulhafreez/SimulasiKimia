@@ -349,85 +349,187 @@ export const AnionApparatusSVG: React.FC<AnionApparatusSVGProps> = ({
     );
   }
 
-  // 4. UJIAN ION KARBONAT (Rajah 6.53: Tabung kiri + Asid cair -> salur ke Air kapur)
+  // 4. UJIAN ION KARBONAT (Rajah 6.53: Dua tabung condong membentuk V-terbalik)
   if (result.mode === 'co3-limewater') {
     return (
       <svg viewBox="0 0 380 270" className="w-full max-w-[360px] h-auto select-none">
+        <defs>
+          <clipPath id="co3-left-tube-clip">
+            <path
+              transform="translate(214, 58) rotate(42)"
+              d="M -15.5 48 L -15.5 172 A 15.5 15.5 0 0 0 15.5 172 L 15.5 48 Z"
+            />
+          </clipPath>
+          <clipPath id="co3-right-tube-clip">
+            <path
+              transform="translate(214, 58) rotate(-42)"
+              d="M -15.5 48 L -15.5 172 A 15.5 15.5 0 0 0 15.5 172 L 15.5 48 Z"
+            />
+          </clipPath>
+        </defs>
+
         {isDragOver && (
-          <rect x="18" y="14" width="344" height="240" rx="16" fill="#f5d0fe" fillOpacity="0.4" stroke="#c026d3" strokeWidth="2.2" strokeDasharray="6 4" />
+          <rect x="14" y="12" width="352" height="244" rx="16" fill="#f5d0fe" fillOpacity="0.4" stroke="#c026d3" strokeWidth="2.2" strokeDasharray="6 4" />
         )}
 
-        {/* Tabung kiri condong (Larutan garam + Asid cair) */}
-        <g transform="rotate(-22 100 175)">
-          <path
-            d="M 80 144 L 116 144 L 116 210 C 116 220 108 228 98 228 C 88 228 80 220 80 210 Z"
+        {/* Larutan garam + asid cair (tabung kiri — permukaan mendatar) */}
+        <g clipPath="url(#co3-left-tube-clip)">
+          <rect
+            x="55"
+            y="162"
+            width="95"
+            height="50"
             fill={result.liquidHex}
             fillOpacity={result.liquidOpacity}
           />
+          <line x1="55" y1="162" x2="150" y2="162" stroke="#0284c7" strokeWidth="1.2" opacity="0.7" />
+          <line x1="74" y1="172" x2="124" y2="172" stroke="#38bdf8" strokeWidth="1" strokeDasharray="5 3" opacity="0.55" />
+          <line x1="74" y1="181" x2="120" y2="181" stroke="#38bdf8" strokeWidth="1" strokeDasharray="4 3" opacity="0.55" />
+          <line x1="74" y1="190" x2="114" y2="190" stroke="#38bdf8" strokeWidth="1" strokeDasharray="4 4" opacity="0.45" />
           {result.hasEffervescence && (
             <g fill="#ffffff" stroke="#0284c7" strokeWidth="0.9">
-              <circle cx="92" cy="182" r="2.3" />
-              <circle cx="104" cy="168" r="2.5" />
-              <circle cx="96" cy="154" r="2.1" />
+              <circle cx="94" cy="190" r="2.2" />
+              <circle cx="104" cy="181" r="2.5" />
+              <circle cx="96" cy="171" r="2.0" />
+              <circle cx="109" cy="174" r="2.3" />
+              <circle cx="89" cy="177" r="1.9" />
             </g>
           )}
-          <path
-            d="M 76 76 L 79 80 L 79 210 C 79 221 87 229 98 229 C 109 229 117 221 117 210 L 117 80 L 120 76"
-            fill="none"
-            stroke="#1e293b"
-            strokeWidth="2.2"
-          />
-          <polygon points="80,76 116,76 113,94 83,94" fill="#9a3412" stroke="#451a03" />
         </g>
 
-        {/* Salur penghantar V-terbalik gaya Rajah 6.53 */}
+        {/* Air kapur (tabung kanan — permukaan mendatar) */}
+        <g clipPath="url(#co3-right-tube-clip)">
+          <rect
+            x="275"
+            y="162"
+            width="95"
+            height="50"
+            fill={result.limewaterCloudy ? '#e2e8f0' : '#e0f2fe'}
+            fillOpacity={result.limewaterCloudy ? 0.88 : 0.4}
+            style={{ transition: 'all 350ms ease' }}
+          />
+          <line
+            x1="275"
+            y1="162"
+            x2="370"
+            y2="162"
+            stroke={result.limewaterCloudy ? '#94a3b8' : '#0284c7'}
+            strokeWidth="1.2"
+            opacity="0.75"
+          />
+        </g>
+
+        {/* Salur penghantar kaca menembusi penyumbat kiri hingga tercelup ke dalam air kapur kanan */}
         <path
-          d="M 65 92 L 154 34 L 258 182"
+          d="M 165.8 111.5 L 204.6 68.4 Q 214 58 223.4 68.4 L 331.1 188.0"
           fill="none"
-          stroke="#475569"
-          strokeWidth="5"
-          strokeLinecap="round"
+          stroke="#1e293b"
+          strokeWidth="5.4"
+          strokeLinecap="butt"
           strokeLinejoin="round"
         />
         <path
-          d="M 65 92 L 154 34 L 258 182"
+          d="M 165.8 111.5 L 204.6 68.4 Q 214 58 223.4 68.4 L 331.1 188.0"
           fill="none"
           stroke="#f8fafc"
-          strokeWidth="2.2"
-          strokeLinecap="round"
+          strokeWidth="3.0"
+          strokeLinecap="butt"
           strokeLinejoin="round"
         />
 
-        {/* Tabung kanan condong (Air kapur) */}
-        <g transform="rotate(24 252 175)">
-          <path
-            d="M 234 156 L 270 156 L 270 212 C 270 222 262 230 252 230 C 242 230 234 222 234 212 Z"
-            fill={result.limewaterCloudy ? '#cbd5e1' : '#e0f2fe'}
-            fillOpacity={result.limewaterCloudy ? 0.85 : 0.4}
+        {/* Tindihan cecair separa lutsinar & gelembung gas CO2 di hujung salur penghantar dalam air kapur */}
+        <g clipPath="url(#co3-right-tube-clip)">
+          <rect
+            x="275"
+            y="162"
+            width="95"
+            height="50"
+            fill={result.limewaterCloudy ? '#cbd5e1' : '#bae6fd'}
+            fillOpacity={result.limewaterCloudy ? 0.58 : 0.22}
           />
-          {result.hasEffervescence && (
-            <g fill="#ffffff" stroke="#475569" strokeWidth="0.9">
-              <circle cx="248" cy="195" r="2.4" />
-              <circle cx="256" cy="180" r="2.2" />
+          {result.limewaterCloudy && (
+            <g fill="#f8fafc" opacity="0.72">
+              <circle cx="318" cy="184" r="6" />
+              <circle cx="332" cy="176" r="7" />
+              <circle cx="342" cy="186" r="5" />
             </g>
           )}
+          {result.hasEffervescence && (
+            <g fill="#ffffff" stroke="#475569" strokeWidth="0.9">
+              <circle cx="329" cy="180" r="2.3" />
+              <circle cx="334" cy="172" r="2.0" />
+              <circle cx="326" cy="166" r="2.4" />
+            </g>
+          )}
+        </g>
+
+        {/* Tabung uji kiri condong (+42°, mulut menghadap puncak) & penyumbat getah */}
+        <g transform="translate(214, 58) rotate(42)">
+          {/* Penyumbat getah kedap pada mulut tabung kiri */}
+          <polygon points="-16.6,35 16.6,35 14.8,58 -14.8,58" fill="#9a3412" stroke="#451a03" strokeWidth="1.2" />
+          <line x1="-12" y1="39" x2="11" y2="55" stroke="#7c2d12" strokeWidth="1" opacity="0.65" />
+          <line x1="-13" y1="46" x2="3" y2="57" stroke="#7c2d12" strokeWidth="1" opacity="0.65" />
+          <line x1="-2" y1="37" x2="13" y2="48" stroke="#7c2d12" strokeWidth="1" opacity="0.65" />
+
+          {/* Penyepit sokongan gaya rajah buku teks */}
+          <rect x="-21.5" y="54" width="4" height="17" rx="1" fill="#e2c799" stroke="#78350f" strokeWidth="0.8" />
+          <rect x="17.5" y="54" width="4" height="17" rx="1" fill="#e2c799" stroke="#78350f" strokeWidth="0.8" />
+
+          {/* Dinding kaca tabung uji kiri */}
           <path
-            d="M 230 84 L 233 88 L 233 212 C 233 223 241 231 252 231 C 263 231 271 223 271 212 L 271 88 L 274 84"
+            d="M -20 46 Q -17 49 -17 55 L -17 172 A 17 17 0 0 0 17 172 L 17 55 Q 17 49 20 46"
             fill="none"
             stroke="#1e293b"
             strokeWidth="2.2"
+            strokeLinecap="round"
           />
         </g>
 
+        {/* Tabung uji kanan condong (-42°, mulut terbuka menghadap puncak) */}
+        <g transform="translate(214, 58) rotate(-42)">
+          {/* Penyepit sokongan gaya rajah buku teks */}
+          <rect x="-21.5" y="54" width="4" height="17" rx="1" fill="#e2c799" stroke="#78350f" strokeWidth="0.8" />
+          <rect x="17.5" y="54" width="4" height="17" rx="1" fill="#e2c799" stroke="#78350f" strokeWidth="0.8" />
+
+          {/* Dinding kaca tabung uji kanan */}
+          <path
+            d="M -20 46 Q -17 49 -17 55 L -17 172 A 17 17 0 0 0 17 172 L 17 55 Q 17 49 20 46"
+            fill="none"
+            stroke="#1e293b"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* Label Rajah 6.53 */}
         <g fontSize="10" fontWeight="700" fill="#1e293b">
-          <text x="68" y="248" textAnchor="middle" fill="#0369a1">
-            {sampleLabel} + HCl cair
-          </text>
-          <text x="275" y="248" textAnchor="middle" fill={result.limewaterCloudy ? '#b91c1c' : '#0369a1'}>
-            Air kapur {result.limewaterCloudy ? 'menjadi keruh' : 'kekal jernih'}
-          </text>
-          <text x="160" y="24" textAnchor="middle" fill="#475569">
+          <text x="214" y="28" textAnchor="middle" fill="#475569">
             Salur penghantar (Rajah 6.53)
+          </text>
+          <line x1="214" y1="33" x2="214" y2="54" stroke="#94a3b8" strokeWidth="1" strokeDasharray="2 2" />
+
+          <line x1="136" y1="62" x2="162" y2="70" stroke="#7c2d12" strokeWidth="1" />
+          <text x="132" y="64" textAnchor="end" fontSize="9.5" fill="#7c2d12">
+            Penyumbat getah
+          </text>
+
+          <line x1="75" y1="180" x2="104" y2="180" stroke="#475569" strokeWidth="1" />
+          <text x="68" y="172" textAnchor="end" fill="#0369a1">
+            {sample.isSolubleInWater ? 'Larutan' : 'Pepejal'}
+          </text>
+          <text x="68" y="184" textAnchor="end" fill="#0369a1">
+            {sampleLabel}
+          </text>
+          <text x="68" y="196" textAnchor="end" fontSize="9" fill="#334155">
+            + HCl cair
+          </text>
+
+          <line x1="266" y1="180" x2="316" y2="180" stroke="#475569" strokeWidth="1" />
+          <text x="262" y="177" textAnchor="end" fill={result.limewaterCloudy ? '#0f172a' : '#0369a1'}>
+            Air kapur
+          </text>
+          <text x="262" y="190" textAnchor="end" fontSize="9.5" fill={result.limewaterCloudy ? '#b91c1c' : '#0369a1'}>
+            {result.limewaterCloudy ? '(menjadi keruh)' : '(kekal jernih)'}
           </text>
         </g>
       </svg>
