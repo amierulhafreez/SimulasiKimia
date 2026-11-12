@@ -70,20 +70,22 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
 
       // 1. Conical Flask (Left)
       const fCx = 125;
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(fCx - 16, 62);
-      ctx.lineTo(fCx - 16, 94);
-      ctx.lineTo(fCx - 62, 192);
-      ctx.quadraticCurveTo(fCx - 64, 204, fCx - 50, 204);
-      ctx.lineTo(fCx + 50, 204);
-      ctx.quadraticCurveTo(fCx + 64, 204, fCx + 62, 192);
-      ctx.lineTo(fCx + 16, 94);
-      ctx.lineTo(fCx + 16, 62);
-      ctx.closePath();
+      const drawFlaskPath = () => {
+        ctx.beginPath();
+        ctx.moveTo(fCx - 16, 62);
+        ctx.lineTo(fCx - 16, 94);
+        ctx.lineTo(fCx - 62, 192);
+        ctx.quadraticCurveTo(fCx - 64, 204, fCx - 50, 204);
+        ctx.lineTo(fCx + 50, 204);
+        ctx.quadraticCurveTo(fCx + 64, 204, fCx + 62, 192);
+        ctx.lineTo(fCx + 16, 94);
+        ctx.lineTo(fCx + 16, 62);
+        ctx.closePath();
+      };
 
       // Liquid inside flask (glucose + yeast)
       ctx.save();
+      drawFlaskPath();
       ctx.clip();
       ctx.fillStyle = isHot ? '#fef2f2' : '#fef9c3';
       ctx.fillRect(fCx - 65, 136, 130, 70);
@@ -113,11 +115,11 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
       }
       ctx.restore();
 
-      // Flask outline
+      // Flask outline (drawn outside clip so it's always crisp)
+      drawFlaskPath();
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 2.2;
       ctx.stroke();
-      ctx.restore();
 
       // Rubber stopper
       ctx.fillStyle = '#475569';
@@ -210,7 +212,7 @@ const FermentationMacroCanvas: React.FC<FermentationCanvasProps> = ({
 
       ctx.fillStyle = '#475569';
       ctx.font = '600 9.5px ui-sans-serif, system-ui, sans-serif';
-      ctx.fillText('Penyumbat getah', fCx - 48, 59);
+      ctx.fillText('Penyumbat getah', fCx - 64, 59);
       ctx.fillText('Salur penghantar', 220, 20);
 
       // Temperature badge inside canvas
@@ -417,21 +419,38 @@ const DistillationMacroCanvas: React.FC<DistillationCanvasProps> = ({
       // Bunsen Burner (Left)
       const bX = 95;
       ctx.fillStyle = '#64748b';
-      ctx.fillRect(bX - 18, 198, 36, 8);
-      ctx.fillRect(bX - 6, 174, 12, 24);
+      ctx.fillRect(bX - 16, 198, 32, 8);
+      ctx.fillRect(bX - 5, 174, 10, 24);
       if (heating) {
-        const flicker = Math.sin(t * 16) * 3;
+        const flicker = Math.sin(t * 16) * 2.5;
         ctx.fillStyle = 'rgba(37, 99, 235, 0.85)';
         ctx.beginPath();
-        ctx.moveTo(bX - 8, 174);
-        ctx.quadraticCurveTo(bX, 146 + flicker, bX + 8, 174);
+        ctx.moveTo(bX - 7, 174);
+        ctx.quadraticCurveTo(bX, 152 + flicker, bX + 7, 174);
         ctx.fill();
       }
 
-      // Distillation Flask
+      // Tripod Stand & Wire Gauze (Tungku kaki tiga + kasa dawai)
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(bX - 36, 206);
+      ctx.lineTo(bX - 28, 155);
+      ctx.lineTo(bX + 28, 155);
+      ctx.lineTo(bX + 36, 206);
+      ctx.stroke();
+      // Wire gauze
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(bX - 30, 153);
+      ctx.lineTo(bX + 30, 153);
+      ctx.stroke();
+
+      // Distillation Flask (resting on wire gauze)
       ctx.save();
       ctx.beginPath();
-      ctx.arc(bX, 132, 32, 0, Math.PI * 2);
+      ctx.arc(bX, 121, 31, 0, Math.PI * 2);
       ctx.fillStyle = '#e0f2fe';
       ctx.fill();
       ctx.strokeStyle = '#334155';
@@ -440,27 +459,31 @@ const DistillationMacroCanvas: React.FC<DistillationCanvasProps> = ({
 
       // Flask neck
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(bX - 9, 44, 18, 60);
-      ctx.strokeRect(bX - 9, 44, 18, 60);
+      ctx.fillRect(bX - 9, 44, 18, 49);
+      ctx.strokeRect(bX - 9, 44, 18, 49);
+
+      // Rubber stopper
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(bX - 10, 38, 20, 9);
 
       // Porcelain chips
       ctx.fillStyle = '#64748b';
-      ctx.fillRect(bX - 8, 152, 5, 4);
-      ctx.fillRect(bX + 3, 154, 6, 4);
+      ctx.fillRect(bX - 8, 141, 5, 4);
+      ctx.fillRect(bX + 3, 143, 6, 4);
 
       // Thermometer
       ctx.fillStyle = '#f1f5f9';
-      ctx.fillRect(bX - 3, 16, 6, 68);
+      ctx.fillRect(bX - 3, 12, 6, 68);
       ctx.strokeStyle = '#475569';
       ctx.lineWidth = 1;
-      ctx.strokeRect(bX - 3, 16, 6, 68);
+      ctx.strokeRect(bX - 3, 12, 6, 68);
       // Red mercury column
       const mercH = Math.min(54, Math.max(10, ((temp - 20) / 80) * 54));
       ctx.fillStyle = '#dc2626';
-      ctx.fillRect(bX - 1.5, 82 - mercH, 3, mercH);
+      ctx.fillRect(bX - 1.5, 78 - mercH, 3, mercH);
       ctx.restore();
 
-      // Liebig Condenser (slanted from bX+9, 68 to 315, 134)
+      // Liebig Condenser (slanted from bX+9, 64 to 318, 137)
       ctx.save();
       // Outer water jacket
       ctx.strokeStyle = '#94a3b8';
@@ -477,6 +500,16 @@ const DistillationMacroCanvas: React.FC<DistillationCanvasProps> = ({
       ctx.beginPath();
       ctx.moveTo(132, 76);
       ctx.lineTo(285, 126);
+      ctx.stroke();
+
+      // Water inlet/outlet side tubes on jacket
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(142, 69);
+      ctx.lineTo(142, 56);
+      ctx.moveTo(275, 133);
+      ctx.lineTo(275, 146);
       ctx.stroke();
 
       // Inner vapor tube
