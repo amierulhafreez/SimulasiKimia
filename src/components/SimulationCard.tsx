@@ -1,172 +1,144 @@
 import React from 'react';
 import { SimulationItem } from '../types/simulation';
-import {
-  Play,
-  FlaskConical,
-  Flame,
-  Thermometer,
-  Scale,
-  Binary,
-  Zap,
-  Atom,
-  BatteryCharging,
-  Droplets,
-  TestTube,
-  Layers,
-  Magnet,
-  Disc,
-  Network,
-  Share2,
-  Sparkles,
-  FlameKindling,
-  Timer,
-  Fuel,
-  Factory,
-  Boxes,
-  Beaker,
-  Eye,
-  CheckCircle2,
-  ChevronRight,
-} from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { SimulationCardArtwork } from './SimulationCardArtwork';
 
 interface Props {
   simulation: SimulationItem;
   views: number;
   completed: number;
   onSelect: (sim: SimulationItem) => void;
+  cardIndex?: number;
 }
 
-const renderIcon = (name: string, className: string) => {
-  switch (name) {
-    case 'FlaskConical': return <FlaskConical className={className} />;
-    case 'Flame': return <Flame className={className} />;
-    case 'Thermometer': return <Thermometer className={className} />;
-    case 'Scale': return <Scale className={className} />;
-    case 'Binary': return <Binary className={className} />;
-    case 'Zap': return <Zap className={className} />;
-    case 'Atom': return <Atom className={className} />;
-    case 'BatteryCharging': return <BatteryCharging className={className} />;
-    case 'Droplets': return <Droplets className={className} />;
-    case 'TestTube': return <TestTube className={className} />;
-    case 'Layers': return <Layers className={className} />;
-    case 'Magnet': return <Magnet className={className} />;
-    case 'Disc': return <Disc className={className} />;
-    case 'Network': return <Network className={className} />;
-    case 'Share2': return <Share2 className={className} />;
-    case 'Sparkles': return <Sparkles className={className} />;
-    case 'FlameKindling': return <FlameKindling className={className} />;
-    case 'Timer': return <Timer className={className} />;
-    case 'Fuel': return <Fuel className={className} />;
-    case 'Factory': return <Factory className={className} />;
-    case 'Boxes': return <Boxes className={className} />;
-    case 'Beaker': return <Beaker className={className} />;
-    default: return <FlaskConical className={className} />;
+interface PastelTheme {
+  gradientTop: string;
+  gradientBottom: string;
+  pedestalColor: string;
+}
+
+const APPLE_PASTEL_THEMES: PastelTheme[] = [
+  // Sky Blue (Apple Watch Series 12 style)
+  {
+    gradientTop: '#d7ecff',
+    gradientBottom: '#bedcf7',
+    pedestalColor: '#2472a4',
+  },
+  // Soft Lavender (MacBook Pro style)
+  {
+    gradientTop: '#e3dbfb',
+    gradientBottom: '#cbbcf3',
+    pedestalColor: '#816ac6',
+  },
+  // Butter Yellow (iPad mini style)
+  {
+    gradientTop: '#fef2b9',
+    gradientBottom: '#fbe390',
+    pedestalColor: '#f1be2c',
+  },
+  // Soft Rose Pink
+  {
+    gradientTop: '#fddce7',
+    gradientBottom: '#f7bfd3',
+    pedestalColor: '#cf6485',
+  },
+  // Soft Mint
+  {
+    gradientTop: '#d8f6e7',
+    gradientBottom: '#b6ebd1',
+    pedestalColor: '#379871',
+  },
+];
+
+function getThemeFromColorName(colorTheme: string): PastelTheme {
+  switch (colorTheme) {
+    case 'purple':
+    case 'indigo':
+      return APPLE_PASTEL_THEMES[1];
+    case 'amber':
+    case 'orange':
+      return APPLE_PASTEL_THEMES[2];
+    case 'rose':
+    case 'pink':
+    case 'red':
+      return APPLE_PASTEL_THEMES[3];
+    case 'emerald':
+      return APPLE_PASTEL_THEMES[4];
+    case 'cyan':
+    case 'blue':
+    case 'sky':
+    default:
+      return APPLE_PASTEL_THEMES[0];
   }
-};
+}
 
 export const SimulationCard: React.FC<Props> = ({
   simulation,
   views,
   completed,
   onSelect,
+  cardIndex,
 }) => {
-  const isT4 = simulation.form === 'Tingkatan 4';
   const isReady = simulation.isImplemented;
+  const theme =
+    typeof cardIndex === 'number'
+      ? APPLE_PASTEL_THEMES[cardIndex % APPLE_PASTEL_THEMES.length]
+      : getThemeFromColorName(simulation.colorTheme);
+
+  const babShort = simulation.chapter.split(':')[0] || simulation.chapter;
 
   return (
     <div
       data-testid={`sim-card-${simulation.id}`}
       data-form={simulation.form}
       onClick={() => onSelect(simulation)}
-      className={`group relative h-full rounded-[24px] p-6 border flex flex-col justify-between cursor-pointer apple-bento-shadow apple-bento-shadow-hover ${
-        isReady
-          ? 'bg-white border-black/[0.06]'
-          : 'bg-[#fbfbfd] border-dashed border-black/[0.14]'
-      }`}
+      style={{
+        background: `linear-gradient(180deg, ${theme.gradientTop} 0%, ${theme.gradientBottom} 100%)`,
+      }}
+      className="group relative h-[350px] rounded-[22px] overflow-hidden flex flex-col justify-between cursor-pointer shadow-[0_6px_22px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.18)] transition-all duration-300 hover:-translate-y-1.5 border border-black/[0.04]"
     >
-      <div className="space-y-4">
-        {/* Card Header: Apple Minimal Icon Tile & Metadata */}
-        <div className="flex items-start justify-between gap-3">
-          <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-300 ${
-              !isReady
-                ? 'bg-[#f5f5f7] text-[#6e6e73] group-hover:bg-[#1d1d1f] group-hover:text-white'
-                : isT4
-                ? 'bg-[#eef4ff] text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white'
-                : 'bg-[#ecfdf5] text-[#059669] group-hover:bg-[#059669] group-hover:text-white'
-            }`}
-          >
-            {renderIcon(simulation.iconName, 'w-5 h-5')}
-          </div>
-
-          <div className="flex flex-col items-end gap-1">
-            <span
-              className={`text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-                isT4
-                  ? 'bg-[#eef4ff] text-[#005bb5]'
-                  : 'bg-[#ecfdf5] text-[#047857]'
-              }`}
-            >
-              {simulation.form}
-            </span>
-            {isReady ? (
-              <div className="flex items-center gap-1 text-[11px] text-[#86868b] font-medium">
-                <Eye className="w-3 h-3" />
-                <span className="tabular-nums">{views}</span>
-              </div>
-            ) : (
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100/90 text-amber-800">
-                Akan Datang
-              </span>
-            )}
-          </div>
+      {/* Top-Left High-Contrast Dark Typography */}
+      <div className="relative z-10 p-6 pb-2 space-y-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#1d1d1f]/70">
+            {isReady ? `INTERAKTIF · ${babShort}` : `AKAN DATANG · ${babShort}`}
+          </span>
         </div>
 
-        {/* Title & Chapter */}
-        <div className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#86868b] line-clamp-1">
-            {simulation.chapter}
-          </p>
-          <h3 className="font-display font-semibold text-[17px] leading-snug text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors line-clamp-2">
-            {simulation.title}
-          </h3>
-        </div>
+        <h3 className="font-display font-bold text-[19px] sm:text-[20px] leading-[1.18] tracking-tight text-[#1d1d1f] line-clamp-3">
+          {simulation.title}
+        </h3>
 
-        {/* Concise Description */}
-        <p className="text-[13px] text-[#6e6e73] line-clamp-2 leading-relaxed">
-          {simulation.description}
+        <p className="text-[12.5px] font-medium text-[#1d1d1f]/75 pt-0.5">
+          {isReady
+            ? `${views} dilihat · ${completed} selesai`
+            : `Bakal tiba · ${simulation.form}`}
         </p>
       </div>
 
-      {/* Minimalist Card Footer */}
-      <div className="pt-5 mt-5 border-t border-black/[0.06] flex items-center justify-between gap-2">
-        {isReady ? (
-          <span className="text-[12px] text-[#6e6e73] flex items-center gap-1.5 font-medium">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span className="tabular-nums font-semibold text-[#1d1d1f]">{completed}</span>
-            <span>selesai</span>
-          </span>
-        ) : (
-          <span className="text-[11.5px] text-[#86868b] font-medium">
-            Modul bakal tiba
-          </span>
-        )}
+      {/* Bottom Pedestal Horizon + Studio Chemistry Illustration */}
+      <div className="relative flex-1 flex items-end justify-center pt-1">
+        {/* Darker two-tone horizon band per Apple Store design */}
+        <div
+          aria-hidden="true"
+          style={{ backgroundColor: theme.pedestalColor }}
+          className="absolute inset-x-0 bottom-0 h-[56%] opacity-90 transition-opacity duration-300 group-hover:opacity-100"
+        />
 
-        <button
-          type="button"
-          className={`px-3.5 py-1.5 rounded-full text-[12px] font-semibold inline-flex items-center gap-1 transition-all duration-200 ${
-            !isReady
-              ? 'bg-black/[0.06] text-[#424245] group-hover:bg-[#1d1d1f] group-hover:text-white'
-              : isT4
-              ? 'bg-[#0071e3]/10 text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white'
-              : 'bg-[#059669]/10 text-[#059669] group-hover:bg-[#059669] group-hover:text-white'
-          }`}
-        >
-          {isReady && <Play className="w-3 h-3 fill-current" />}
-          <span>{isReady ? 'Buka' : 'Info'}</span>
-          <ChevronRight className="w-3.5 h-3.5 -ml-0.5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
-        </button>
+        {/* Chemistry Visual Centerpiece */}
+        <div className="relative z-10 w-[210px] h-[152px] mb-2 transform transition-transform duration-300 ease-out group-hover:scale-105">
+          <SimulationCardArtwork simulationId={simulation.id} />
+        </div>
       </div>
+
+      {/* Floating White Circular CTA Button (Bottom-Right) */}
+      <button
+        type="button"
+        aria-label={isReady ? `Buka ${simulation.title}` : `Info ${simulation.title}`}
+        className="absolute bottom-4 right-4 z-20 w-9 h-9 rounded-full bg-white text-[#1d1d1f] shadow-[0_4px_14px_rgba(0,0,0,0.22)] flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+      >
+        <ChevronRight className="w-4.5 h-4.5 stroke-[2.5] translate-x-[0.5px]" />
+      </button>
     </div>
   );
 };

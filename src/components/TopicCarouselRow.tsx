@@ -103,18 +103,19 @@ export const TopicCarouselRow: React.FC<TopicCarouselRowProps> = ({
         ref={trackRef}
         onScroll={syncScrollButtons}
         data-testid={`carousel-track-${groupKey}`}
-        className="flex items-stretch gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-3 pt-1 px-1 -mx-1 no-scrollbar"
+        className="flex items-stretch gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 pt-1 px-1 -mx-1 no-scrollbar"
       >
-        {items.map((sim) => (
+        {items.map((sim, idx) => (
           <div
             key={sim.id}
-            className="w-[290px] sm:w-[324px] shrink-0 snap-start"
+            className="w-[272px] sm:w-[294px] shrink-0 snap-start"
           >
             <SimulationCard
               simulation={sim}
               views={analyticsData.simulations[sim.id]?.views || 0}
               completed={analyticsData.simulations[sim.id]?.completed || 0}
               onSelect={onSelectSimulation}
+              cardIndex={idx}
             />
           </div>
         ))}
