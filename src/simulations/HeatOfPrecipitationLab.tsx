@@ -250,18 +250,18 @@ const PrecipitationCalorimeterCanvas: React.FC<{
           ctx.stroke();
           ctx.restore();
 
-          ctx.fillStyle = 'rgba(248, 250, 252, 0.38)';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
           ctx.fill();
-          ctx.strokeStyle = '#1e293b';
-          ctx.lineWidth = 1.9;
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 2.4;
           ctx.stroke();
 
           // Rim
-          ctx.fillStyle = '#f1f5f9';
-          ctx.strokeStyle = '#1e293b';
-          ctx.lineWidth = 1.4;
+          ctx.fillStyle = '#ffffff';
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.roundRect(cx - 41, cupTop - 3, 82, 5, 2);
+          ctx.roundRect(cx - 41, cupTop - 3, 82, 5.5, 2);
           ctx.fill();
           ctx.stroke();
           ctx.restore();
@@ -321,24 +321,24 @@ const PrecipitationCalorimeterCanvas: React.FC<{
         const cupTop = 110;
         const cupBottom = benchY - 6;
 
-        // Outer 250 cm³ Glass Beaker
+        // Outer 250 cm³ Glass Beaker (wider so gap around polystyrene cup is clearly visible)
         ctx.save();
-        ctx.fillStyle = 'rgba(226, 232, 240, 0.22)';
+        ctx.fillStyle = 'rgba(226, 232, 240, 0.18)';
         ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
-        ctx.moveTo(cupCx - 58, beakerTop - 4);
-        ctx.lineTo(cupCx - 52, beakerTop + 4);
-        ctx.lineTo(cupCx - 52, beakerBottom - 6);
-        ctx.quadraticCurveTo(cupCx - 52, beakerBottom, cupCx - 44, beakerBottom);
-        ctx.lineTo(cupCx + 44, beakerBottom);
-        ctx.quadraticCurveTo(cupCx + 52, beakerBottom, cupCx + 52, beakerBottom - 6);
-        ctx.lineTo(cupCx + 52, beakerTop);
+        ctx.moveTo(cupCx - 68, beakerTop - 4);
+        ctx.lineTo(cupCx - 60, beakerTop + 4);
+        ctx.lineTo(cupCx - 60, beakerBottom - 6);
+        ctx.quadraticCurveTo(cupCx - 60, beakerBottom, cupCx - 52, beakerBottom);
+        ctx.lineTo(cupCx + 52, beakerBottom);
+        ctx.quadraticCurveTo(cupCx + 60, beakerBottom, cupCx + 60, beakerBottom - 6);
+        ctx.lineTo(cupCx + 60, beakerTop);
         ctx.stroke();
         ctx.fill();
         ctx.restore();
 
-        // Polystyrene Cup inside beaker
+        // Polystyrene Cup inside beaker (bold dark outline + opaque white wall)
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(cupCx - 44, cupTop);
@@ -346,6 +346,10 @@ const PrecipitationCalorimeterCanvas: React.FC<{
         ctx.lineTo(cupCx + 35, cupBottom);
         ctx.lineTo(cupCx + 44, cupTop);
         ctx.closePath();
+
+        // Fill cup body white first so it stands out clearly inside glass beaker
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
 
         // Liquid & Precipitate inside cup
         ctx.save();
@@ -405,18 +409,16 @@ const PrecipitationCalorimeterCanvas: React.FC<{
         ctx.stroke();
         ctx.restore();
 
-        ctx.fillStyle = 'rgba(248, 250, 252, 0.25)';
-        ctx.fill();
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.6;
         ctx.stroke();
 
         // Rim
-        ctx.fillStyle = '#f1f5f9';
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = 1.6;
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(cupCx - 47, cupTop - 3, 94, 5, 2);
+        ctx.roundRect(cupCx - 47, cupTop - 3, 94, 5.5, 2);
         ctx.fill();
         ctx.stroke();
         ctx.restore();
@@ -513,7 +515,7 @@ const PrecipitationCalorimeterCanvas: React.FC<{
         drawLeader(thermX - 3.5, 56, 'left', 12, 56, 'Termometer (0–110 °C)');
         drawLeader(cupCx - 49, cupTop - 6, 'left', 12, 102, 'Penutup berlubang');
         drawLeader(cupCx - 41, 144, 'left', 12, 144, 'Cawan polistirena');
-        drawLeader(cupCx - 52, 194, 'left', 12, 194, 'Bikar 250 cm³');
+        drawLeader(cupCx - 60, 194, 'left', 12, 194, 'Bikar 250 cm³');
         drawLeader(rodX + 2, 74, 'right', 284, 74, 'Rod pengacau');
         if (prog >= 0.5) {
           drawLeader(
@@ -1103,16 +1105,16 @@ export const HeatOfPrecipitationLab: React.FC = () => {
 
         {/* Gambar Rajah Aras Tenaga (Format Buku Teks Kimia KSSM) */}
         {(() => {
-          const topY = 34;
-          const bottomY = 34 + Math.max(44, energyGapPx + 14);
+          const topY = 40;
+          const bottomY = 40 + Math.max(46, energyGapPx + 14);
           return (
             <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between">
               <div className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500">
                 Gambar Rajah Aras Tenaga (Eksotermik)
               </div>
               <svg
-                viewBox="0 0 320 132"
-                className="w-full h-[126px] mx-auto block"
+                viewBox="0 0 330 140"
+                className="w-full h-[132px] mx-auto block"
                 role="img"
                 aria-label="Gambar Rajah Aras Tenaga Haba Pemendakan"
               >
@@ -1125,7 +1127,7 @@ export const HeatOfPrecipitationLab: React.FC = () => {
                     refY="4"
                     orient="auto"
                   >
-                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#1e293b" />
+                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#0f172a" />
                   </marker>
                   <marker
                     id="precipDeltaHArrow"
@@ -1135,23 +1137,23 @@ export const HeatOfPrecipitationLab: React.FC = () => {
                     refY="4"
                     orient="auto"
                   >
-                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#be123c" />
+                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#0f172a" />
                   </marker>
                 </defs>
 
                 {/* Paksi Menegak Tenaga */}
                 <line
                   x1="34"
-                  y1="120"
+                  y1="126"
                   x2="34"
-                  y2="18"
-                  stroke="#1e293b"
+                  y2="22"
+                  stroke="#0f172a"
                   strokeWidth="2"
                   markerEnd="url(#precipEnergyAxisArrow)"
                 />
                 <text
                   x="34"
-                  y="11"
+                  y="14"
                   textAnchor="middle"
                   fontSize="10"
                   fontWeight="800"
@@ -1160,65 +1162,75 @@ export const HeatOfPrecipitationLab: React.FC = () => {
                   Tenaga
                 </text>
 
-                {/* Aras Bahan Tindak Balas */}
+                {/* Aras Bahan Tindak Balas (Kiri Atas) */}
                 <text
-                  x="168"
+                  x="114"
                   y={topY - 8}
                   textAnchor="middle"
-                  fontSize="10"
+                  fontSize="10.5"
                   fontWeight="800"
                   fill="#0f172a"
                 >
-                  {saltSet.reactantsFormula}
+                  {saltSet.cationLabel}(ak) + {saltSet.anionLabel}(ak)
                 </text>
                 <line
-                  x1="78"
+                  x1="58"
                   y1={topY}
-                  x2="260"
+                  x2="170"
                   y2={topY}
-                  stroke="#dc2626"
-                  strokeWidth="2.4"
+                  stroke="#0f172a"
+                  strokeWidth="2.2"
+                />
+                {/* Garis putus-putus sambungan aras atas */}
+                <line
+                  x1="170"
+                  y1={topY}
+                  x2="210"
+                  y2={topY}
+                  stroke="#64748b"
+                  strokeWidth="1.4"
+                  strokeDasharray="4 3"
                 />
 
                 {/* Anak Panah ΔH Menegak ke Bawah */}
                 <line
-                  x1="136"
+                  x1="188"
                   y1={topY + 2}
-                  x2="136"
+                  x2="188"
                   y2={bottomY - 3}
-                  stroke="#be123c"
-                  strokeWidth="2"
+                  stroke="#0f172a"
+                  strokeWidth="1.8"
                   markerEnd="url(#precipDeltaHArrow)"
                 />
                 <text
-                  x="146"
+                  x="196"
                   y={(topY + bottomY) / 2 + 3}
                   textAnchor="start"
-                  fontSize="11"
+                  fontSize="10.5"
                   fontWeight="800"
                   fill="#be123c"
                 >
                   ΔH = {saltSet.deltaH.toFixed(1)} kJ mol⁻¹
                 </text>
 
-                {/* Aras Hasil Tindak Balas */}
+                {/* Aras Hasil Tindak Balas (Kanan Bawah) */}
                 <line
-                  x1="78"
+                  x1="158"
                   y1={bottomY}
-                  x2="260"
+                  x2="278"
                   y2={bottomY}
-                  stroke="#2563eb"
-                  strokeWidth="2.4"
+                  stroke="#0f172a"
+                  strokeWidth="2.2"
                 />
                 <text
-                  x="168"
-                  y={bottomY + 14}
+                  x="218"
+                  y={bottomY + 15}
                   textAnchor="middle"
-                  fontSize="10"
+                  fontSize="10.5"
                   fontWeight="800"
                   fill="#0f172a"
                 >
-                  {saltSet.productsFormula}
+                  {saltSet.precipitateFormula}(p)
                 </text>
               </svg>
             </div>
