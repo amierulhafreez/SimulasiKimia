@@ -376,90 +376,147 @@ export const SaponificationApparatusCanvas: React.FC<SaponificationApparatusCanv
       // FASA 3: PENURASAN & PEMBILASAN PEPEJAL SABUN
       // ========================================================
       else if (ph === 3) {
-        const filterCx = 270;
+        // Shift apparatus to right side (filterCx = 354) so left margin (x = 14..220) is completely clear for non-crossing labels
+        const filterCx = 354;
         const flaskBottom = benchY;
         const flaskTop = 168;
-        const flaskW = 120;
-        const funnelTop = 82;
-        const funnelH = 88;
+        const flaskW = 126;
+        const funnelTop = 72;
+        const funnelH = 96;
 
-        // Conical Flask below funnel
+        // 3D Glass Conical Flask with soft gradients and highlights
         ctx.save();
-        ctx.fillStyle = 'rgba(241, 245, 249, 0.45)';
+        // Flask body fill
+        const flaskGrad = ctx.createLinearGradient(filterCx - flaskW / 2, 0, filterCx + flaskW / 2, 0);
+        flaskGrad.addColorStop(0, 'rgba(203, 213, 225, 0.45)');
+        flaskGrad.addColorStop(0.2, 'rgba(248, 250, 252, 0.7)');
+        flaskGrad.addColorStop(0.7, 'rgba(226, 232, 240, 0.35)');
+        flaskGrad.addColorStop(1, 'rgba(148, 163, 184, 0.5)');
+
+        ctx.fillStyle = flaskGrad;
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 2.4;
         ctx.beginPath();
-        ctx.moveTo(filterCx - 18, flaskTop);
-        ctx.lineTo(filterCx - 18, flaskTop + 24);
+        ctx.moveTo(filterCx - 20, flaskTop);
+        ctx.lineTo(filterCx - 20, flaskTop + 26);
         ctx.lineTo(filterCx - flaskW / 2, flaskBottom - 6);
-        ctx.quadraticCurveTo(filterCx - flaskW / 2, flaskBottom, filterCx - flaskW / 2 + 8, flaskBottom);
-        ctx.lineTo(filterCx + flaskW / 2 - 8, flaskBottom);
+        ctx.quadraticCurveTo(filterCx - flaskW / 2, flaskBottom, filterCx - flaskW / 2 + 10, flaskBottom);
+        ctx.lineTo(filterCx + flaskW / 2 - 10, flaskBottom);
         ctx.quadraticCurveTo(filterCx + flaskW / 2, flaskBottom, filterCx + flaskW / 2, flaskBottom - 6);
-        ctx.lineTo(filterCx + 18, flaskTop + 24);
-        ctx.lineTo(filterCx + 18, flaskTop);
+        ctx.lineTo(filterCx + 20, flaskTop + 26);
+        ctx.lineTo(filterCx + 20, flaskTop);
         ctx.stroke();
         ctx.fill();
 
         // Liquid filtrate in conical flask (gliserol + air suling + NaCl)
         ctx.save();
         ctx.beginPath();
-        ctx.rect(filterCx - flaskW / 2, flaskTop + 24, flaskW, flaskBottom - flaskTop - 24);
+        ctx.rect(filterCx - flaskW / 2, flaskTop + 26, flaskW, flaskBottom - flaskTop - 26);
         ctx.clip();
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.4)';
-        ctx.fillRect(filterCx - flaskW / 2, flaskBottom - 44, flaskW, 44);
-        ctx.restore();
-        ctx.restore(); // end flask
-
-        // Filter Funnel
-        ctx.save();
-        ctx.fillStyle = 'rgba(241, 245, 249, 0.55)';
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        // Top conical rim
-        ctx.moveTo(filterCx - 54, funnelTop);
-        ctx.lineTo(filterCx + 54, funnelTop);
-        ctx.lineTo(filterCx + 6, funnelTop + 54);
-        ctx.lineTo(filterCx + 6, funnelTop + funnelH);
-        ctx.lineTo(filterCx - 6, funnelTop + funnelH);
-        ctx.lineTo(filterCx - 6, funnelTop + 54);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        // Folded Filter Paper inside funnel
-        ctx.fillStyle = '#ffffff';
-        ctx.strokeStyle = '#cbd5e1';
+        const liqGrad = ctx.createLinearGradient(0, flaskBottom - 48, 0, flaskBottom);
+        liqGrad.addColorStop(0, 'rgba(254, 240, 138, 0.75)');
+        liqGrad.addColorStop(1, 'rgba(250, 204, 21, 0.85)');
+        ctx.fillStyle = liqGrad;
+        ctx.fillRect(filterCx - flaskW / 2, flaskBottom - 48, flaskW, 48);
+        ctx.strokeStyle = '#ca8a04';
         ctx.lineWidth = 1.4;
         ctx.beginPath();
-        ctx.moveTo(filterCx - 48, funnelTop + 4);
-        ctx.lineTo(filterCx + 48, funnelTop + 4);
-        ctx.lineTo(filterCx, funnelTop + 52);
+        ctx.ellipse(filterCx, flaskBottom - 48, flaskW / 2 - 8, 5, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // 3D Glass highlight reflection line
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(filterCx - flaskW / 2 + 12, flaskBottom - 10);
+        ctx.lineTo(filterCx - 14, flaskTop + 30);
+        ctx.stroke();
+        ctx.restore(); // end flask
+
+        // 3D Glass Filter Funnel (Corong Turas) with depth
+        ctx.save();
+        const funnelGrad = ctx.createLinearGradient(filterCx - 58, 0, filterCx + 58, 0);
+        funnelGrad.addColorStop(0, 'rgba(203, 213, 225, 0.5)');
+        funnelGrad.addColorStop(0.3, 'rgba(248, 250, 252, 0.75)');
+        funnelGrad.addColorStop(0.8, 'rgba(226, 232, 240, 0.4)');
+        funnelGrad.addColorStop(1, 'rgba(148, 163, 184, 0.6)');
+
+        ctx.fillStyle = funnelGrad;
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        // Top conical rim ellipse for 3D mouth
+        ctx.moveTo(filterCx - 58, funnelTop);
+        ctx.lineTo(filterCx + 58, funnelTop);
+        ctx.lineTo(filterCx + 7, funnelTop + 58);
+        ctx.lineTo(filterCx + 7, funnelTop + funnelH);
+        ctx.lineTo(filterCx - 7, funnelTop + funnelH);
+        ctx.lineTo(filterCx - 7, funnelTop + 58);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        // White soap residue sitting on filter paper
-        ctx.fillStyle = '#f8fafc';
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1.2;
+        // Funnel 3D top oval rim
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.ellipse(filterCx, funnelTop + 26, 32, 14, 0, 0, Math.PI * 2);
+        ctx.ellipse(filterCx, funnelTop, 58, 8, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Folded 3D Filter Paper Cone inside funnel
+        ctx.save();
+        const paperGrad = ctx.createLinearGradient(filterCx - 52, 0, filterCx + 52, 0);
+        paperGrad.addColorStop(0, '#f1f5f9');
+        paperGrad.addColorStop(0.5, '#ffffff');
+        paperGrad.addColorStop(1, '#e2e8f0');
+        ctx.fillStyle = paperGrad;
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(filterCx - 52, funnelTop + 2);
+        ctx.lineTo(filterCx + 52, funnelTop + 2);
+        ctx.lineTo(filterCx, funnelTop + 56);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        // Dropping filtrate droplets into flask
-        ctx.fillStyle = '#38bdf8';
+        // 3D Solid white soap residue mound on filter paper
+        const soapMoundGrad = ctx.createRadialGradient(
+          filterCx - 6,
+          funnelTop + 20,
+          4,
+          filterCx,
+          funnelTop + 24,
+          36
+        );
+        soapMoundGrad.addColorStop(0, '#ffffff');
+        soapMoundGrad.addColorStop(0.7, '#f8fafc');
+        soapMoundGrad.addColorStop(1, '#cbd5e1');
+        ctx.fillStyle = soapMoundGrad;
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.4;
         ctx.beginPath();
-        ctx.arc(filterCx, funnelTop + funnelH + 16, 2.8, 0, Math.PI * 2);
+        ctx.ellipse(filterCx, funnelTop + 26, 36, 15, 0, 0, Math.PI * 2);
         ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Dripping filtrate drop into conical flask
+        ctx.fillStyle = '#f59e0b';
+        ctx.strokeStyle = '#b45309';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.arc(filterCx, funnelTop + funnelH + 18, 3.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
         ctx.restore(); // end funnel
 
-        // Leader lines
-        drawLeader(filterCx + 24, funnelTop + 22, 16, 68, 'Baki turasan (Pepejal sabun)');
-        drawLeader(filterCx - 48, funnelTop + 14, 16, 114, 'Corong turas & Kertas turas');
-        drawLeader(filterCx - 18, flaskTop + 12, 16, 168, 'Kelalang kon');
-        drawLeader(filterCx - 36, flaskBottom - 22, 16, 224, 'Hasil turasan (Gliserol + NaCl)');
+        // Clean, horizontal, non-crossing leader lines in wide left margin (x = 18..220)
+        drawLeader(filterCx - 18, funnelTop + 26, 18, 56, 'Baki turasan (Pepejal sabun)');
+        drawLeader(filterCx - 52, funnelTop + 14, 18, 108, 'Corong turas & Kertas turas');
+        drawLeader(filterCx - 20, flaskTop + 12, 18, 160, 'Kelalang kon');
+        drawLeader(filterCx - 42, flaskBottom - 24, 18, 222, 'Hasil turasan (Gliserol + NaCl)');
       }
 
       // ========================================================
@@ -808,65 +865,89 @@ export const SaponificationSubmicroscopicCanvas: React.FC<
       // FASA 3 & 4: STRUKTUR ANION SABUN (TADPOLE STRUCTURE)
       // ========================================================
       else {
-        // Detailed Tadpole Molecule (Anion Sabun, RCOO-)
-        const headX = cx + 46;
-        const headY = cy;
+        // Detailed 3D Tadpole Molecule (Anion Sabun, RCOO-)
+        const headX = cx + 38;
+        const headY = cy - 4;
 
-        // Hydrocarbon Tail (Wiggly hydrophobic chain, zig-zag)
+        // Hydrocarbon Tail (Wiggly hydrophobic chain with 3D cylindrical shading, zig-zag)
         ctx.strokeStyle = '#d97706';
-        ctx.lineWidth = 3.2;
+        ctx.lineWidth = 3.6;
         ctx.beginPath();
-        ctx.moveTo(cx - 68, cy);
-        ctx.lineTo(cx - 52, cy - 14);
-        ctx.lineTo(cx - 36, cy + 14);
-        ctx.lineTo(cx - 20, cy - 14);
-        ctx.lineTo(cx - 4, cy + 14);
-        ctx.lineTo(cx + 12, cy - 14);
-        ctx.lineTo(headX - 16, cy);
+        ctx.moveTo(cx - 72, headY);
+        ctx.lineTo(cx - 56, headY - 14);
+        ctx.lineTo(cx - 40, headY + 14);
+        ctx.lineTo(cx - 24, headY - 14);
+        ctx.lineTo(cx - 8, headY + 14);
+        ctx.lineTo(cx + 8, headY - 14);
+        ctx.lineTo(headX - 22, headY);
         ctx.stroke();
 
-        // Ionic Head -COO- (Hydrophilic head)
-        ctx.fillStyle = '#dc2626';
-        ctx.strokeStyle = '#991b1b';
+        // 3D Spherical Ionic Head -COO- (Hydrophilic head)
+        const headGrad = ctx.createRadialGradient(
+          headX - 6,
+          headY - 6,
+          4,
+          headX,
+          headY,
+          24
+        );
+        headGrad.addColorStop(0, '#f87171');
+        headGrad.addColorStop(0.6, '#dc2626');
+        headGrad.addColorStop(1, '#7f1d1d');
+        ctx.fillStyle = headGrad;
+        ctx.strokeStyle = '#450a0a';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(headX, headY, 20, 0, Math.PI * 2);
+        ctx.arc(headX, headY, 22, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = '800 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.font = '800 10.5px ui-sans-serif, system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('−COO⁻', headX, headY);
 
-        // Counter ion (Na+ or K+) floating nearby
+        // Counter ion (Na+ or K+) floating nearby with 3D sphere gradient
         const counterL = alk === 'naoh' ? 'Na⁺' : 'K⁺';
-        ctx.fillStyle = '#7c3aed';
+        const counterX = headX + 32;
+        const counterY = headY - 28;
+        const counterGrad = ctx.createRadialGradient(
+          counterX - 3,
+          counterY - 3,
+          2,
+          counterX,
+          counterY,
+          11
+        );
+        counterGrad.addColorStop(0, '#c084fc');
+        counterGrad.addColorStop(0.7, '#7c3aed');
+        counterGrad.addColorStop(1, '#4c1d95');
+        ctx.fillStyle = counterGrad;
         ctx.beginPath();
-        ctx.arc(headX + 28, headY - 26, 9, 0, Math.PI * 2);
+        ctx.arc(counterX, counterY, 10, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = '#ffffff';
         ctx.font = '800 7px ui-sans-serif, system-ui, sans-serif';
-        ctx.fillText(counterL, headX + 28, headY - 26);
+        ctx.fillText(counterL, counterX, counterY);
 
-        // Leader labels inside/outside lens
+        // Labels positioned clearly inside lens without clipping
         ctx.fillStyle = '#b45309';
         ctx.font = '800 8.5px ui-sans-serif, system-ui, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Ekor Hidrokarbon (R−)', cx - 36, cy - 32);
-        ctx.font = '600 7.5px ui-sans-serif, system-ui, sans-serif';
-        ctx.fillText('Hidrofobik (Larut gris)', cx - 36, cy - 22);
+        ctx.fillText('Ekor Hidrokarbon (R−)', cx - 38, cy - 36);
+        ctx.font = '700 7.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillText('Hidrofobik (Larut gris)', cx - 38, cy - 26);
 
         ctx.fillStyle = '#dc2626';
         ctx.font = '800 8.5px ui-sans-serif, system-ui, sans-serif';
-        ctx.fillText('Kepala Ionik (−COO⁻)', headX, cy + 34);
-        ctx.font = '600 7.5px ui-sans-serif, system-ui, sans-serif';
-        ctx.fillText('Hidrofilik (Larut air)', headX, cy + 44);
+        ctx.fillText('Kepala Ionik (−COO⁻)', headX, cy + 32);
+        ctx.font = '700 7.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillText('Hidrofilik (Larut air)', headX, cy + 42);
 
         ctx.fillStyle = '#0f172a';
         ctx.font = '800 9px ui-sans-serif, system-ui, sans-serif';
-        ctx.fillText('Struktur Zarah Anion Sabun', cx, cy + 74);
+        ctx.fillText('Struktur Zarah Anion Sabun', cx, cy + 68);
       }
 
       ctx.restore(); // end circle clip
