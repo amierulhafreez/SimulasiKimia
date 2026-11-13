@@ -480,12 +480,12 @@ export const App: React.FC = () => {
               {SIMULATIONS_DATA.length} simulasi interaktif Kimia SPM KSSM — gabungkan pemerhatian makroskopik, zarah submikroskopik dan pengiraan langkah demi langkah.
             </p>
 
-            {/* Primary Apple CTAs */}
+            {/* Primary Apple Liquid Glass CTAs */}
             <div className="pt-1 flex flex-wrap items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={() => scrollToElement(catalogRef.current)}
-                className="px-6 py-3 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-sm font-semibold inline-flex items-center gap-2 shadow-sm transition transform active:scale-[0.98] cursor-pointer"
+                className="liquid-glass-blue px-6 py-3 rounded-full text-white text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
               >
                 <span>Teroka Simulasi</span>
                 <ArrowDown className="w-4 h-4" />
@@ -494,7 +494,7 @@ export const App: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleNavigateSection('t5')}
-                className="px-6 py-3 rounded-full bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] text-sm font-semibold inline-flex items-center gap-1.5 transition cursor-pointer"
+                className="liquid-glass-btn px-6 py-3 rounded-full text-[#1d1d1f] text-sm font-semibold inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <span>Lihat Tingkatan 5</span>
                 <ChevronRight className="w-4 h-4 text-[#6e6e73]" />
@@ -693,16 +693,18 @@ export const App: React.FC = () => {
                 )}
               </div>
             </div>
+          </div>
 
-            {/* Apple Segmented Control (Semua / T4 / T5) */}
-            <div className="inline-flex flex-wrap items-center gap-1 p-1.5 rounded-full bg-[#f5f5f7] border border-black/[0.05]">
+          {/* Sticky Floating Apple Liquid Glass Segmented Control (Semua / T4 / T5) */}
+          <div className="sticky top-14 sm:top-16 z-30 py-1 pointer-events-none">
+            <div className="liquid-glass-bar pointer-events-auto inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-full">
               <button
                 type="button"
                 onClick={() => setActiveFormTab('all')}
                 className={`px-5 py-2 rounded-full text-xs font-semibold transition cursor-pointer ${
                   activeFormTab === 'all'
-                    ? 'bg-white text-[#1d1d1f] shadow-xs'
-                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                    ? 'liquid-glass-btn text-[#1d1d1f]'
+                    : 'text-[#424245] hover:text-[#1d1d1f] hover:bg-white/40'
                 }`}
               >
                 Semua ({SIMULATIONS_DATA.length})
@@ -713,14 +715,14 @@ export const App: React.FC = () => {
                 onClick={() => setActiveFormTab('Tingkatan 4')}
                 className={`px-5 py-2 rounded-full text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                   activeFormTab === 'Tingkatan 4'
-                    ? 'bg-[#0071e3] text-white shadow-xs'
-                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                    ? 'liquid-glass-blue text-white'
+                    : 'text-[#424245] hover:text-[#1d1d1f] hover:bg-white/40'
                 }`}
               >
                 <span>Tingkatan 4</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
-                    activeFormTab === 'Tingkatan 4' ? 'bg-white/20 text-white' : 'bg-black/[0.06] text-[#6e6e73]'
+                    activeFormTab === 'Tingkatan 4' ? 'bg-white/25 text-white' : 'bg-black/[0.06] text-[#424245]'
                   }`}
                 >
                   {t4Count}
@@ -732,14 +734,14 @@ export const App: React.FC = () => {
                 onClick={() => setActiveFormTab('Tingkatan 5')}
                 className={`px-5 py-2 rounded-full text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                   activeFormTab === 'Tingkatan 5'
-                    ? 'bg-[#059669] text-white shadow-xs'
-                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                    ? 'liquid-glass-emerald text-white'
+                    : 'text-[#424245] hover:text-[#1d1d1f] hover:bg-white/40'
                 }`}
               >
                 <span>Tingkatan 5</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
-                    activeFormTab === 'Tingkatan 5' ? 'bg-white/20 text-white' : 'bg-black/[0.06] text-[#6e6e73]'
+                    activeFormTab === 'Tingkatan 5' ? 'bg-white/25 text-white' : 'bg-black/[0.06] text-[#424245]'
                   }`}
                 >
                   {t5Count}

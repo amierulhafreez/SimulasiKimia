@@ -92,7 +92,7 @@ export const TeacherErphSection: React.FC = () => {
             href="https://www.erphkimia.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-xs sm:text-[13px] shadow-lg shadow-indigo-500/30 transition transform hover:-translate-y-0.5 cursor-pointer"
+            className="liquid-glass-blue inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full text-white font-bold text-xs sm:text-[13px] cursor-pointer"
           >
             <span>Cuba e-RPH Kimia Sekarang</span>
             <span className="text-[11px] font-mono opacity-85">(www.erphkimia.com)</span>
@@ -103,7 +103,7 @@ export const TeacherErphSection: React.FC = () => {
             href="https://t.me/amierulhafreez"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition cursor-pointer border border-white/10"
+            className="liquid-glass-dark inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-white font-semibold text-xs cursor-pointer"
           >
             <Send className="w-3.5 h-3.5 text-blue-300" />
             <span>Tanya Cikgu Hafreez (Telegram)</span>

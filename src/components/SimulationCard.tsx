@@ -131,11 +131,11 @@ export const SimulationCard: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Floating White Circular CTA Button (Bottom-Right) */}
+      {/* Floating Liquid Glass Circular CTA Button (Bottom-Right) */}
       <button
         type="button"
         aria-label={isReady ? `Buka ${simulation.title}` : `Info ${simulation.title}`}
-        className="absolute bottom-4 right-4 z-20 w-9 h-9 rounded-full bg-white text-[#1d1d1f] shadow-[0_4px_14px_rgba(0,0,0,0.22)] flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+        className="liquid-glass-btn absolute bottom-4 right-4 z-20 w-9 h-9 rounded-full text-[#1d1d1f] flex items-center justify-center group-hover:scale-110"
       >
         <ChevronRight className="w-4.5 h-4.5 stroke-[2.5] translate-x-[0.5px]" />
       </button>

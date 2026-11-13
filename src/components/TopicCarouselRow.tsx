@@ -79,7 +79,7 @@ export const TopicCarouselRow: React.FC<TopicCarouselRowProps> = ({
                 data-testid={`slide-prev-${groupKey}`}
                 onClick={() => handleSlide(-1)}
                 disabled={!canScrollLeft}
-                className="w-8 h-8 rounded-full bg-white border border-black/[0.08] text-[#1d1d1f] flex items-center justify-center shadow-2xs hover:bg-[#1d1d1f] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-[#1d1d1f] transition cursor-pointer disabled:cursor-default"
+                className="liquid-glass-btn w-8 h-8 rounded-full text-[#1d1d1f] flex items-center justify-center disabled:opacity-30 cursor-pointer disabled:cursor-default"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -89,7 +89,7 @@ export const TopicCarouselRow: React.FC<TopicCarouselRowProps> = ({
                 data-testid={`slide-next-${groupKey}`}
                 onClick={() => handleSlide(1)}
                 disabled={!canScrollRight}
-                className="w-8 h-8 rounded-full bg-white border border-black/[0.08] text-[#1d1d1f] flex items-center justify-center shadow-2xs hover:bg-[#1d1d1f] hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-[#1d1d1f] transition cursor-pointer disabled:cursor-default"
+                className="liquid-glass-btn w-8 h-8 rounded-full text-[#1d1d1f] flex items-center justify-center disabled:opacity-30 cursor-pointer disabled:cursor-default"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

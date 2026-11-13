@@ -44,10 +44,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenFeedback }) => {
                 href="https://t.me/amierulhafreez"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-between w-full px-4 py-2.5 rounded-full bg-[#f5f5f7] hover:bg-[#0088cc] text-[#1d1d1f] hover:text-white text-[12px] font-semibold transition group"
+                className="liquid-glass-btn inline-flex items-center justify-between w-full px-4 py-2.5 rounded-full text-[#1d1d1f] hover:text-[#0071e3] text-[12px] font-semibold group"
               >
                 <span className="inline-flex items-center gap-2">
-                  <Send className="w-3.5 h-3.5 text-[#0088cc] group-hover:text-white transition" />
+                  <Send className="w-3.5 h-3.5 text-[#0088cc]" />
                   Telegram: @AmierulHafreez
                 </span>
                 <ChevronRight className="w-4 h-4 opacity-70" />
@@ -57,10 +57,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenFeedback }) => {
                 href="https://www.erphkimia.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-between w-full px-4 py-2 rounded-full bg-indigo-50 hover:bg-indigo-600 text-indigo-900 hover:text-white text-[11.5px] font-semibold transition group"
+                className="liquid-glass-btn inline-flex items-center justify-between w-full px-4 py-2 rounded-full text-indigo-900 hover:text-indigo-700 text-[11.5px] font-semibold group"
               >
                 <span className="inline-flex items-center gap-1.5">
-                  <BookmarkCheck className="w-3.5 h-3.5 text-indigo-600 group-hover:text-white" />
+                  <BookmarkCheck className="w-3.5 h-3.5 text-indigo-600" />
                   e-RPH Kimia Pintar (www.erphkimia.com)
                 </span>
                 <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
@@ -87,7 +87,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenFeedback }) => {
               <button
                 type="button"
                 onClick={onOpenFeedback}
-                className="inline-flex items-center justify-between w-full px-4 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-[#0071e3] text-white text-[12px] font-semibold transition cursor-pointer shadow-xs"
+                className="liquid-glass-dark inline-flex items-center justify-between w-full px-4 py-2.5 rounded-full text-white text-[12px] font-semibold cursor-pointer"
               >
                 <span className="inline-flex items-center gap-2">
                   <MessageSquareQuote className="w-3.5 h-3.5" />

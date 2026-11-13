@@ -17,7 +17,7 @@ export const Header: React.FC<Props> = ({
   return (
     <nav
       aria-label="Navigasi utama"
-      className="sticky top-0 z-40 apple-glass border-b border-black/[0.06] transition-shadow"
+      className="sticky top-0 z-40 apple-glass border-b border-white/60 shadow-[0_4px_24px_rgba(15,23,42,0.04)] transition-shadow"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-12 sm:h-13 flex items-center justify-between gap-4">
         {/* Left: Minimal Brand */}
@@ -85,7 +85,7 @@ export const Header: React.FC<Props> = ({
             href="https://t.me/amierulhafreez"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 sm:px-3 py-1 rounded-full bg-[#0088cc]/10 hover:bg-[#0088cc] text-[#0088cc] hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap shadow-2xs"
+            className="liquid-glass-btn px-3 py-1.5 rounded-full text-[#0071e3] hover:text-[#005bb5] text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             title="Hubungi Cikgu Hafreez di Telegram (@AmierulHafreez)"
           >
             <Send className="w-3 h-3" />
@@ -96,14 +96,14 @@ export const Header: React.FC<Props> = ({
             type="button"
             onClick={onFocusSearch}
             aria-label="Cari simulasi"
-            className="p-1.5 rounded-full text-[#1d1d1f]/70 hover:text-[#1d1d1f] hover:bg-black/[0.05] transition cursor-pointer"
+            className="liquid-glass-btn p-1.5 rounded-full text-[#1d1d1f]/80 hover:text-[#1d1d1f] cursor-pointer"
           >
             <Search className="w-4 h-4" />
           </button>
 
           <div
             title="Jumlah pelawat aktif"
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/[0.04] border border-black/[0.05] text-[11px] font-medium text-[#1d1d1f]"
+            className="liquid-glass-btn hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium text-[#1d1d1f]"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-mono font-semibold tabular-nums">
@@ -115,7 +115,7 @@ export const Header: React.FC<Props> = ({
           <button
             type="button"
             onClick={onOpenAnalytics}
-            className="px-3 py-1 rounded-full bg-[#1d1d1f] hover:bg-[#0071e3] text-white text-[11px] font-medium flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap"
+            className="liquid-glass-dark px-3.5 py-1.5 rounded-full text-white text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
           >
             <BarChart3 className="w-3.5 h-3.5" />
             <span>Statistik</span>
