@@ -539,8 +539,8 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     learningStandard: 'SP 3.2.1 - Menentukan haba pemendakan melalui aktiviti eksperimen',
     iconName: 'Droplets',
     colorTheme: 'sky',
-    isImplemented: false,
-    tags: ['Haba Pemendakan', 'AgCl / BaSO₄', 'Tindak Balas Penguraian Ganda Dua', 'ΔH']
+    isImplemented: true,
+    tags: ['Haba Pemendakan', 'AgCl / PbSO₄ / BaSO₄ / CuCO₃', 'Reaktan Pengehad', 'Q = mcθ']
   },
   {
     id: 'nilai-bahan-api',
