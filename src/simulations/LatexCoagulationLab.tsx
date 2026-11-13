@@ -67,8 +67,8 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
     const render = (now: number) => {
       const t = (now - startMs) / 1000;
       const dpr = window.devicePixelRatio || 1;
-      const cssW = 500;
-      const cssH = 260;
+      const cssW = 540;
+      const cssH = 268;
       if (canvas.width !== cssW * dpr || canvas.height !== cssH * dpr) {
         canvas.width = cssW * dpr;
         canvas.height = cssH * dpr;
@@ -83,9 +83,9 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
       ctx.fillRect(0, 0, cssW, cssH);
 
       // Bench
-      const benchY = 224;
+      const benchY = 222;
       ctx.fillStyle = '#e2e8f0';
-      ctx.fillRect(16, benchY, 468, 6);
+      ctx.fillRect(14, benchY, 512, 6);
 
       const beakerSpecs: {
         key: BeakerKey;
@@ -97,7 +97,7 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
       }[] = [
         {
           key: 'A',
-          cx: 92,
+          cx: 172,
           title: 'Bikar A',
           reagent: '+ Asid Etanoik (CH₃COOH)',
           isCoagulated: bk.A.added,
@@ -105,7 +105,7 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
         },
         {
           key: 'B',
-          cx: 250,
+          cx: 304,
           title: 'Bikar B',
           reagent: '+ Larutan Ammonia (NH₃)',
           isCoagulated: false,
@@ -113,7 +113,7 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
         },
         {
           key: 'C',
-          cx: 408,
+          cx: 436,
           title: 'Bikar C (Kawalan)',
           reagent: 'Lateks Sahaja (Udara)',
           isCoagulated: hrs >= 24,
@@ -121,9 +121,42 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
         },
       ];
 
+      // Textbook leader lines on left (Clear dedicated left margin, x = 12..110)
+      const drawLeader = (
+        targetX: number,
+        targetY: number,
+        textX: number,
+        textY: number,
+        label: string
+      ) => {
+        ctx.save();
+        ctx.font = '700 9.5px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, textX, textY);
+        const tw = ctx.measureText(label).width;
+
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.moveTo(textX + tw + 4, textY);
+        ctx.lineTo(targetX, targetY);
+        ctx.stroke();
+        ctx.fillStyle = '#475569';
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      };
+
+      drawLeader(172 + 8, 70, 14, 52, 'Rod kaca');
+      drawLeader(172 - 37, 126, 14, 126, 'Bikar 100 cm³');
+      drawLeader(172 - 37, 180, 14, 180, '20 cm³ Lateks');
+
       beakerSpecs.forEach((b) => {
         const cx = b.cx;
-        const bTop = 104;
+        const bTop = 106;
         const bBottom = benchY;
         const bWidth = 74;
         const halfW = bWidth / 2;
@@ -132,20 +165,21 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
         // Selection highlight glow
         if (isSelected) {
           ctx.save();
-          ctx.fillStyle = 'rgba(16, 185, 129, 0.12)';
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
           ctx.strokeStyle = '#10b981';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.roundRect(cx - halfW - 12, bTop - 28, bWidth + 24, bBottom - bTop + 54, 14);
+          ctx.roundRect(cx - halfW - 10, bTop - 26, bWidth + 20, bBottom - bTop + 54, 12);
           ctx.fill();
           ctx.stroke();
           ctx.restore();
         }
 
         // Clickable badge header
-        ctx.fillStyle = isSelected ? '#065f46' : '#0f172a';
-        ctx.font = '800 11px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillStyle = isSelected ? '#047857' : '#0f172a';
+        ctx.font = '800 11.5px ui-sans-serif, system-ui, sans-serif';
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
         ctx.fillText(b.title, cx, bTop - 12);
 
         // Glass Beaker body (100 cm³ beaker, 20 cm³ latex)
@@ -188,7 +222,7 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
           const clotCy = bBottom - 18;
 
           ctx.fillStyle = '#ffffff';
-          ctx.strokeStyle = '#cbd5e1';
+          ctx.strokeStyle = '#94a3b8';
           ctx.lineWidth = 1.2;
           ctx.beginPath();
           ctx.ellipse(cx, clotCy, clotW, clotH, 0, 0, Math.PI * 2);
@@ -207,12 +241,13 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
           ctx.fill();
           ctx.stroke();
 
-          // Label: Gumpalan getah kenyal + Serum
+          // In-beaker text
           ctx.fillStyle = '#0f172a';
-          ctx.font = '700 8px ui-sans-serif, system-ui, sans-serif';
+          ctx.font = '800 8px ui-sans-serif, system-ui, sans-serif';
+          ctx.textAlign = 'center';
           ctx.fillText('Gumpalan Getah', cx, clotCy - 1);
           ctx.fillStyle = '#854d0e';
-          ctx.font = '600 7px ui-sans-serif, system-ui, sans-serif';
+          ctx.font = '700 7.5px ui-sans-serif, system-ui, sans-serif';
           ctx.fillText('Serum jernih', cx, liqTop + 9);
         } else {
           // ==========================================
@@ -225,15 +260,15 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
           ctx.fillStyle = '#f1f5f9';
           ctx.fillRect(cx - halfW, liqTop, bWidth, 4);
 
-          // Liquid label
+          // In-beaker text
           ctx.fillStyle = '#334155';
-          ctx.font = '700 8px ui-sans-serif, system-ui, sans-serif';
+          ctx.font = '800 8.5px ui-sans-serif, system-ui, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('Lateks Cecair', cx, liqTop + 24);
         }
 
         // Liquid meniscus
-        ctx.strokeStyle = '#94a3b8';
+        ctx.strokeStyle = '#64748b';
         ctx.lineWidth = 1.2;
         ctx.beginPath();
         ctx.moveTo(cx - halfW, liqTop);
@@ -282,7 +317,6 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
           bacteriaDots.slice(0, actCount).forEach((bDot) => {
             const bx = cx + bDot.rx * (bWidth - 16);
             const by = bTop - 18 + bDot.ry * 28 + Math.sin(t * 2 + bDot.phase) * 3;
-            // Bacteria icon/pill (purple / green micro-organism)
             ctx.fillStyle = '#7c3aed';
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 0.5;
@@ -293,61 +327,20 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
           });
           if (hrs >= 12 && hrs < 24) {
             ctx.fillStyle = '#6d28d9';
-            ctx.font = '700 7px ui-sans-serif, system-ui, sans-serif';
+            ctx.font = '800 7.5px ui-sans-serif, system-ui, sans-serif';
+            ctx.textAlign = 'center';
             ctx.fillText('Bakteria udara', cx, bTop - 24);
           }
         }
 
-        // Reagent and Status badge below beaker
+        // Reagent label below beaker (clearly in bottom space)
         ctx.fillStyle = '#0f172a';
         ctx.font = '700 8.5px ui-sans-serif, system-ui, sans-serif';
-        ctx.fillText(b.reagent, cx, bBottom + 13);
-
-        const statusText = b.isCoagulated
-          ? '✓ Menggumpal'
-          : b.key === 'B'
-          ? '✓ Kekal Cecair'
-          : hrs < 24
-          ? 'Cecair (0-23j)'
-          : '✓ Menggumpal';
-        const statusColor = b.isCoagulated
-          ? 'bg-rose-100 text-rose-800'
-          : 'bg-emerald-100 text-emerald-800';
+        ctx.textAlign = 'center';
+        ctx.fillText(b.reagent, cx, bBottom + 16);
 
         ctx.restore();
       });
-
-      // Textbook leader lines on left
-      const drawLeader = (
-        targetX: number,
-        targetY: number,
-        textX: number,
-        textY: number,
-        label: string
-      ) => {
-        ctx.save();
-        ctx.font = '700 9px ui-sans-serif, system-ui, sans-serif';
-        ctx.fillStyle = '#0f172a';
-        ctx.textAlign = 'left';
-        ctx.fillText(label, textX, textY);
-        const tw = ctx.measureText(label).width;
-
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(textX + tw + 4, textY);
-        ctx.lineTo(targetX, targetY);
-        ctx.stroke();
-        ctx.fillStyle = '#475569';
-        ctx.beginPath();
-        ctx.arc(targetX, targetY, 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      };
-
-      drawLeader(98, 64, 18, 48, 'Rod kaca pengacau');
-      drawLeader(58, 114, 18, 114, 'Bikar 100 cm³');
-      drawLeader(58, 168, 18, 168, '20 cm³ Lateks');
 
       ctx.restore();
       rafId = requestAnimationFrame(render);
@@ -363,12 +356,12 @@ export const ThreeBeakersCanvas: React.FC<ThreeBeakersCanvasProps> = ({
         ref={canvasRef}
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
-          const clickX = ((e.clientX - rect.left) / rect.width) * 500;
-          if (clickX < 170) onSelectBeaker('A');
-          else if (clickX < 330) onSelectBeaker('B');
+          const clickX = ((e.clientX - rect.left) / rect.width) * 540;
+          if (clickX < 238) onSelectBeaker('A');
+          else if (clickX < 370) onSelectBeaker('B');
           else onSelectBeaker('C');
         }}
-        className="w-full max-w-[500px] aspect-[500/260] mx-auto block rounded-xl border border-slate-200 bg-white cursor-pointer shadow-inner"
+        className="w-full max-w-[540px] aspect-[540/268] mx-auto block rounded-xl border border-slate-200 bg-white cursor-pointer shadow-inner"
       />
       <div className="text-[10px] text-center text-slate-500 mt-1">
         *Klik pada mana-mana bikar untuk memaparkan mekanisme zarah submikroskopik di panel kanan.
@@ -407,8 +400,8 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
     const render = (now: number) => {
       const t = (now - startMs) / 1000;
       const dpr = window.devicePixelRatio || 1;
-      const cssW = 280;
-      const cssH = 230;
+      const cssW = 320;
+      const cssH = 260;
       if (canvas.width !== cssW * dpr || canvas.height !== cssH * dpr) {
         canvas.width = cssW * dpr;
         canvas.height = cssH * dpr;
@@ -422,9 +415,9 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
       ctx.fillStyle = '#f8fafc';
       ctx.fillRect(0, 0, cssW, cssH);
 
-      const cx = 140;
-      const cy = 112;
-      const r = 94;
+      const cx = 160;
+      const cy = 114;
+      const r = 90;
 
       // Circular magnifier viewport
       ctx.save();
@@ -484,7 +477,7 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
           ctx.fillText('H⁺', px, py);
         });
 
-        // Banner text
+        // Banner text inside circle
         ctx.fillStyle = '#dc2626';
         ctx.font = '800 8.5px ui-sans-serif, system-ui, sans-serif';
         ctx.textAlign = 'center';
@@ -493,27 +486,24 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
         // ========================================================
         // MECHANISM 3: Bikar B with Ammonia (OH- neutralises H+, keeps negative charge)
         // ========================================================
-        // Two repulsive rubber particles with negative signs on membrane
-        const separation = 44 + Math.sin(t * 3) * 6; // oscillates repelling
+        const separation = 40 + Math.sin(t * 3) * 5;
         const leftX = cx - separation;
         const rightX = cx + separation;
 
-        // Draw particle helper
         const drawRubberParticle = (px: number, py: number) => {
-          // Negative protein membrane outer ring
           ctx.strokeStyle = '#10b981';
           ctx.lineWidth = 2.4;
           ctx.beginPath();
-          ctx.arc(px, py, 26, 0, Math.PI * 2);
+          ctx.arc(px, py, 24, 0, Math.PI * 2);
           ctx.stroke();
 
-          // Polyisoprene chain inside (yellowish-brown squiggle)
+          // Polyisoprene chain inside
           ctx.strokeStyle = '#f59e0b';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(px - 14, py - 6);
-          ctx.quadraticCurveTo(px, py - 18, px + 12, py - 4);
-          ctx.quadraticCurveTo(px + 4, py + 14, px - 10, py + 10);
+          ctx.moveTo(px - 12, py - 6);
+          ctx.quadraticCurveTo(px, py - 16, px + 10, py - 4);
+          ctx.quadraticCurveTo(px + 3, py + 12, px - 8, py + 9);
           ctx.stroke();
 
           // Negative charge marks "-"
@@ -523,29 +513,29 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
           ctx.textBaseline = 'middle';
           [-18, 0, 18].forEach((angDeg) => {
             const rad = (angDeg * Math.PI) / 180;
-            ctx.fillText('−', px + Math.cos(rad) * 31, py + Math.sin(rad) * 31);
-            ctx.fillText('−', px - Math.cos(rad) * 31, py - Math.sin(rad) * 31);
+            ctx.fillText('−', px + Math.cos(rad) * 29, py + Math.sin(rad) * 29);
+            ctx.fillText('−', px - Math.cos(rad) * 29, py - Math.sin(rad) * 29);
           });
         };
 
-        drawRubberParticle(leftX, cy);
-        drawRubberParticle(rightX, cy);
+        drawRubberParticle(leftX, cy - 4);
+        drawRubberParticle(rightX, cy - 4);
 
         // Repulsion force arrows
         ctx.strokeStyle = '#059669';
         ctx.lineWidth = 1.6;
         ctx.beginPath();
-        ctx.moveTo(cx - 10, cy);
-        ctx.lineTo(cx - 24, cy);
-        ctx.moveTo(cx + 10, cy);
-        ctx.lineTo(cx + 24, cy);
+        ctx.moveTo(cx - 8, cy - 4);
+        ctx.lineTo(cx - 20, cy - 4);
+        ctx.moveTo(cx + 8, cy - 4);
+        ctx.lineTo(cx + 20, cy - 4);
         ctx.stroke();
 
         // Floating OH- ions
         [
-          { x: cx, y: cy - 42 },
-          { x: cx - 52, y: cy + 46 },
-          { x: cx + 52, y: cy + 46 },
+          { x: cx, y: cy - 48 },
+          { x: cx - 48, y: cy + 42 },
+          { x: cx + 48, y: cy + 42 },
         ].forEach((pos) => {
           ctx.fillStyle = '#2563eb';
           ctx.beginPath();
@@ -558,32 +548,31 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
           ctx.fillText('OH⁻', pos.x, pos.y);
         });
 
-        // Banner text
         ctx.fillStyle = '#059669';
         ctx.font = '800 8.5px ui-sans-serif, system-ui, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Cas negatif kekal (Zarah saling menolak)', cx, cy + 68);
+        ctx.fillText('Cas negatif kekal (Saling menolak)', cx, cy + 68);
       } else {
         // ========================================================
         // MECHANISM 1: Fresh liquid latex (Uncoagulated)
         // ========================================================
-        const leftX = cx - 38 + Math.sin(t * 1.8) * 3;
-        const rightX = cx + 38 - Math.sin(t * 1.8) * 3;
+        const leftX = cx - 36 + Math.sin(t * 1.8) * 3;
+        const rightX = cx + 36 - Math.sin(t * 1.8) * 3;
 
         const drawRubberParticle = (px: number, py: number) => {
           ctx.strokeStyle = '#0284c7';
           ctx.lineWidth = 2.4;
           ctx.beginPath();
-          ctx.arc(px, py, 26, 0, Math.PI * 2);
+          ctx.arc(px, py, 24, 0, Math.PI * 2);
           ctx.stroke();
 
           // Polyisoprene chain inside
           ctx.strokeStyle = '#f59e0b';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.moveTo(px - 14, py - 6);
-          ctx.quadraticCurveTo(px, py - 18, px + 12, py - 4);
-          ctx.quadraticCurveTo(px + 4, py + 14, px - 10, py + 10);
+          ctx.moveTo(px - 12, py - 6);
+          ctx.quadraticCurveTo(px, py - 16, px + 10, py - 4);
+          ctx.quadraticCurveTo(px + 3, py + 12, px - 8, py + 9);
           ctx.stroke();
 
           // Negative charge marks "-"
@@ -593,28 +582,30 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
           ctx.textBaseline = 'middle';
           [-18, 0, 18].forEach((angDeg) => {
             const rad = (angDeg * Math.PI) / 180;
-            ctx.fillText('−', px + Math.cos(rad) * 31, py + Math.sin(rad) * 31);
-            ctx.fillText('−', px - Math.cos(rad) * 31, py - Math.sin(rad) * 31);
+            ctx.fillText('−', px + Math.cos(rad) * 29, py + Math.sin(rad) * 29);
+            ctx.fillText('−', px - Math.cos(rad) * 29, py - Math.sin(rad) * 29);
           });
         };
 
-        drawRubberParticle(leftX, cy);
-        drawRubberParticle(rightX, cy);
+        drawRubberParticle(leftX, cy - 4);
+        drawRubberParticle(rightX, cy - 4);
 
         // Repulsion arrows
         ctx.strokeStyle = '#0284c7';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(cx - 8, cy);
-        ctx.lineTo(cx - 20, cy);
-        ctx.moveTo(cx + 8, cy);
-        ctx.lineTo(cx + 20, cy);
+        ctx.moveTo(cx - 8, cy - 4);
+        ctx.lineTo(cx - 20, cy - 4);
+        ctx.moveTo(cx + 8, cy - 4);
+        ctx.lineTo(cx + 20, cy - 4);
         ctx.stroke();
 
         ctx.fillStyle = '#0369a1';
         ctx.font = '800 8.5px ui-sans-serif, system-ui, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Membran protein bercas negatif (Saling menolak)', cx, cy + 68);
+        ctx.fillText('Membran protein bercas negatif', cx, cy + 62);
+        ctx.font = '700 8px ui-sans-serif, system-ui, sans-serif';
+        ctx.fillText('(Zarah getah saling menolak)', cx, cy + 74);
       }
 
       ctx.restore(); // end circle clip
@@ -625,6 +616,40 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();
+
+      // Outer leader labels (drawn outside circle clip so text is completely crisp)
+      if (!isCoagulated && sel !== 'B') {
+        const drawOuterLeader = (
+          targetX: number,
+          targetY: number,
+          textX: number,
+          textY: number,
+          label: string
+        ) => {
+          ctx.save();
+          ctx.font = '800 8.5px ui-sans-serif, system-ui, sans-serif';
+          ctx.fillStyle = '#0f172a';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(label, textX, textY);
+          const tw = ctx.measureText(label).width;
+
+          ctx.strokeStyle = '#64748b';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(textX + tw + 3, textY);
+          ctx.lineTo(targetX, targetY);
+          ctx.stroke();
+          ctx.fillStyle = '#334155';
+          ctx.beginPath();
+          ctx.arc(targetX, targetY, 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        };
+
+        drawOuterLeader(cx - 56, cy - 14, 10, cy - 54, 'Membran protein (−)');
+        drawOuterLeader(cx - 38, cy - 4, 10, cy + 50, 'Polimer getah');
+      }
 
       ctx.restore();
       rafId = requestAnimationFrame(render);
@@ -637,7 +662,7 @@ export const RubberParticleCanvas: React.FC<RubberParticleCanvasProps> = ({
   return (
     <canvas
       ref={canvasRef}
-      className="w-full max-w-[280px] aspect-[280/230] mx-auto block rounded-xl border border-slate-200 bg-slate-50"
+      className="w-full max-w-[320px] aspect-[320/260] mx-auto block rounded-xl border border-slate-200 bg-slate-50"
     />
   );
 };
