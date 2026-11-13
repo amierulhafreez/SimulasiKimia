@@ -25,7 +25,7 @@ interface DotCoord {
  * - Petala dengan 3–8 elektron: diisi berpasangan pada 4 arah kardinal (Atas, Kanan, Bawah, Kiri).
  * - Petala dengan >8 elektron (cth. 18 atau 32): diagihkan sekata mengelilingi lilitan petala.
  */
-function computeShellElectronCoords(
+export function computeShellElectronCoords(
   cx: number,
   cy: number,
   radius: number,

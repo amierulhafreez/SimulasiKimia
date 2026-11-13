@@ -17,6 +17,7 @@ import { SaltSolubilityLab } from '../simulations/SaltSolubilityLab';
 import { CovalentFormulaLab } from '../simulations/CovalentFormulaLab';
 import { IonicFormulaLab } from '../simulations/IonicFormulaLab';
 import { SoapMakingLab } from '../simulations/SoapMakingLab';
+import { HardWaterCleaningLab } from '../simulations/HardWaterCleaningLab';
 import { IntermolecularForcesLab } from '../simulations/IntermolecularForcesLab';
 import { StandardSolutionLab } from '../simulations/StandardSolutionLab';
 import { RateOfReactionSizeLab } from '../simulations/RateOfReactionSizeLab';
@@ -104,6 +105,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <ThermochemistryLab />;
       case 'penghasilan-sabun':
         return <SoapMakingLab />;
+      case 'pencucian-sabun-detergen-air-liat':
+        return <HardWaterCleaningLab />;
       case 'daya-tarikan-zarah':
         return <IntermolecularForcesLab />;
       case 'penyediaan-larutan-piawai':

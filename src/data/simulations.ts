@@ -608,7 +608,7 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     learningStandard: 'SP 5.2.3 - Membandingkan tindakan pencucian sabun dan detergen dalam air liat dan air lembut',
     iconName: 'Droplets',
     colorTheme: 'blue',
-    isImplemented: false,
+    isImplemented: true,
     tags: ['Sabun vs Detergen', 'Air Liat (Ca²⁺/Mg²⁺)', 'Kekat (Scum)', 'Air Lembut']
   }
 ];
