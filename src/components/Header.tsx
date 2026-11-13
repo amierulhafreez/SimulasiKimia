@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Search, FlaskConical } from 'lucide-react';
+import { BarChart3, Search, FlaskConical, Send, ArrowUpRight } from 'lucide-react';
 
 interface Props {
   totalVisitors: number;
@@ -67,10 +67,31 @@ export const Header: React.FC<Props> = ({
           >
             Tingkatan 5
           </button>
+          <a
+            href="https://www.erphkimia.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-indigo-600 transition cursor-pointer whitespace-nowrap flex items-center gap-1 text-indigo-600/90 font-semibold"
+            title="e-RPH Kimia KSSM Pintar untuk Guru"
+          >
+            <span>e-RPH Guru</span>
+            <ArrowUpRight className="w-3 h-3 opacity-70" />
+          </a>
         </div>
 
-        {/* Right: Quick Search, Visitor Live Pill & Statistics */}
+        {/* Right: Telegram Contact, Quick Search, Visitor Live Pill & Statistics */}
         <div className="flex items-center gap-2 shrink-0">
+          <a
+            href="https://t.me/amierulhafreez"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-2.5 sm:px-3 py-1 rounded-full bg-[#0088cc]/10 hover:bg-[#0088cc] text-[#0088cc] hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap shadow-2xs"
+            title="Hubungi Cikgu Hafreez di Telegram (@AmierulHafreez)"
+          >
+            <Send className="w-3 h-3" />
+            <span className="inline">Hubungi Saya</span>
+          </a>
+
           <button
             type="button"
             onClick={onFocusSearch}

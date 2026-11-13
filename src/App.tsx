@@ -8,6 +8,8 @@ import { SimulationCard } from './components/SimulationCard';
 import { TopicCarouselRow } from './components/TopicCarouselRow';
 import { SimulationModal } from './components/SimulationModal';
 import { AnalyticsModal } from './components/AnalyticsModal';
+import { FeedbackModal } from './components/FeedbackModal';
+import { TeacherErphSection } from './components/TeacherErphSection';
 import { Footer } from './components/Footer';
 import {
   ArrowDown,
@@ -122,6 +124,7 @@ export const App: React.FC = () => {
   const [analyticsData, setAnalyticsData] = useState<SimulationAnalytics>(analytics.getAnalytics());
   const [selectedSimulation, setSelectedSimulation] = useState<SimulationItem | null>(null);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState<boolean>(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [activeFormTab, setActiveFormTab] = useState<'all' | FormLevel>('all');
   const [selectedT4Topic, setSelectedT4Topic] = useState<string>('all');
   const [selectedT5Topic, setSelectedT5Topic] = useState<string>('all');
@@ -793,6 +796,11 @@ export const App: React.FC = () => {
             </div>
           )}
         </main>
+
+        {/* Ruangan Khas Guru: e-RPH Kimia */}
+        <div className="mt-14 mb-4">
+          <TeacherErphSection />
+        </div>
       </div>
 
       {/* Interactive Simulation Modal */}
@@ -809,8 +817,14 @@ export const App: React.FC = () => {
         />
       )}
 
+      {/* In-App Direct Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+      />
+
       {/* Minimalist Footer */}
-      <Footer />
+      <Footer onOpenFeedback={() => setShowFeedbackModal(true)} />
     </div>
   );
 };
