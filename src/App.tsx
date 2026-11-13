@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { SIMULATIONS_DATA } from './data/simulations';
 import { FormLevel, SimulationAnalytics, SimulationItem } from './types/simulation';
 import { analytics } from './services/analytics';
@@ -7,10 +7,15 @@ import { AppleHeroShowcase } from './components/AppleHeroShowcase';
 import { SimulationCard } from './components/SimulationCard';
 import { TopicCarouselRow } from './components/TopicCarouselRow';
 import { SimulationModal } from './components/SimulationModal';
-import { AnalyticsModal } from './components/AnalyticsModal';
-import { FeedbackModal } from './components/FeedbackModal';
 import { TeacherErphSection } from './components/TeacherErphSection';
 import { Footer } from './components/Footer';
+
+const AnalyticsModal = React.lazy(() =>
+  import('./components/AnalyticsModal').then((m) => ({ default: m.AnalyticsModal }))
+);
+const FeedbackModal = React.lazy(() =>
+  import('./components/FeedbackModal').then((m) => ({ default: m.FeedbackModal }))
+);
 import {
   ArrowDown,
   ArrowUpRight,
@@ -697,11 +702,11 @@ export const App: React.FC = () => {
 
           {/* Sticky Floating Apple Liquid Glass Segmented Control (Semua / T4 / T5) */}
           <div className="sticky top-14 sm:top-16 z-30 py-1 pointer-events-none">
-            <div className="liquid-glass-bar pointer-events-auto inline-flex flex-wrap items-center gap-1.5 p-1.5 rounded-full">
+            <div className="liquid-glass-bar pointer-events-auto inline-flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-full max-w-full overflow-x-auto no-scrollbar">
               <button
                 type="button"
                 onClick={() => setActiveFormTab('all')}
-                className={`px-5 py-2 rounded-full text-xs font-semibold transition cursor-pointer ${
+                className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
                   activeFormTab === 'all'
                     ? 'liquid-glass-btn text-[#1d1d1f]'
                     : 'text-[#424245] hover:text-[#1d1d1f] hover:bg-white/40'
@@ -713,7 +718,7 @@ export const App: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveFormTab('Tingkatan 4')}
-                className={`px-5 py-2 rounded-full text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeFormTab === 'Tingkatan 4'
                     ? 'liquid-glass-blue text-white'
                     : 'text-[#424245] hover:text-[#1d1d1f] hover:bg-white/40'
@@ -732,7 +737,7 @@ export const App: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveFormTab('Tingkatan 5')}
-                className={`px-5 py-2 rounded-full text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                   activeFormTab === 'Tingkatan 5'
                     ? 'liquid-glass-emerald text-white'
                     : 'text-[#424245] hover:text-[#1d1d1f] hover:bg-white/40'
@@ -813,17 +818,23 @@ export const App: React.FC = () => {
 
       {/* Analytics Modal */}
       {showAnalyticsModal && (
-        <AnalyticsModal
-          analyticsData={analyticsData}
-          onClose={() => setShowAnalyticsModal(false)}
-        />
+        <Suspense fallback={null}>
+          <AnalyticsModal
+            analyticsData={analyticsData}
+            onClose={() => setShowAnalyticsModal(false)}
+          />
+        </Suspense>
       )}
 
       {/* In-App Direct Feedback Modal */}
-      <FeedbackModal
-        isOpen={showFeedbackModal}
-        onClose={() => setShowFeedbackModal(false)}
-      />
+      {showFeedbackModal && (
+        <Suspense fallback={null}>
+          <FeedbackModal
+            isOpen={showFeedbackModal}
+            onClose={() => setShowFeedbackModal(false)}
+          />
+        </Suspense>
+      )}
 
       {/* Minimalist Footer */}
       <Footer onOpenFeedback={() => setShowFeedbackModal(true)} />

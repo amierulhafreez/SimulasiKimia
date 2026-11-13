@@ -1,58 +1,136 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { SimulationItem } from '../types/simulation';
 import { analytics } from '../services/analytics';
-import { AcidBaseTitration } from '../simulations/AcidBaseTitration';
-import { GasTestLab } from '../simulations/GasTestLab';
-import { LatexCoagulation } from '../simulations/LatexCoagulation';
-import { NaphthaleneCooling } from '../simulations/NaphthaleneCooling';
-import { ChemicalEquationBalancer } from '../simulations/ChemicalEquationBalancer';
-import { AnionTestLab } from '../simulations/AnionTestLab';
-import { CationTestLab } from '../simulations/CationTestLab';
-import { ElectrolysisLab } from '../simulations/ElectrolysisLab';
-import { ThermochemistryLab } from '../simulations/ThermochemistryLab';
-import { CarbonIsomersLab } from '../simulations/CarbonIsomersLab';
-import { CarbonStructureBuilderLab } from '../simulations/CarbonStructureBuilderLab';
-import { ReactivityLab } from '../simulations/ReactivityLab';
-import { SaltSolubilityLab } from '../simulations/SaltSolubilityLab';
-import { CovalentFormulaLab } from '../simulations/CovalentFormulaLab';
-import { IonicFormulaLab } from '../simulations/IonicFormulaLab';
-import { SoapMakingLab } from '../simulations/SoapMakingLab';
-import { HardWaterCleaningLab } from '../simulations/HardWaterCleaningLab';
-import { IntermolecularForcesLab } from '../simulations/IntermolecularForcesLab';
-import { StandardSolutionLab } from '../simulations/StandardSolutionLab';
-import { RateOfReactionSizeLab } from '../simulations/RateOfReactionSizeLab';
-import { RateOfReactionConcentrationLab } from '../simulations/RateOfReactionConcentrationLab';
-import { RateOfReactionTemperatureLab } from '../simulations/RateOfReactionTemperatureLab';
-import { RateOfReactionCatalystLab } from '../simulations/RateOfReactionCatalystLab';
-import { StatesOfMatterLab } from '../simulations/StatesOfMatterLab';
-import { IronExtractionLab } from '../simulations/IronExtractionLab';
-import { AluminumExtractionLab } from '../simulations/AluminumExtractionLab';
-import { HeatOfCombustionLab } from '../simulations/HeatOfCombustionLab';
-import { FuelValueLab } from '../simulations/FuelValueLab';
-import { MagnesiumOxideLab } from '../simulations/MagnesiumOxideLab';
-import { CopperOxideLab } from '../simulations/CopperOxideLab';
-import { Period3OxidesLab } from '../simulations/Period3OxidesLab';
-import { AlloyHardnessLab } from '../simulations/AlloyHardnessLab';
-import { UTubeElectronTransferLab } from '../simulations/UTubeElectronTransferLab';
-import { IronIonConversionLab } from '../simulations/IronIonConversionLab';
-import { HalogenDisplacementLab } from '../simulations/HalogenDisplacementLab';
-import { VoltaicCellLab } from '../simulations/VoltaicCellLab';
-import { IronRustingLab } from '../simulations/IronRustingLab';
-import { EthanolOxidationLab } from '../simulations/EthanolOxidationLab';
-import { EsterificationLab } from '../simulations/EsterificationLab';
-import { AlkeneReactionsHubLab } from '../simulations/AlkeneReactionsHubLab';
-import { EthanolFermentationDistillationLab } from '../simulations/EthanolFermentationDistillationLab';
-import { AlkaneVsAlkeneLab } from '../simulations/AlkaneVsAlkeneLab';
-import { HeatOfNeutralisationLab } from '../simulations/HeatOfNeutralisationLab';
-import { HeatOfPrecipitationLab } from '../simulations/HeatOfPrecipitationLab';
-import { LatexCoagulationLab } from '../simulations/LatexCoagulationLab';
-import { RubberElasticityLab } from '../simulations/RubberElasticityLab';
-import { X, Sparkles, BookOpen } from 'lucide-react';
+import { X, Sparkles, BookOpen, FlaskConical } from 'lucide-react';
 
 interface Props {
   simulation: SimulationItem | null;
   onClose: () => void;
 }
+
+type LoaderFn = () => Promise<{ default: React.ComponentType }>;
+
+const SIMULATION_LOADERS: Record<string, LoaderFn> = {
+  'pentitratan-asid-alkali': () =>
+    import('../simulations/AcidBaseTitration').then((m) => ({ default: m.AcidBaseTitration })),
+  'ujian-gas': () =>
+    import('../simulations/GasTestLab').then((m) => ({ default: m.GasTestLab })),
+  'pemanasan-dan-penyejukkan-naftalena': () =>
+    import('../simulations/NaphthaleneCooling').then((m) => ({ default: m.NaphthaleneCooling })),
+  'penyeimbangan-persamaan-kimia': () =>
+    import('../simulations/ChemicalEquationBalancer').then((m) => ({ default: m.ChemicalEquationBalancer })),
+  'penggumpalan-lateks': () =>
+    import('../simulations/LatexCoagulationLab').then((m) => ({ default: m.LatexCoagulationLab })),
+  'kekenyalan-getah-asli-tervulkan': () =>
+    import('../simulations/RubberElasticityLab').then((m) => ({ default: m.RubberElasticityLab })),
+  'ujian-kation': () =>
+    import('../simulations/CationTestLab').then((m) => ({ default: m.CationTestLab })),
+  'ujian-anion': () =>
+    import('../simulations/AnionTestLab').then((m) => ({ default: m.AnionTestLab })),
+  'elektrolisis': () =>
+    import('../simulations/ElectrolysisLab').then((m) => ({ default: m.ElectrolysisLab })),
+  'keterlarutan-garam': () =>
+    import('../simulations/SaltSolubilityLab').then((m) => ({ default: m.SaltSolubilityLab })),
+  'penentuan-isomer': () =>
+    import('../simulations/CarbonIsomersLab').then((m) => ({ default: m.CarbonIsomersLab })),
+  'formula-struktur-karbon': () =>
+    import('../simulations/CarbonStructureBuilderLab').then((m) => ({ default: m.CarbonStructureBuilderLab })),
+  'kereaktifan-k1-dan-k17': () =>
+    import('../simulations/ReactivityLab').then((m) => ({ default: m.ReactivityLab })),
+  'penghasilan-sebatian-kovalen': () =>
+    import('../simulations/CovalentFormulaLab').then((m) => ({ default: m.CovalentFormulaLab })),
+  'penghasilan-formula-kimia': () =>
+    import('../simulations/IonicFormulaLab').then((m) => ({ default: m.IonicFormulaLab })),
+  'haba-penyesaran': () =>
+    import('../simulations/ThermochemistryLab').then((m) => ({ default: m.ThermochemistryLab })),
+  'penghasilan-sabun': () =>
+    import('../simulations/SoapMakingLab').then((m) => ({ default: m.SoapMakingLab })),
+  'pencucian-sabun-detergen-air-liat': () =>
+    import('../simulations/HardWaterCleaningLab').then((m) => ({ default: m.HardWaterCleaningLab })),
+  'daya-tarikan-zarah': () =>
+    import('../simulations/IntermolecularForcesLab').then((m) => ({ default: m.IntermolecularForcesLab })),
+  'penyediaan-larutan-piawai': () =>
+    import('../simulations/StandardSolutionLab').then((m) => ({ default: m.StandardSolutionLab })),
+  'kadar-tindak-balas-saiz': () =>
+    import('../simulations/RateOfReactionSizeLab').then((m) => ({ default: m.RateOfReactionSizeLab })),
+  'kadar-tindak-balas-kepekatan': () =>
+    import('../simulations/RateOfReactionConcentrationLab').then((m) => ({ default: m.RateOfReactionConcentrationLab })),
+  'kadar-tindak-balas-suhu': () =>
+    import('../simulations/RateOfReactionTemperatureLab').then((m) => ({ default: m.RateOfReactionTemperatureLab })),
+  'kadar-tindak-balas-mangkin': () =>
+    import('../simulations/RateOfReactionCatalystLab').then((m) => ({ default: m.RateOfReactionCatalystLab })),
+  'keadaan-zarah-jirim': () =>
+    import('../simulations/StatesOfMatterLab').then((m) => ({ default: m.StatesOfMatterLab })),
+  'pengekstrakan-besi': () =>
+    import('../simulations/IronExtractionLab').then((m) => ({ default: m.IronExtractionLab })),
+  'pengekstrakan-aluminium': () =>
+    import('../simulations/AluminumExtractionLab').then((m) => ({ default: m.AluminumExtractionLab })),
+  'haba-pembakaran': () =>
+    import('../simulations/HeatOfCombustionLab').then((m) => ({ default: m.HeatOfCombustionLab })),
+  'nilai-bahan-api': () =>
+    import('../simulations/FuelValueLab').then((m) => ({ default: m.FuelValueLab })),
+  'formula-empirik-mgo': () =>
+    import('../simulations/MagnesiumOxideLab').then((m) => ({ default: m.MagnesiumOxideLab })),
+  'formula-empirik-cuo': () =>
+    import('../simulations/CopperOxideLab').then((m) => ({ default: m.CopperOxideLab })),
+  'sifat-oksida-kala-3': () =>
+    import('../simulations/Period3OxidesLab').then((m) => ({ default: m.Period3OxidesLab })),
+  'kekerasan-aloi-logam-tulen': () =>
+    import('../simulations/AlloyHardnessLab').then((m) => ({ default: m.AlloyHardnessLab })),
+  'pemindahan-elektron-tiub-u': () =>
+    import('../simulations/UTubeElectronTransferLab').then((m) => ({ default: m.UTubeElectronTransferLab })),
+  'penukaran-ion-ferum': () =>
+    import('../simulations/IronIonConversionLab').then((m) => ({ default: m.IronIonConversionLab })),
+  'penyesaran-halogen-halida': () =>
+    import('../simulations/HalogenDisplacementLab').then((m) => ({ default: m.HalogenDisplacementLab })),
+  'sel-kimia-voltan': () =>
+    import('../simulations/VoltaicCellLab').then((m) => ({ default: m.VoltaicCellLab })),
+  'pengaratan-besi-sentuhan-logam': () =>
+    import('../simulations/IronRustingLab').then((m) => ({ default: m.IronRustingLab })),
+  'pengoksidaan-etanol': () =>
+    import('../simulations/EthanolOxidationLab').then((m) => ({ default: m.EthanolOxidationLab })),
+  'pengesteran-alkohol-asid-karboksilik': () =>
+    import('../simulations/EsterificationLab').then((m) => ({ default: m.EsterificationLab })),
+  'tindak-balas-kimia-alkena': () =>
+    import('../simulations/AlkeneReactionsHubLab').then((m) => ({ default: m.AlkeneReactionsHubLab })),
+  'penapaian-penyulingan-etanol': () =>
+    import('../simulations/EthanolFermentationDistillationLab').then((m) => ({ default: m.EthanolFermentationDistillationLab })),
+  'ujian-kimia-alkana-alkena': () =>
+    import('../simulations/AlkaneVsAlkeneLab').then((m) => ({ default: m.AlkaneVsAlkeneLab })),
+  'haba-peneutralan': () =>
+    import('../simulations/HeatOfNeutralisationLab').then((m) => ({ default: m.HeatOfNeutralisationLab })),
+  'haba-pemendakan': () =>
+    import('../simulations/HeatOfPrecipitationLab').then((m) => ({ default: m.HeatOfPrecipitationLab })),
+};
+
+const LAZY_SIMULATIONS: Record<string, React.LazyExoticComponent<React.ComponentType>> = {};
+for (const [id, loader] of Object.entries(SIMULATION_LOADERS)) {
+  LAZY_SIMULATIONS[id] = React.lazy(loader);
+}
+
+const preloadedIds = new Set<string>();
+export function preloadSimulation(simId: string): void {
+  if (preloadedIds.has(simId)) return;
+  const loader = SIMULATION_LOADERS[simId];
+  if (loader) {
+    preloadedIds.add(simId);
+    loader().catch(() => {
+      preloadedIds.delete(simId);
+    });
+  }
+}
+
+const SimulationLoadingFallback: React.FC = () => (
+  <div className="py-16 flex flex-col items-center justify-center space-y-3 text-center">
+    <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0071e3] animate-pulse">
+      <FlaskConical className="w-5 h-5" />
+    </div>
+    <div className="space-y-1">
+      <p className="text-xs font-bold text-slate-800">Menyediakan Radas Makmal Maya...</p>
+      <p className="text-[11px] text-slate-500">Memuatkan komponen interaktif</p>
+    </div>
+  </div>
+);
 
 export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
   useEffect(() => {
@@ -69,175 +147,100 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
 
   if (!simulation) return null;
 
+  const ActiveSimulation = LAZY_SIMULATIONS[simulation.id];
+
   const renderSimulationContent = () => {
-    switch (simulation.id) {
-      case 'pentitratan-asid-alkali':
-        return <AcidBaseTitration />;
-      case 'ujian-gas':
-        return <GasTestLab />;
-      case 'pemanasan-dan-penyejukkan-naftalena':
-        return <NaphthaleneCooling />;
-      case 'penyeimbangan-persamaan-kimia':
-        return <ChemicalEquationBalancer />;
-      case 'penggumpalan-lateks':
-        return <LatexCoagulationLab />;
-      case 'kekenyalan-getah-asli-tervulkan':
-        return <RubberElasticityLab />;
-      case 'ujian-kation':
-        return <CationTestLab />;
-      case 'ujian-anion':
-        return <AnionTestLab />;
-      case 'elektrolisis':
-        return <ElectrolysisLab />;
-      case 'keterlarutan-garam':
-        return <SaltSolubilityLab />;
-      case 'penentuan-isomer':
-        return <CarbonIsomersLab />;
-      case 'formula-struktur-karbon':
-        return <CarbonStructureBuilderLab />;
-      case 'kereaktifan-k1-dan-k17':
-        return <ReactivityLab />;
-      case 'penghasilan-sebatian-kovalen':
-        return <CovalentFormulaLab />;
-      case 'penghasilan-formula-kimia':
-        return <IonicFormulaLab />;
-      case 'haba-penyesaran':
-        return <ThermochemistryLab />;
-      case 'penghasilan-sabun':
-        return <SoapMakingLab />;
-      case 'pencucian-sabun-detergen-air-liat':
-        return <HardWaterCleaningLab />;
-      case 'daya-tarikan-zarah':
-        return <IntermolecularForcesLab />;
-      case 'penyediaan-larutan-piawai':
-        return <StandardSolutionLab />;
-      case 'kadar-tindak-balas-saiz':
-        return <RateOfReactionSizeLab />;
-      case 'kadar-tindak-balas-kepekatan':
-        return <RateOfReactionConcentrationLab />;
-      case 'kadar-tindak-balas-suhu':
-        return <RateOfReactionTemperatureLab />;
-      case 'kadar-tindak-balas-mangkin':
-        return <RateOfReactionCatalystLab />;
-      case 'keadaan-zarah-jirim':
-        return <StatesOfMatterLab />;
-      case 'pengekstrakan-besi':
-        return <IronExtractionLab />;
-      case 'pengekstrakan-aluminium':
-        return <AluminumExtractionLab />;
-      case 'haba-pembakaran':
-        return <HeatOfCombustionLab />;
-      case 'nilai-bahan-api':
-        return <FuelValueLab />;
-      case 'formula-empirik-mgo':
-        return <MagnesiumOxideLab />;
-      case 'formula-empirik-cuo':
-        return <CopperOxideLab />;
-      case 'sifat-oksida-kala-3':
-        return <Period3OxidesLab />;
-      case 'kekerasan-aloi-logam-tulen':
-        return <AlloyHardnessLab />;
-      case 'pemindahan-elektron-tiub-u':
-        return <UTubeElectronTransferLab />;
-      case 'penukaran-ion-ferum':
-        return <IronIonConversionLab />;
-      case 'penyesaran-halogen-halida':
-        return <HalogenDisplacementLab />;
-      case 'sel-kimia-voltan':
-        return <VoltaicCellLab />;
-      case 'pengaratan-besi-sentuhan-logam':
-        return <IronRustingLab />;
-      case 'pengoksidaan-etanol':
-        return <EthanolOxidationLab />;
-      case 'pengesteran-alkohol-asid-karboksilik':
-        return <EsterificationLab />;
-      case 'tindak-balas-kimia-alkena':
-        return <AlkeneReactionsHubLab />;
-      case 'penapaian-penyulingan-etanol':
-        return <EthanolFermentationDistillationLab />;
-      case 'ujian-kimia-alkana-alkena':
-        return <AlkaneVsAlkeneLab />;
-      case 'haba-peneutralan':
-        return <HeatOfNeutralisationLab />;
-      case 'haba-pemendakan':
-        return <HeatOfPrecipitationLab />;
-      default:
-        return (
-          <div className="space-y-6">
-            <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 font-bold text-xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>Simulasi Interaktif Bakal Tiba (Dalam Pembangunan)</span>
-              </div>
-              <p className="text-slate-700 text-sm leading-relaxed">
-                {simulation.description}
-              </p>
+    if (ActiveSimulation) {
+      return (
+        <Suspense fallback={<SimulationLoadingFallback />}>
+          <ActiveSimulation />
+        </Suspense>
+      );
+    }
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-sm">
-                  <h4 className="text-xs uppercase font-bold text-slate-500">Standard Pembelajaran DSKP:</h4>
-                  <p className="text-xs text-slate-800 font-medium">{simulation.learningStandard}</p>
-                </div>
+    return (
+      <div className="space-y-6">
+        <div className="bg-slate-50 border border-slate-200 p-5 sm:p-6 rounded-2xl space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 font-bold text-xs">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span>Simulasi Interaktif Bakal Tiba (Dalam Pembangunan)</span>
+          </div>
+          <p className="text-slate-700 text-sm leading-relaxed">
+            {simulation.description}
+          </p>
 
-                <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-sm">
-                  <h4 className="text-xs uppercase font-bold text-slate-500">Kata Kunci Penting SPM:</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {simulation.tags.map((t, i) => (
-                      <span key={i} className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
-                        #{t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-sm">
+              <h4 className="text-xs uppercase font-bold text-slate-500">Standard Pembelajaran DSKP:</h4>
+              <p className="text-xs text-slate-800 font-medium">{simulation.learningStandard}</p>
+            </div>
 
-              <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200 flex items-start gap-2.5 text-xs text-blue-950">
-                <BookOpen className="w-4 h-4 text-[#0071e3] shrink-0 mt-0.5" />
-                <span>
-                  Tajuk eksperimen ini telah didaftarkan mengikut susunan topik buku teks KSSM. Simulasi maya interaktif penuh bersama rajah radas dan pengiraan akan ditambah tidak lama lagi.
-                </span>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 shadow-sm">
+              <h4 className="text-xs uppercase font-bold text-slate-500">Kata Kunci Penting SPM:</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {simulation.tags.map((t, i) => (
+                  <span key={i} className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                    #{t}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
-        );
-    }
+
+          <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200 flex items-start gap-2.5 text-xs text-blue-950">
+            <BookOpen className="w-4 h-4 text-[#0071e3] shrink-0 mt-0.5" />
+            <span>
+              Tajuk eksperimen ini telah didaftarkan mengikut susunan topik buku teks KSSM. Simulasi maya interaktif penuh bersama rajah radas dan pengiraan akan ditambah tidak lama lagi.
+            </span>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-6xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden">
-        
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl w-full max-w-6xl max-h-[92dvh] sm:max-h-[94dvh] flex flex-col shadow-2xl overflow-hidden pb-[env(safe-area-inset-bottom)]"
+      >
         {/* Header Modal */}
-        <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
-          <div className="flex items-center gap-3">
-            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-              simulation.form === 'Tingkatan 4' 
-                ? 'bg-purple-100 text-purple-800 border border-purple-200' 
-                : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-            }`}>
+        <div className="px-4 sm:px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/90 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <span
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${
+                simulation.form === 'Tingkatan 4'
+                  ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+              }`}
+            >
               {simulation.form}
             </span>
-            <div>
-              <h3 className="font-display font-bold text-base sm:text-lg text-slate-900 leading-tight">
+            <div className="min-w-0">
+              <h3 className="font-display font-bold text-sm sm:text-lg text-slate-900 leading-tight truncate">
                 {simulation.title}
               </h3>
-              <p className="text-xs text-slate-500 font-medium">{simulation.chapter}</p>
+              <p className="text-[11px] sm:text-xs text-slate-500 font-medium truncate">{simulation.chapter}</p>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition border border-slate-300 cursor-pointer"
+            aria-label="Tutup simulasi"
+            className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition border border-slate-300 cursor-pointer shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Scrollable Body */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 bg-[#fcfdff]">
+        {/* Scrollable Body (Smooth iOS/Android scrolling & no horizontal overflow) */}
+        <div className="p-3 sm:p-5 overflow-y-auto overflow-x-hidden overscroll-contain space-y-4 bg-[#fcfdff] [-webkit-overflow-scrolling:touch]">
           {renderSimulationContent()}
         </div>
-
       </div>
     </div>
   );

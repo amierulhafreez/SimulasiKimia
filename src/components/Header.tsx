@@ -19,26 +19,26 @@ export const Header: React.FC<Props> = ({
       aria-label="Navigasi utama"
       className="sticky top-0 z-40 apple-glass border-b border-white/60 shadow-[0_4px_24px_rgba(15,23,42,0.04)] transition-shadow"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-12 sm:h-13 flex items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 h-12 sm:h-13 flex items-center justify-between gap-2 sm:gap-4">
         {/* Left: Minimal Brand */}
         <button
           type="button"
           onClick={() => onNavigateSection('hero')}
-          className="flex items-center gap-2 text-[#1d1d1f] hover:opacity-80 transition cursor-pointer shrink-0"
+          className="flex items-center gap-1.5 sm:gap-2 text-[#1d1d1f] hover:opacity-80 transition cursor-pointer shrink-0"
         >
-          <div className="w-7 h-7 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-2xs">
+          <div className="w-6.5 h-6.5 sm:w-7 sm:h-7 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-2xs">
             <FlaskConical className="w-3.5 h-3.5" />
           </div>
-          <span className="font-display font-semibold text-xs sm:text-[13px] tracking-tight whitespace-nowrap">
+          <span className="font-display font-semibold text-[11.5px] sm:text-[13px] tracking-tight whitespace-nowrap">
             Simulasi Kimia
           </span>
-          <span className="hidden lg:inline-block text-[11px] text-[#6e6e73] font-medium">
+          <span className="hidden xl:inline-block text-[11px] text-[#6e6e73] font-medium">
             · Cikgu Hafreez
           </span>
         </button>
 
-        {/* Center: Clear Navigation Links */}
-        <div className="hidden md:flex items-center gap-6 text-[12px] font-medium text-[#1d1d1f]/80">
+        {/* Center: Clear Navigation Links (lg+ for zero iPad portrait overflow) */}
+        <div className="hidden lg:flex items-center gap-5 xl:gap-6 text-[12px] font-medium text-[#1d1d1f]/80">
           <button
             type="button"
             onClick={() => onNavigateSection('hero')}
@@ -80,16 +80,16 @@ export const Header: React.FC<Props> = ({
         </div>
 
         {/* Right: Telegram Contact, Quick Search, Visitor Live Pill & Statistics */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <a
             href="https://t.me/amierulhafreez"
             target="_blank"
             rel="noopener noreferrer"
-            className="liquid-glass-btn px-3 py-1.5 rounded-full text-[#0071e3] hover:text-[#005bb5] text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            className="liquid-glass-btn px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[#0071e3] hover:text-[#005bb5] text-[10.5px] sm:text-[11px] font-semibold flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap"
             title="Hubungi Cikgu Hafreez di Telegram (@AmierulHafreez)"
           >
             <Send className="w-3 h-3" />
-            <span className="inline">Hubungi Saya</span>
+            <span>Hubungi<span className="hidden sm:inline"> Saya</span></span>
           </a>
 
           <button
@@ -98,12 +98,12 @@ export const Header: React.FC<Props> = ({
             aria-label="Cari simulasi"
             className="liquid-glass-btn p-1.5 rounded-full text-[#1d1d1f]/80 hover:text-[#1d1d1f] cursor-pointer"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
           <div
             title="Jumlah pelawat aktif"
-            className="liquid-glass-btn hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium text-[#1d1d1f]"
+            className="liquid-glass-btn hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium text-[#1d1d1f]"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-mono font-semibold tabular-nums">
@@ -115,9 +115,9 @@ export const Header: React.FC<Props> = ({
           <button
             type="button"
             onClick={onOpenAnalytics}
-            className="liquid-glass-dark px-3.5 py-1.5 rounded-full text-white text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            className="liquid-glass-dark px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-white text-[10.5px] sm:text-[11px] font-semibold flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap"
           >
-            <BarChart3 className="w-3.5 h-3.5" />
+            <BarChart3 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             <span>Statistik</span>
           </button>
         </div>

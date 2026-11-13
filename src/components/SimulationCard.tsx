@@ -2,6 +2,7 @@ import React from 'react';
 import { SimulationItem } from '../types/simulation';
 import { ChevronRight } from 'lucide-react';
 import { SimulationCardArtwork } from './SimulationCardArtwork';
+import { preloadSimulation } from './SimulationModal';
 
 interface Props {
   simulation: SimulationItem;
@@ -92,10 +93,12 @@ export const SimulationCard: React.FC<Props> = ({
       data-testid={`sim-card-${simulation.id}`}
       data-form={simulation.form}
       onClick={() => onSelect(simulation)}
+      onMouseEnter={() => preloadSimulation(simulation.id)}
+      onTouchStart={() => preloadSimulation(simulation.id)}
       style={{
         background: `linear-gradient(180deg, ${theme.gradientTop} 0%, ${theme.gradientBottom} 100%)`,
       }}
-      className="group relative h-[350px] rounded-[22px] overflow-hidden flex flex-col justify-between cursor-pointer shadow-[0_6px_22px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.18)] transition-all duration-300 hover:-translate-y-1.5 border border-black/[0.04]"
+      className="group relative h-[340px] sm:h-[350px] rounded-[22px] overflow-hidden flex flex-col justify-between cursor-pointer shadow-[0_6px_22px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.18)] transition-all duration-200 hover:-translate-y-1.5 active:scale-[0.985] border border-black/[0.04]"
     >
       {/* Top-Left High-Contrast Dark Typography */}
       <div className="relative z-10 p-6 pb-2 space-y-1.5">

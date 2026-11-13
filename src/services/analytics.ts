@@ -82,6 +82,8 @@ async function cloudGet(key: string): Promise<number | null> {
 
 class AnalyticsService {
   private listeners: Array<(data: SimulationAnalytics) => void> = [];
+  private memoryCache: SimulationAnalytics | null = null;
+  private persistTimer: ReturnType<typeof setTimeout> | null = null;
   private isSyncing = false;
   private syncTimer: ReturnType<typeof setInterval> | null = null;
 
@@ -106,31 +108,43 @@ class AnalyticsService {
   }
 
   public getAnalytics(): SimulationAnalytics {
+    if (this.memoryCache) return this.memoryCache;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as SimulationAnalytics;
-        return {
+        this.memoryCache = {
           totalHomeVisits: Math.max(parsed.totalHomeVisits ?? 0, DEFAULT_ANALYTICS.totalHomeVisits),
           simulations: {
             ...DEFAULT_ANALYTICS.simulations,
             ...(parsed.simulations || {}),
           },
         };
+        return this.memoryCache;
       }
     } catch {
       // Fallback
     }
-    return DEFAULT_ANALYTICS;
+    this.memoryCache = {
+      totalHomeVisits: DEFAULT_ANALYTICS.totalHomeVisits,
+      simulations: { ...DEFAULT_ANALYTICS.simulations },
+    };
+    return this.memoryCache;
   }
 
   private save(data: SimulationAnalytics) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      this.notify(data);
-    } catch (e) {
-      console.warn('Analytics save failed', e);
-    }
+    this.memoryCache = data;
+    this.notify(data);
+
+    // Debounce localStorage serialization so UI clicks stay 0ms instant
+    if (this.persistTimer) clearTimeout(this.persistTimer);
+    this.persistTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.warn('Analytics save failed', e);
+      }
+    }, 200);
   }
 
   public subscribe(fn: (data: SimulationAnalytics) => void) {

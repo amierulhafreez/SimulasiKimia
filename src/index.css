@@ -5,17 +5,27 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
   }
 
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Plus Jakarta Sans', 'Helvetica Neue', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Plus Jakarta Sans', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     background-color: #ffffff;
     color: #1d1d1f;
+    overflow-x: clip;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   h1, h2, h3, h4, .font-display {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', Roboto, sans-serif;
     letter-spacing: -0.025em;
+  }
+
+  button, a, [role="button"], input, select, textarea {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
@@ -198,12 +208,12 @@
   box-shadow: 0 22px 44px -14px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
-/* Scrollytelling reveal animation */
+/* Scrollytelling reveal animation (fast & GPU-accelerated) */
 .apple-reveal {
   opacity: 0;
-  transform: translateY(24px) scale(0.985);
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(14px) scale(0.99);
+  transition: opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 
