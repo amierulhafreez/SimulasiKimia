@@ -45,6 +45,7 @@ import { AlkaneVsAlkeneLab } from '../simulations/AlkaneVsAlkeneLab';
 import { HeatOfNeutralisationLab } from '../simulations/HeatOfNeutralisationLab';
 import { HeatOfPrecipitationLab } from '../simulations/HeatOfPrecipitationLab';
 import { LatexCoagulationLab } from '../simulations/LatexCoagulationLab';
+import { RubberElasticityLab } from '../simulations/RubberElasticityLab';
 import { X, Sparkles, BookOpen } from 'lucide-react';
 
 interface Props {
@@ -79,6 +80,8 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
         return <ChemicalEquationBalancer />;
       case 'penggumpalan-lateks':
         return <LatexCoagulationLab />;
+      case 'kekenyalan-getah-asli-tervulkan':
+        return <RubberElasticityLab />;
       case 'ujian-kation':
         return <CationTestLab />;
       case 'ujian-anion':

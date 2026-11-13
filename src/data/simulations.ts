@@ -580,7 +580,7 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     learningStandard: 'SP 4.2.2 - Mengeksperimen untuk membandingkan kekenyalan getah tervulkan dan getah tak tervulkan',
     iconName: 'Scale',
     colorTheme: 'indigo',
-    isImplemented: false,
+    isImplemented: true,
     tags: ['Getah Asli vs Tervulkan', 'Rangkai Silang Sulfur', 'Regangan & Kekenyalan', 'Pemberat']
   },
 
