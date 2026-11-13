@@ -563,12 +563,12 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 4: Kimia Polimer',
     category: 'Polimer & Bahan Industri',
-    description: 'Uji tindakan asid metanoik (peneutralan cas negatif membran protein lateks) lawan larutan ammonia (mengekalkan cas negatif).',
+    description: 'Makmal maya 3 bikar serentak: Penggumpalan lateks oleh asid etanoik & tindakan bakteria, serta pencegahan oleh larutan ammonia dengan kanta membran zarah getah.',
     learningStandard: 'SP 4.1.3 - Menerangkan proses penggumpalan lateks dan pencegahannya',
     iconName: 'Disc',
     colorTheme: 'emerald',
     isImplemented: true,
-    tags: ['Membran Protein', 'Asid Metanoik', 'Ammonia', 'Pemvulkanan']
+    tags: ['Membran Protein', 'Asid Etanoik', 'Ammonia', 'Bakteria Udara', '4 Langkah SPM']
   },
   {
     id: 'kekenyalan-getah-asli-tervulkan',
