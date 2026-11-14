@@ -16,6 +16,9 @@ const AnalyticsModal = React.lazy(() =>
 const FeedbackModal = React.lazy(() =>
   import('./components/FeedbackModal').then((m) => ({ default: m.FeedbackModal }))
 );
+const UserGuideModal = React.lazy(() =>
+  import('./components/UserGuideModal').then((m) => ({ default: m.UserGuideModal }))
+);
 import {
   ArrowDown,
   ArrowUpRight,
@@ -23,6 +26,7 @@ import {
   BookOpen,
   Calculator,
   ChevronRight,
+  HelpCircle,
   Layers,
   Search,
   Sparkles,
@@ -130,6 +134,7 @@ export const App: React.FC = () => {
   const [selectedSimulation, setSelectedSimulation] = useState<SimulationItem | null>(null);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState<boolean>(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
+  const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
   const [activeFormTab, setActiveFormTab] = useState<'all' | FormLevel>('all');
   const [selectedT4Topic, setSelectedT4Topic] = useState<string>('all');
   const [selectedT5Topic, setSelectedT5Topic] = useState<string>('all');
@@ -457,6 +462,7 @@ export const App: React.FC = () => {
         <Header
           totalVisitors={analyticsData.totalHomeVisits}
           onOpenAnalytics={() => setShowAnalyticsModal(true)}
+          onOpenGuide={() => setShowGuideModal(true)}
           onNavigateSection={handleNavigateSection}
           onFocusSearch={handleFocusSearch}
         />
@@ -503,6 +509,15 @@ export const App: React.FC = () => {
               >
                 <span>Lihat Tingkatan 5</span>
                 <ChevronRight className="w-4 h-4 text-[#6e6e73]" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowGuideModal(true)}
+                className="liquid-glass-btn px-5 py-3 rounded-full text-[#0071e3] hover:text-[#005bb5] text-sm font-semibold inline-flex items-center gap-1.5 cursor-pointer border-[#0071e3]/30"
+              >
+                <HelpCircle className="w-4 h-4 text-[#0071e3]" />
+                <span>Panduan Penggunaan</span>
               </button>
             </div>
           </div>
@@ -814,6 +829,7 @@ export const App: React.FC = () => {
       <SimulationModal
         simulation={selectedSimulation}
         onClose={() => setSelectedSimulation(null)}
+        onOpenGuide={() => setShowGuideModal(true)}
       />
 
       {/* Analytics Modal */}
@@ -836,8 +852,37 @@ export const App: React.FC = () => {
         </Suspense>
       )}
 
+      {/* Interactive User Guide Modal */}
+      {showGuideModal && (
+        <Suspense fallback={null}>
+          <UserGuideModal
+            isOpen={showGuideModal}
+            onClose={() => setShowGuideModal(false)}
+            onSelectSimulationById={handleLaunchById}
+          />
+        </Suspense>
+      )}
+
+      {/* Floating Quick Reference Help Button */}
+      <button
+        type="button"
+        onClick={() => setShowGuideModal(true)}
+        aria-label="Panduan Penggunaan & Navigasi Web App"
+        title="Perlukan bantuan untuk menggunakan web app? Klik untuk panduan pantas!"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-30 liquid-glass-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-lg border border-white/80 flex items-center gap-2 text-xs font-semibold text-[#1d1d1f] hover:text-[#0071e3] hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer bg-white/85 backdrop-blur-md"
+      >
+        <div className="w-5 h-5 rounded-full bg-[#0071e3] text-white flex items-center justify-center text-[11px] font-bold shadow-2xs">
+          ?
+        </div>
+        <span className="hidden xs:inline">Panduan</span>
+        <span className="hidden sm:inline">Penggunaan</span>
+      </button>
+
       {/* Minimalist Footer */}
-      <Footer onOpenFeedback={() => setShowFeedbackModal(true)} />
+      <Footer
+        onOpenFeedback={() => setShowFeedbackModal(true)}
+        onOpenGuide={() => setShowGuideModal(true)}
+      />
     </div>
   );
 };

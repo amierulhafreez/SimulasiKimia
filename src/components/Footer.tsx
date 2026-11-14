@@ -9,13 +9,15 @@ import {
   FileText,
   ArrowUpRight,
   BookmarkCheck,
+  Compass,
 } from 'lucide-react';
 
 interface FooterProps {
   onOpenFeedback: () => void;
+  onOpenGuide?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenFeedback }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenFeedback, onOpenGuide }) => {
   return (
     <footer className="bg-[#f5f5f7] border-t border-black/[0.06] pt-16 pb-14 px-4 sm:px-6 mt-12">
       <div className="max-w-6xl mx-auto space-y-12">
@@ -40,11 +42,25 @@ export const Footer: React.FC<FooterProps> = ({ onOpenFeedback }) => {
             </div>
 
             <div className="space-y-2">
+              {onOpenGuide && (
+                <button
+                  type="button"
+                  onClick={onOpenGuide}
+                  className="liquid-glass-btn inline-flex items-center justify-between w-full px-4 py-2.5 rounded-full text-[#1d1d1f] hover:text-[#0071e3] text-[12px] font-semibold group cursor-pointer"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Compass className="w-3.5 h-3.5 text-[#0071e3]" />
+                    Panduan Penggunaan Web App
+                  </span>
+                  <ChevronRight className="w-4 h-4 opacity-70" />
+                </button>
+              )}
+
               <a
                 href="https://t.me/amierulhafreez"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="liquid-glass-btn inline-flex items-center justify-between w-full px-4 py-2.5 rounded-full text-[#1d1d1f] hover:text-[#0071e3] text-[12px] font-semibold group"
+                className="liquid-glass-btn inline-flex items-center justify-between w-full px-4 py-2 rounded-full text-[#1d1d1f] hover:text-[#0071e3] text-[11.5px] font-semibold group"
               >
                 <span className="inline-flex items-center gap-2">
                   <Send className="w-3.5 h-3.5 text-[#0088cc]" />

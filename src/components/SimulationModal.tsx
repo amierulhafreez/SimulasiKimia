@@ -1,11 +1,12 @@
 import React, { Suspense, useEffect } from 'react';
 import { SimulationItem } from '../types/simulation';
 import { analytics } from '../services/analytics';
-import { X, Sparkles, BookOpen, FlaskConical } from 'lucide-react';
+import { X, Sparkles, BookOpen, FlaskConical, HelpCircle } from 'lucide-react';
 
 interface Props {
   simulation: SimulationItem | null;
   onClose: () => void;
+  onOpenGuide?: () => void;
 }
 
 type LoaderFn = () => Promise<{ default: React.ComponentType }>;
@@ -132,7 +133,7 @@ const SimulationLoadingFallback: React.FC = () => (
   </div>
 );
 
-export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
+export const SimulationModal: React.FC<Props> = ({ simulation, onClose, onOpenGuide }) => {
   useEffect(() => {
     if (simulation) {
       analytics.recordSimulationView(simulation.id);
@@ -227,14 +228,28 @@ export const SimulationModal: React.FC<Props> = ({ simulation, onClose }) => {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Tutup simulasi"
-            className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition border border-slate-300 cursor-pointer shrink-0"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {onOpenGuide && (
+              <button
+                type="button"
+                onClick={onOpenGuide}
+                title="Panduan penggunaan & kawalan makmal"
+                className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1 text-[11px] font-semibold border border-slate-200 cursor-pointer"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-[#0071e3]" />
+                <span className="hidden sm:inline">Panduan</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Tutup simulasi"
+              className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center transition border border-slate-300 cursor-pointer shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Body (Smooth iOS/Android scrolling & no horizontal overflow) */}
