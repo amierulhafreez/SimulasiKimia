@@ -1213,7 +1213,7 @@ export const ReactivityLab: React.FC = () => {
                 <span className="text-slate-700">
                   {group === 'k1'
                     ? 'Semua atom Kumpulan 1 mempunyai 1 elektron valens. Semasa tindak balas kimia, atom menderma 1 elektron untuk membentuk ion +1 (M → M⁺ + e⁻).'
-                    : 'Semua atom Kumpulan 17 mempunyai 7 elektron valens. Semasa tindak balas kimia, atom menerima 1 elektron untuk mencapai susunan oktet dan membentuk ion −1 (X + e⁻ → X⁻).'}
+                    : 'Semua atom Kumpulan 17 mempunyai 7 elektron valens. Semasa tindak balas kimia, molekul dwiatom X₂ menerima 2 elektron untuk mencapai susunan oktet stabil membentuk ion halida −1 (X₂ + 2e⁻ → 2X⁻).'}
                 </span>
               </div>
             </div>
@@ -1351,7 +1351,7 @@ export const ReactivityLab: React.FC = () => {
                   </h4>
                 </div>
                 <span className="px-2.5 py-1 rounded-xl bg-sky-100 text-sky-800 text-xs font-black shrink-0">
-                  X + e⁻ → X⁻
+                  X₂ + 2e⁻ → 2X⁻
                 </span>
               </div>
 

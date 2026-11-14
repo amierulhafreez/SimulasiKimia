@@ -567,7 +567,7 @@ export const ThermochemistryLab: React.FC = () => {
             </div>
           </div>
 
-          {/* RIGHT 8 COLS: Meja Kerja (Rajah 3.9) + Pemerhatian & Perancah Pengiraan */}
+          {/* RIGHT 8 COLS: Meja Kerja (Rajah 3.9) + Pemerhatian & Perancang Pengiraan */}
           <div className="md:col-span-8 flex flex-col space-y-2">
             {/* Meja Kerja Dropzone */}
             <div
@@ -615,7 +615,7 @@ export const ThermochemistryLab: React.FC = () => {
               />
             </div>
 
-            {/* Bottom Panel: Pemerhatian & Perancah Pengiraan Berperingkat */}
+            {/* Bottom Panel: Pemerhatian & Perancang Pengiraan Berperingkat */}
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
               <div className="bg-indigo-600 text-white px-3 py-1.5 flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-extrabold flex items-center gap-1.5">
@@ -630,7 +630,7 @@ export const ThermochemistryLab: React.FC = () => {
                     className="px-2 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10.5px] font-bold text-white flex items-center gap-1 cursor-pointer"
                   >
                     <Eye className="w-3 h-3" />
-                    {showAllCalcSteps ? 'Mod Perancah Interaktif' : 'Papar Semua Jalan Kira'}
+                    {showAllCalcSteps ? 'Mod Perancang Interaktif' : 'Papar Semua Jalan Kira'}
                   </button>
                 )}
               </div>
@@ -669,7 +669,7 @@ export const ThermochemistryLab: React.FC = () => {
                     </div>
                     {labStep < 5 ? (
                       <p className="text-slate-500 italic">
-                        Lengkapkan langkah eksperimen (1 → 4) untuk merekod pemerhatian fizikal dan membuka perancah pengiraan.
+                        Lengkapkan langkah eksperimen (1 → 4) untuk merekod pemerhatian fizikal dan membuka perancang pengiraan.
                       </p>
                     ) : (
                       <ul className="space-y-0.5 text-slate-700 list-disc pl-3.5">
@@ -694,7 +694,7 @@ export const ThermochemistryLab: React.FC = () => {
                     <div className="h-full min-h-[150px] rounded-lg border border-dashed border-slate-300 bg-slate-50/70 flex flex-col items-center justify-center text-center p-4 space-y-1.5">
                       <Lock className="w-5 h-5 text-slate-400" />
                       <div className="text-xs font-bold text-slate-600">
-                        Perancah Pengiraan Terkunci
+                        Perancang Pengiraan Terkunci
                       </div>
                       <p className="text-[11px] text-slate-500 max-w-xs">
                         Jalankan prosedur makmal di atas sehingga eksperimen tamat untuk mengira haba dibebaskan (<code className="font-mono">Q</code>), bilangan mol (<code className="font-mono">n</code>), dan Haba Penyesaran (<code className="font-mono">ΔH</code>).

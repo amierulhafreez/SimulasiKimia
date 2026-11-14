@@ -495,7 +495,7 @@ export const CopperOxideLab: React.FC = () => {
               </div>
             </div>
 
-            {/* Jadual 3.5 & Perancah Pengiraan */}
+            {/* Jadual 3.5 & Perancang Pengiraan */}
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
               <div className="bg-orange-600 text-white px-3 py-1.5 flex items-center justify-between gap-2">
                 <span className="text-xs font-extrabold">

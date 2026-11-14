@@ -587,7 +587,7 @@ export const HeatOfCombustionLab: React.FC = () => {
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
               <div className="bg-orange-600 text-white px-3 py-1.5 flex items-center justify-between gap-2">
                 <span className="text-xs font-extrabold">
-                  Pemerhatian &amp; Perancah Pengiraan ({spec.name})
+                  Pemerhatian &amp; Perancang Pengiraan ({spec.name})
                 </span>
                 {isCompleted && (
                   <button
@@ -663,7 +663,7 @@ export const HeatOfCombustionLab: React.FC = () => {
                     <div className="h-full min-h-[145px] bg-slate-50 border border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center p-3 text-center">
                       <Scale className="w-6 h-6 text-slate-300 mb-1.5" />
                       <div className="text-xs font-bold text-slate-600">
-                        Lengkapkan Langkah 1 hingga 5 untuk membuka perancah pengiraan
+                        Lengkapkan Langkah 1 hingga 5 untuk membuka perancang pengiraan
                       </div>
                       <div className="text-[10.5px] text-slate-400 mt-0.5">
                         JMR {spec.name} ({spec.formula}) = {spec.molarMass} g mol⁻¹

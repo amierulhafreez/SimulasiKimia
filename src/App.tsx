@@ -593,7 +593,7 @@ export const App: React.FC = () => {
                     <Calculator className="w-5 h-5" />
                   </div>
                   <h3 className="font-display font-bold text-2xl text-[#1d1d1f] leading-tight">
-                    Perancah pengiraan langkah demi langkah.
+                    Perancang pengiraan langkah demi langkah.
                   </h3>
                   <p className="text-sm text-[#6e6e73] leading-relaxed">
                     Daripada Q = mcθ hingga ΔH dan gambar rajah aras tenaga buku teks Rajah 3.1.

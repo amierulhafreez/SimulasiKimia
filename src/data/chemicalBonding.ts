@@ -715,11 +715,27 @@ export function synthesizeCompound(elA: ElementPickDef, elB: ElementPickDef): Sy
 
     const mIon = `${metalOpt.symbol}${formatChargeStr(cCharge, '+')}`;
     const xIon = `${nonmetalOpt.symbol}${formatChargeStr(aCharge, '−')}`;
+    const isDiatomicNonmetal = ['h', 'n', 'o', 'f', 'cl', 'br', 'i'].includes(nonmetalOpt.id);
+
     const halfEqMetal = `${metalOpt.symbol} → ${mIon} + ${cCharge > 1 ? cCharge : ''}e⁻`;
-    const halfEqNonmetal = `${nonmetalOpt.symbol} + ${aCharge > 1 ? aCharge : ''}e⁻ → ${xIon}`;
-    const overallEquation = `${metalCount > 1 ? metalCount : ''}${metalOpt.symbol} + ${
-      nonmetalCount > 1 ? nonmetalCount : ''
-    }${nonmetalOpt.symbol} → ${formula}`;
+    const halfEqNonmetal = isDiatomicNonmetal
+      ? `${nonmetalOpt.symbol}₂ + ${2 * aCharge}e⁻ → 2${xIon}`
+      : `${nonmetalOpt.symbol} + ${aCharge > 1 ? aCharge : ''}e⁻ → ${xIon}`;
+
+    let overallEquation: string;
+    if (isDiatomicNonmetal) {
+      const needDouble = nonmetalCount % 2 !== 0;
+      const eqMetal = needDouble ? metalCount * 2 : metalCount;
+      const eqNonmetal = needDouble ? nonmetalCount : nonmetalCount / 2;
+      const eqProduct = needDouble ? 2 : 1;
+      overallEquation = `${eqMetal > 1 ? eqMetal : ''}${metalOpt.symbol} + ${
+        eqNonmetal > 1 ? eqNonmetal : ''
+      }${nonmetalOpt.symbol}₂ → ${eqProduct > 1 ? eqProduct : ''}${formula}`;
+    } else {
+      overallEquation = `${metalCount > 1 ? metalCount : ''}${metalOpt.symbol} + ${
+        nonmetalCount > 1 ? nonmetalCount : ''
+      }${nonmetalOpt.symbol} → ${formula}`;
+    }
 
     const isHighLattice = cCharge * aCharge >= 4; // e.g. MgO (+2,-2), Al2O3 (+3,-2)
 

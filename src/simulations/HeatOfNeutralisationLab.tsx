@@ -8,6 +8,7 @@ import {
   Thermometer,
 } from 'lucide-react';
 import { analytics } from '../services/analytics';
+import { TextbookEnergyLevelSVG } from '../components/TextbookEnergyLevelSVG';
 
 type AcidId = 'hcl' | 'hno3' | 'h2so4' | 'ch3cooh';
 type AlkaliId = 'naoh' | 'koh' | 'nh3';
@@ -830,127 +831,29 @@ export const HeatOfNeutralisationLab: React.FC = () => {
           </div>
         </div>
 
-        {/* Gambar Rajah Aras Tenaga Dinamik (Format Buku Teks Kimia KSSM) */}
+        {/* Gambar Rajah Aras Tenaga Dinamik (Format Buku Teks Kimia KSSM Rajah 3.1) */}
         {(() => {
           const { reactants, products } = getReactantsAndProducts(acid, alkali);
-          const topY = 36;
-          const bottomY = 36 + Math.max(46, energyGapPx + 14);
+          const relDrop = Math.max(0.45, Math.min(1, Math.abs(deltaH) / 60));
           return (
             <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between">
               <div className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500">
-                Gambar Rajah Aras Tenaga (Eksotermik)
+                Gambar Rajah Aras Tenaga (Eksotermik · Gaya Buku Teks)
               </div>
-              <svg
-                viewBox="0 0 320 132"
-                className="w-full h-[126px] mx-auto block"
-                role="img"
-                aria-label="Gambar Rajah Aras Tenaga Eksotermik"
-              >
-                <defs>
-                  <marker
-                    id="energyAxisArrow"
-                    markerWidth="8"
-                    markerHeight="8"
-                    refX="6"
-                    refY="4"
-                    orient="auto"
-                  >
-                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#1e293b" />
-                  </marker>
-                  <marker
-                    id="deltaHArrow"
-                    markerWidth="8"
-                    markerHeight="8"
-                    refX="6"
-                    refY="4"
-                    orient="auto"
-                  >
-                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#be123c" />
-                  </marker>
-                </defs>
-
-                {/* Paksi Menegak Tenaga */}
-                <line
-                  x1="34"
-                  y1="120"
-                  x2="34"
-                  y2="18"
-                  stroke="#1e293b"
-                  strokeWidth="2"
-                  markerEnd="url(#energyAxisArrow)"
-                />
-                <text
-                  x="34"
-                  y="11"
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="800"
-                  fill="#0f172a"
-                >
-                  Tenaga
-                </text>
-
-                {/* Aras Bahan Tindak Balas (Atas) */}
-                <text
-                  x="166"
-                  y={topY - 8}
-                  textAnchor="middle"
-                  fontSize="10.5"
-                  fontWeight="800"
-                  fill="#0f172a"
-                >
-                  {reactants}
-                </text>
-                <line
-                  x1="78"
-                  y1={topY}
-                  x2="256"
-                  y2={topY}
-                  stroke="#dc2626"
-                  strokeWidth="2.4"
-                />
-
-                {/* Anak Panah ΔH Menegak ke Bawah */}
-                <line
-                  x1="136"
-                  y1={topY + 2}
-                  x2="136"
-                  y2={bottomY - 3}
-                  stroke="#be123c"
-                  strokeWidth="2"
-                  markerEnd="url(#deltaHArrow)"
-                />
-                <text
-                  x="146"
-                  y={(topY + bottomY) / 2 + 3}
-                  textAnchor="start"
-                  fontSize="11"
-                  fontWeight="800"
-                  fill="#be123c"
-                >
-                  ΔH = {deltaH.toFixed(1)} kJ mol⁻¹
-                </text>
-
-                {/* Aras Hasil Tindak Balas (Bawah) */}
-                <line
-                  x1="78"
-                  y1={bottomY}
-                  x2="256"
-                  y2={bottomY}
-                  stroke="#2563eb"
-                  strokeWidth="2.4"
-                />
-                <text
-                  x="166"
-                  y={bottomY + 14}
-                  textAnchor="middle"
-                  fontSize="10.5"
-                  fontWeight="800"
-                  fill="#0f172a"
-                >
-                  {products}
-                </text>
-              </svg>
+              <TextbookEnergyLevelSVG
+                columns={1}
+                items={[
+                  {
+                    title: `${acid.formula} + ${alkali.formula}`,
+                    subtitle: 'Tindak balas eksotermik (ΔH < 0)',
+                    reactants,
+                    products,
+                    deltaHText: `ΔH = ${deltaH.toFixed(1)} kJ mol⁻¹`,
+                    relativeDrop: relDrop,
+                    accentColor: '#e11d48',
+                  },
+                ]}
+              />
             </div>
           );
         })()}

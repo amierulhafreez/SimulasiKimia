@@ -496,7 +496,7 @@ export const SIMULATIONS_DATA: SimulationItem[] = [
     form: 'Tingkatan 5',
     chapter: 'Bab 3: Termokimia',
     category: 'Termokimia',
-    description: 'Makmal maya berprosedur berpandu (Aktiviti 3C) untuk dua set penyesaran kuprum daripada CuSO₄ oleh Magnesium (Mg) & Zink (Zn), beserta perancah pengiraan berperingkat Q = mcθ hingga ΔH.',
+    description: 'Makmal maya berprosedur berpandu (Aktiviti 3C) untuk dua set penyesaran kuprum daripada CuSO₄ oleh Magnesium (Mg) & Zink (Zn), beserta perancang pengiraan berperingkat Q = mcθ hingga ΔH.',
     learningStandard: 'SP 3.2.2 - Menentukan dan membandingkan haba penyesaran kuprum oleh Mg dan Zn',
     iconName: 'FlameKindling',
     colorTheme: 'red',

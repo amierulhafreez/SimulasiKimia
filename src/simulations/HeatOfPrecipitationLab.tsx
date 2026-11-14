@@ -8,6 +8,7 @@ import {
   Thermometer,
 } from 'lucide-react';
 import { analytics } from '../services/analytics';
+import { TextbookEnergyLevelSVG } from '../components/TextbookEnergyLevelSVG';
 
 type SaltSetId = 'agcl' | 'pbso4' | 'baso4' | 'cuco3';
 type ConcValue = 0.5 | 1.0;
@@ -1103,139 +1104,26 @@ export const HeatOfPrecipitationLab: React.FC = () => {
           </div>
         </div>
 
-        {/* Gambar Rajah Aras Tenaga (Format Buku Teks Kimia KSSM) */}
-        {(() => {
-          const topY = 40;
-          const bottomY = 40 + Math.max(46, energyGapPx + 14);
-          return (
-            <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between">
-              <div className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500">
-                Gambar Rajah Aras Tenaga (Eksotermik)
-              </div>
-              <svg
-                viewBox="0 0 330 140"
-                className="w-full h-[132px] mx-auto block"
-                role="img"
-                aria-label="Gambar Rajah Aras Tenaga Haba Pemendakan"
-              >
-                <defs>
-                  <marker
-                    id="precipEnergyAxisArrow"
-                    markerWidth="8"
-                    markerHeight="8"
-                    refX="6"
-                    refY="4"
-                    orient="auto"
-                  >
-                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#0f172a" />
-                  </marker>
-                  <marker
-                    id="precipDeltaHArrow"
-                    markerWidth="8"
-                    markerHeight="8"
-                    refX="6"
-                    refY="4"
-                    orient="auto"
-                  >
-                    <path d="M 0 1 L 8 4 L 0 7 Z" fill="#0f172a" />
-                  </marker>
-                </defs>
-
-                {/* Paksi Menegak Tenaga */}
-                <line
-                  x1="34"
-                  y1="126"
-                  x2="34"
-                  y2="22"
-                  stroke="#0f172a"
-                  strokeWidth="2"
-                  markerEnd="url(#precipEnergyAxisArrow)"
-                />
-                <text
-                  x="34"
-                  y="14"
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="800"
-                  fill="#0f172a"
-                >
-                  Tenaga
-                </text>
-
-                {/* Aras Bahan Tindak Balas (Kiri Atas) */}
-                <text
-                  x="114"
-                  y={topY - 8}
-                  textAnchor="middle"
-                  fontSize="10.5"
-                  fontWeight="800"
-                  fill="#0f172a"
-                >
-                  {saltSet.cationLabel}(ak) + {saltSet.anionLabel}(ak)
-                </text>
-                <line
-                  x1="58"
-                  y1={topY}
-                  x2="170"
-                  y2={topY}
-                  stroke="#0f172a"
-                  strokeWidth="2.2"
-                />
-                {/* Garis putus-putus sambungan aras atas */}
-                <line
-                  x1="170"
-                  y1={topY}
-                  x2="210"
-                  y2={topY}
-                  stroke="#64748b"
-                  strokeWidth="1.4"
-                  strokeDasharray="4 3"
-                />
-
-                {/* Anak Panah ΔH Menegak ke Bawah */}
-                <line
-                  x1="188"
-                  y1={topY + 2}
-                  x2="188"
-                  y2={bottomY - 3}
-                  stroke="#0f172a"
-                  strokeWidth="1.8"
-                  markerEnd="url(#precipDeltaHArrow)"
-                />
-                <text
-                  x="196"
-                  y={(topY + bottomY) / 2 + 3}
-                  textAnchor="start"
-                  fontSize="10.5"
-                  fontWeight="800"
-                  fill="#be123c"
-                >
-                  ΔH = {saltSet.deltaH.toFixed(1)} kJ mol⁻¹
-                </text>
-
-                {/* Aras Hasil Tindak Balas (Kanan Bawah) */}
-                <line
-                  x1="158"
-                  y1={bottomY}
-                  x2="278"
-                  y2={bottomY}
-                  stroke="#0f172a"
-                  strokeWidth="2.2"
-                />
-                <text
-                  x="218"
-                  y={bottomY + 15}
-                  textAnchor="middle"
-                  fontSize="10.5"
-                  fontWeight="800"
-                  fill="#0f172a"
-                >
-                  {saltSet.precipitateFormula}(p)
-                </text>
-              </svg>
-            </div>
-          );
-        })()}
+        {/* Gambar Rajah Aras Tenaga (Format Buku Teks Kimia KSSM Rajah 3.1) */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col justify-between">
+          <div className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-500">
+            Gambar Rajah Aras Tenaga (Eksotermik · Gaya Buku Teks)
+          </div>
+          <TextbookEnergyLevelSVG
+            columns={1}
+            items={[
+              {
+                title: `Mendakan ${saltSet.precipitateFormula}`,
+                subtitle: 'Tindak balas eksotermik (ΔH < 0)',
+                reactants: `${saltSet.cationLabel}(ak) + ${saltSet.anionLabel}(ak)`,
+                products: `${saltSet.precipitateFormula}(p)`,
+                deltaHText: `ΔH = ${saltSet.deltaH.toFixed(1)} kJ mol⁻¹`,
+                relativeDrop: Math.max(0.45, Math.min(1, Math.abs(saltSet.deltaH) / 66)),
+                accentColor: '#0284c7',
+              },
+            ]}
+          />
+        </div>
       </div>
     </div>
   );
