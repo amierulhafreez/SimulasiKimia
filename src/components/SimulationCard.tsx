@@ -1,7 +1,7 @@
 import React from 'react';
 import { SimulationItem } from '../types/simulation';
 import { ChevronRight } from 'lucide-react';
-import { SimulationCardArtwork } from './SimulationCardArtwork';
+import { Simulation3DGraphic } from './Simulation3DGraphic';
 import { preloadSimulation } from './SimulationModal';
 
 interface Props {
@@ -128,9 +128,9 @@ export const SimulationCard: React.FC<Props> = ({
           className="absolute inset-x-0 bottom-0 h-[56%] opacity-90 transition-opacity duration-300 group-hover:opacity-100"
         />
 
-        {/* Chemistry Visual Centerpiece */}
-        <div className="relative z-10 w-[210px] h-[152px] mb-2 transform transition-transform duration-300 ease-out group-hover:scale-105">
-          <SimulationCardArtwork simulationId={simulation.id} />
+        {/* Chemistry 3D Motion Graphic Centerpiece */}
+        <div className="relative z-10 w-[210px] h-[152px] mb-2 transform transition-transform duration-300 ease-out group-hover:scale-105 group-hover:-translate-y-1">
+          <Simulation3DGraphic simulationId={simulation.id} />
         </div>
       </div>
 
