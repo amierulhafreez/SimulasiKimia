@@ -2,10 +2,51 @@ import { SimulationAnalytics } from '../types/simulation';
 
 const STORAGE_KEY = 'cikguhafreez_simulasi_analytics_v1';
 const ANON_UID_KEY = 'cikguhafreez_anon_visitor_uid';
+const DAILY_CACHE_PREFIX = 'ch_admin_day_cache_v1_';
 
 const CLOUD_API_BASE = 'https://countapi.mileshilliard.com/api/v1';
 const CLOUD_KEY_HOME = 'cikguhafreez_simulasi_v1_home_visits';
 const CLOUD_KEY_TOTAL_CLICKS = 'cikguhafreez_simulasi_v1_total_clicks';
+
+export interface DailySimStats {
+  views: number;
+  clicks: number;
+  completed: number;
+}
+
+export interface DailyReport {
+  date: string;
+  visits: number;
+  uniqueVisitors: number;
+  simulations: Record<string, DailySimStats>;
+  fetchedAt: string;
+}
+
+export interface DailyTrendPoint {
+  date: string;
+  label: string;
+  visits: number;
+  uniqueVisitors: number;
+}
+
+/** Returns YYYY-MM-DD in Malaysia timezone (Asia/Kuala_Lumpur). */
+export function getMalaysiaDateStr(offsetDays: number = 0): string {
+  const target = new Date(Date.now() + offsetDays * 86400000);
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Kuala_Lumpur',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(target);
+  } catch {
+    return target.toISOString().slice(0, 10);
+  }
+}
+
+function toCompactDate(dateStr: string): string {
+  return dateStr.replace(/-/g, '');
+}
 
 // Baseline counts representing initial usage records
 const DEFAULT_ANALYTICS: SimulationAnalytics = {
@@ -200,10 +241,12 @@ class AnalyticsService {
     return this.getAnalytics();
   }
 
-  // Rekod bila pelawat tiba di laman utama (Atomic Real-time Hit)
+  // Rekod bila pelawat tiba di laman utama (Atomic Real-time Hit + Daily Unique/Visits)
   public recordHomeVisit(): SimulationAnalytics {
     const data = this.getAnalytics();
-    const sessionKey = 'session_counted_' + new Date().toDateString();
+    const todayStr = getMalaysiaDateStr();
+    const compactDate = toCompactDate(todayStr);
+    const sessionKey = 'session_counted_' + todayStr;
 
     if (!sessionStorage.getItem(sessionKey)) {
       sessionStorage.setItem(sessionKey, 'true');
@@ -217,6 +260,20 @@ class AnalyticsService {
           this.save(data);
         }
       });
+
+      // Record daily visit
+      cloudHit(`ch_d_${compactDate}_visits`);
+
+      // Record daily unique visitor (max once per day per browser)
+      try {
+        const uniqKey = `ch_daily_uniq_${todayStr}`;
+        if (!localStorage.getItem(uniqKey)) {
+          localStorage.setItem(uniqKey, '1');
+          cloudHit(`ch_d_${compactDate}_unique`);
+        }
+      } catch {
+        // Ignore storage errors
+      }
     } else {
       // Already counted this session, sync latest cloud number
       this.syncFromCloud();
@@ -225,7 +282,7 @@ class AnalyticsService {
     return data;
   }
 
-  // Rekod bila mana-mana simulasi dibuka (Atomic Real-time View)
+  // Rekod bila mana-mana simulasi dibuka (Atomic Real-time View + Daily View)
   public recordSimulationView(simId: string): SimulationAnalytics {
     const data = this.getAnalytics();
     if (!data.simulations[simId]) {
@@ -234,14 +291,15 @@ class AnalyticsService {
     data.simulations[simId].views += 1;
     this.save(data);
 
-    // Hit cloud counter for this simulation in background
-    const safeKey = `cikguhafreez_v1_view_${sanitizeKey(simId)}`;
-    cloudHit(safeKey);
+    const sKey = sanitizeKey(simId);
+    const compactDate = toCompactDate(getMalaysiaDateStr());
+    cloudHit(`cikguhafreez_v1_view_${sKey}`);
+    cloudHit(`ch_d_${compactDate}_v_${sKey}`);
 
     return data;
   }
 
-  // Rekod bila pelajar klik radas atau butang interaksi (Atomic Real-time Click)
+  // Rekod bila pelajar klik radas atau butang interaksi (Atomic Real-time Click + Daily Click)
   public recordSimulationClick(simId: string, count: number = 1): SimulationAnalytics {
     const data = this.getAnalytics();
     if (!data.simulations[simId]) {
@@ -250,15 +308,16 @@ class AnalyticsService {
     data.simulations[simId].clicks += count;
     this.save(data);
 
-    // Hit cloud counter in background
-    const safeKey = `cikguhafreez_v1_click_${sanitizeKey(simId)}`;
-    cloudHit(safeKey);
+    const sKey = sanitizeKey(simId);
+    const compactDate = toCompactDate(getMalaysiaDateStr());
+    cloudHit(`cikguhafreez_v1_click_${sKey}`);
     cloudHit(CLOUD_KEY_TOTAL_CLICKS);
+    cloudHit(`ch_d_${compactDate}_c_${sKey}`);
 
     return data;
   }
 
-  // Rekod bila eksperimen berjaya diselesaikan
+  // Rekod bila eksperimen berjaya diselesaikan (All-time + Daily Completed)
   public recordSimulationCompleted(simId: string): SimulationAnalytics {
     const data = this.getAnalytics();
     if (!data.simulations[simId]) {
@@ -267,11 +326,106 @@ class AnalyticsService {
     data.simulations[simId].completed += 1;
     this.save(data);
 
-    // Hit cloud completion key in background
-    const safeKey = `cikguhafreez_v1_done_${sanitizeKey(simId)}`;
-    cloudHit(safeKey);
+    const sKey = sanitizeKey(simId);
+    const compactDate = toCompactDate(getMalaysiaDateStr());
+    cloudHit(`cikguhafreez_v1_done_${sKey}`);
+    cloudHit(`ch_d_${compactDate}_x_${sKey}`);
 
     return data;
+  }
+
+  /** Admin Only: Fetch daily report (visits, unique visitors, and per-simulation stats) for a date */
+  public async fetchDailyReport(
+    dateStr: string,
+    simIds: string[],
+    forceRefresh: boolean = false
+  ): Promise<DailyReport> {
+    const todayStr = getMalaysiaDateStr();
+    const isPastDate = dateStr < todayStr;
+    const cacheKey = `${DAILY_CACHE_PREFIX}${dateStr}`;
+
+    if (isPastDate && !forceRefresh) {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          return JSON.parse(cached) as DailyReport;
+        }
+      } catch {
+        // Ignore cache read errors
+      }
+    }
+
+    const compact = toCompactDate(dateStr);
+    const [visitsRaw, uniqueRaw] = await Promise.all([
+      cloudGet(`ch_d_${compact}_visits`),
+      cloudGet(`ch_d_${compact}_unique`),
+    ]);
+
+    const simulations: Record<string, DailySimStats> = {};
+    const batchSize = 9;
+    for (let i = 0; i < simIds.length; i += batchSize) {
+      const batch = simIds.slice(i, i + batchSize);
+      await Promise.all(
+        batch.map(async (simId) => {
+          const sKey = sanitizeKey(simId);
+          const [v, c, x] = await Promise.all([
+            cloudGet(`ch_d_${compact}_v_${sKey}`),
+            cloudGet(`ch_d_${compact}_c_${sKey}`),
+            cloudGet(`ch_d_${compact}_x_${sKey}`),
+          ]);
+          simulations[simId] = {
+            views: v ?? 0,
+            clicks: c ?? 0,
+            completed: x ?? 0,
+          };
+        })
+      );
+    }
+
+    const report: DailyReport = {
+      date: dateStr,
+      visits: visitsRaw ?? 0,
+      uniqueVisitors: uniqueRaw ?? 0,
+      simulations,
+      fetchedAt: new Date().toISOString(),
+    };
+
+    if (isPastDate) {
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(report));
+      } catch {
+        // Ignore storage quota errors
+      }
+    }
+
+    return report;
+  }
+
+  /** Admin Only: Fetch last N days of visits & unique visitors for trend chart */
+  public async fetchMultiDayTrend(days: number = 7): Promise<DailyTrendPoint[]> {
+    const dates: string[] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      dates.push(getMalaysiaDateStr(-i));
+    }
+
+    const points = await Promise.all(
+      dates.map(async (dateStr) => {
+        const compact = toCompactDate(dateStr);
+        const [visitsRaw, uniqueRaw] = await Promise.all([
+          cloudGet(`ch_d_${compact}_visits`),
+          cloudGet(`ch_d_${compact}_unique`),
+        ]);
+        const [, mm, dd] = dateStr.split('-');
+        return {
+          date: dateStr,
+          label: `${dd}/${mm}`,
+          visits: visitsRaw ?? 0,
+          uniqueVisitors: uniqueRaw ?? 0,
+        };
+      })
+    );
+
+    return points;
   }
 }
 

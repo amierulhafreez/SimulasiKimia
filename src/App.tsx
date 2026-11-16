@@ -19,6 +19,9 @@ const FeedbackModal = React.lazy(() =>
 const UserGuideModal = React.lazy(() =>
   import('./components/UserGuideModal').then((m) => ({ default: m.UserGuideModal }))
 );
+const AdminAnalyticsModal = React.lazy(() =>
+  import('./components/AdminAnalyticsModal').then((m) => ({ default: m.AdminAnalyticsModal }))
+);
 import {
   ArrowDown,
   ArrowUpRight,
@@ -135,6 +138,12 @@ export const App: React.FC = () => {
   const [showAnalyticsModal, setShowAnalyticsModal] = useState<boolean>(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
+  const [showAdminModal, setShowAdminModal] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('admin') === '1';
+    }
+    return false;
+  });
   const [activeFormTab, setActiveFormTab] = useState<'all' | FormLevel>('all');
   const [selectedT4Topic, setSelectedT4Topic] = useState<string>('all');
   const [selectedT5Topic, setSelectedT5Topic] = useState<string>('all');
@@ -838,6 +847,10 @@ export const App: React.FC = () => {
           <AnalyticsModal
             analyticsData={analyticsData}
             onClose={() => setShowAnalyticsModal(false)}
+            onOpenAdmin={() => {
+              setShowAnalyticsModal(false);
+              setShowAdminModal(true);
+            }}
           />
         </Suspense>
       )}
@@ -863,6 +876,16 @@ export const App: React.FC = () => {
         </Suspense>
       )}
 
+      {/* Admin Daily Analytics Modal (PIN Protected) */}
+      {showAdminModal && (
+        <Suspense fallback={null}>
+          <AdminAnalyticsModal
+            isOpen={showAdminModal}
+            onClose={() => setShowAdminModal(false)}
+          />
+        </Suspense>
+      )}
+
       {/* Floating Quick Reference Help Button */}
       <button
         type="button"
@@ -882,6 +905,7 @@ export const App: React.FC = () => {
       <Footer
         onOpenFeedback={() => setShowFeedbackModal(true)}
         onOpenGuide={() => setShowGuideModal(true)}
+        onOpenAdmin={() => setShowAdminModal(true)}
       />
     </div>
   );

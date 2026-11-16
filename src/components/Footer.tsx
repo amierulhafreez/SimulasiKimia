@@ -10,14 +10,16 @@ import {
   ArrowUpRight,
   BookmarkCheck,
   Compass,
+  Lock,
 } from 'lucide-react';
 
 interface FooterProps {
   onOpenFeedback: () => void;
   onOpenGuide?: () => void;
+  onOpenAdmin?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenFeedback, onOpenGuide }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenFeedback, onOpenGuide, onOpenAdmin }) => {
   return (
     <footer className="bg-[#f5f5f7] border-t border-black/[0.06] pt-16 pb-14 px-4 sm:px-6 mt-12">
       <div className="max-w-6xl mx-auto space-y-12">
@@ -201,6 +203,20 @@ export const Footer: React.FC<FooterProps> = ({ onOpenFeedback, onOpenGuide }) =
             <p className="flex items-center gap-1.5">
               Dibangunkan untuk kecemerlangan Kimia SPM Malaysia <Heart className="w-3.5 h-3.5 text-rose-500 fill-current" />
             </p>
+            {onOpenAdmin && (
+              <>
+                <span>·</span>
+                <button
+                  type="button"
+                  onClick={onOpenAdmin}
+                  title="Log masuk Admin untuk laporan harian"
+                  className="inline-flex items-center gap-1 text-[#6e6e73] hover:text-[#1d1d1f] transition cursor-pointer"
+                >
+                  <Lock className="w-3 h-3" />
+                  <span>Admin</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
