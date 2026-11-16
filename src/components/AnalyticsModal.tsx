@@ -8,11 +8,9 @@ import {
   MousePointerClick,
   Eye,
   Trophy,
-  Award,
   BarChart2,
   RefreshCw,
   Radio,
-  Fingerprint,
   CheckCircle,
   Lock,
 } from 'lucide-react';
@@ -67,8 +65,6 @@ export const AnalyticsModal: React.FC<Props> = ({ analyticsData, onClose, onOpen
     }
   };
 
-  const anonUid = analytics.ensureAnonymousUid();
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
@@ -79,15 +75,9 @@ export const AnalyticsModal: React.FC<Props> = ({ analyticsData, onClose, onOpen
               <BarChart2 className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-display font-bold text-lg text-slate-900">
-                  Papan Pemuka Statistik Makmal Maya
-                </h3>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Masa-Nyata (Tanpa Login)
-                </span>
-              </div>
+              <h3 className="font-display font-bold text-lg text-slate-900">
+                Papan Pemuka Statistik Makmal Maya
+              </h3>
               <p className="text-xs text-slate-500 font-medium">
                 Perekodan telemetri automatik pelawat & klik radas seluruh Malaysia
               </p>
@@ -278,24 +268,6 @@ export const AnalyticsModal: React.FC<Props> = ({ analyticsData, onClose, onOpen
               ))}
             </div>
           )}
-
-          {/* Anonymous Architecture Info Box */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 text-xs text-slate-700 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-purple-900 flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-purple-600" /> Pengesahan Arkitektur Masa-Nyata (Tanpa Login):
-              </span>
-              <span className="text-[10px] font-mono font-semibold text-indigo-700 flex items-center gap-1 bg-white/80 px-2 py-0.5 rounded-full border border-indigo-200">
-                <Fingerprint className="w-3 h-3 text-indigo-600" />
-                {anonUid.slice(0, 16)}...
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-600 leading-relaxed">
-              Setiap kali mana-mana pelajar di seluruh Malaysia membuka laman atau menekan radas eksperimen, data kaunter
-              disimpan secara atomik di awan menerusi ID peranti tanpa nama (*anonymous telemetry*). Pengguna tidak perlu
-              membuat akaun atau mendaftar masuk.
-            </p>
-          </div>
         </div>
       </div>
     </div>
