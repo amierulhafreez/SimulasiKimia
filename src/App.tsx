@@ -134,7 +134,35 @@ function groupByTopics(sims: SimulationItem[], defs: typeof T4_TOPICS): TopicGro
 
 export const App: React.FC = () => {
   const [analyticsData, setAnalyticsData] = useState<SimulationAnalytics>(analytics.getAnalytics());
-  const [selectedSimulation, setSelectedSimulation] = useState<SimulationItem | null>(null);
+  const [selectedSimulation, setSelectedSimulation] = useState<SimulationItem | null>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const simId = params.get('sim') || params.get('id') || (window.location.hash ? window.location.hash.replace('#', '') : '');
+      if (simId) {
+        const found = SIMULATIONS_DATA.find((s) => s.id === simId);
+        if (found) return found;
+      }
+    }
+    return null;
+  });
+
+  // Listen to popstate or direct link changes
+  useEffect(() => {
+    const handleCheckUrlSim = () => {
+      const params = new URLSearchParams(window.location.search);
+      const simId = params.get('sim') || params.get('id') || (window.location.hash ? window.location.hash.replace('#', '') : '');
+      if (simId) {
+        const found = SIMULATIONS_DATA.find((s) => s.id === simId);
+        if (found) setSelectedSimulation(found);
+      }
+    };
+    window.addEventListener('popstate', handleCheckUrlSim);
+    window.addEventListener('hashchange', handleCheckUrlSim);
+    return () => {
+      window.removeEventListener('popstate', handleCheckUrlSim);
+      window.removeEventListener('hashchange', handleCheckUrlSim);
+    };
+  }, []);
   const [showAnalyticsModal, setShowAnalyticsModal] = useState<boolean>(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [showGuideModal, setShowGuideModal] = useState<boolean>(false);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Search, FlaskConical, Send, ArrowUpRight, HelpCircle } from 'lucide-react';
+import { BarChart3, Search, Send, ArrowUpRight, HelpCircle } from 'lucide-react';
 
 interface Props {
   totalVisitors: number;
@@ -28,9 +28,11 @@ export const Header: React.FC<Props> = ({
           onClick={() => onNavigateSection('hero')}
           className="flex items-center gap-1.5 sm:gap-2 text-[#1d1d1f] hover:opacity-80 transition cursor-pointer shrink-0"
         >
-          <div className="w-6.5 h-6.5 sm:w-7 sm:h-7 rounded-lg bg-[#1d1d1f] text-white flex items-center justify-center shadow-2xs">
-            <FlaskConical className="w-3.5 h-3.5" />
-          </div>
+          <img
+            src="/logo-sm.png"
+            alt="Simulasi Kimia"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-contain shadow-xs border border-black/5 shrink-0"
+          />
           <span className="font-display font-semibold text-[11px] sm:text-[13px] tracking-tight whitespace-nowrap">
             Simulasi Kimia
           </span>
