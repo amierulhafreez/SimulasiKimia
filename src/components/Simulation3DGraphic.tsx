@@ -6,6 +6,7 @@ import { Shared3DDefs } from './graphics3d/Shared3DDefs';
 
 interface Simulation3DGraphicProps {
   simulationId: string;
+  uidPrefix?: string;
 }
 
 const GRAPHICS_REGISTRY: Record<string, React.FC<{ uid: string }>> = {
@@ -19,9 +20,12 @@ const GRAPHICS_REGISTRY: Record<string, React.FC<{ uid: string }>> = {
  * to each of the 45 simulation entries. Uses GPU-accelerated CSS keyframes
  * and scoped SVG 3D radial/linear shading for 60fps performance.
  */
-export const Simulation3DGraphic: React.FC<Simulation3DGraphicProps> = ({ simulationId }) => {
+export const Simulation3DGraphic: React.FC<Simulation3DGraphicProps> = ({
+  simulationId,
+  uidPrefix = 'sim3d',
+}) => {
   const GraphicComponent = GRAPHICS_REGISTRY[simulationId];
-  const uid = `sim3d-${simulationId}`;
+  const uid = `${uidPrefix}-${simulationId}`;
 
   if (!GraphicComponent) {
     return (
